@@ -1,0 +1,46 @@
+site_name: gradsflow
+site_description: "An AutoML Library"
+banner_url: https://ik.imagekit.io/aniket/chitra/chitra_banner_0.1.0_tIzHC3b-y.png
+repo_url: https://github.com/gradsflow/gradsflow/
+repo_name: gradsflow/gradsflow
+
+theme:
+  name: material
+  custom_dir: docs/overrides
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to dark mode
+    - scheme: slate
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to light mode
+
+  logo: https://ik.imagekit.io/aniket/chitra/logo_0.1.0_qhktxqokb.png
+  favicon: https://ik.imagekit.io/aniket/chitra/favicon/favicon_9A8ixLDnJ.ico
+  features:
+    - search.suggest
+    - search.highlight
+
+  # Necessary for search to work properly
+  include_search_page: false
+  search_index_only: true
+
+markdown_extensions:
+  - meta
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+
+plugins:
+  - git-revision-date-localized
+  - search
+
+extra:
+  homepage: https://gradsflow.readthedocs.io/en/latest
+
+nav:
+  - Introduction: 'index.md'

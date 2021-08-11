@@ -1,0 +1,9 @@
+# Add 'docs' to any changes within 'docs' folder or any subfolders
+documentation:
+- docs/**/*
+
+example:
+- example/**/*
+
+test:
+- tests/**/*
