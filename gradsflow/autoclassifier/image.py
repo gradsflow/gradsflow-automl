@@ -36,7 +36,6 @@ class AutoImageClassifier(AutoModel):
         self.model = None
         self.n_trials = n_trials
 
-
     # noinspection PyTypeChecker
     def build_model(self, trial: optuna.Trial):
 
