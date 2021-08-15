@@ -34,5 +34,5 @@ pypi: build
 push:
 	git push && git push --tags
 
-install: clean
+install: style clean
 	flit install --deps none
