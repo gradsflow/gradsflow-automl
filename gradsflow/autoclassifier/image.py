@@ -8,21 +8,20 @@ from optuna.integration import PyTorchLightningPruningCallback
 
 from gradsflow.automodel.automodel import AutoModel
 
-DEFAULT_MODELS = ["ssl_resnet_18", "ssl_resnet_34", "ssl_resnet_50"]
+DEFAULT_MODELS = ["ssl_resnet18", "ssl_resnet50"]
 
 
 # noinspection PyTypeChecker
 class AutoImageClassifier(AutoModel):
     def __init__(
-        self,
-        datamodule: DataModule,
-        optimization_metric: Optional[str] = None,
-        suggested_backbones: Union[List, str, None] = None,
-        n_trials: int = 100,
+            self,
+            datamodule: DataModule,
+            optimization_metric: Optional[str] = None,
+            suggested_backbones: Union[List, str, None] = None,
+            n_trials: int = 100,
     ):
-        super().__init__()
-        if not optimization_metric:
-            self.optimization_metric = "val_acc"
+        super().__init__(datamodule, optimization_metric, n_trials)
+
         if not suggested_backbones:
             self.suggested_backbones = DEFAULT_MODELS
         elif isinstance(suggested_backbones, str):
@@ -37,10 +36,11 @@ class AutoImageClassifier(AutoModel):
         self.model = None
         self.n_trials = n_trials
 
+
     # noinspection PyTypeChecker
     def build_model(self, trial: optuna.Trial):
 
-        trial_backbone = trial.suggest_categorical(self.suggested_backbones)
+        trial_backbone = trial.suggest_categorical("backbone", self.suggested_backbones)
 
         model = ImageClassifier(
             self.num_classes,
@@ -50,8 +50,8 @@ class AutoImageClassifier(AutoModel):
         return model
 
     def objective(
-        self,
-        trial: optuna.Trial,
+            self,
+            trial: optuna.Trial,
     ):
         trainer = pl.Trainer(
             logger=True,
