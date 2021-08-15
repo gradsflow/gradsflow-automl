@@ -6,7 +6,7 @@ build-backend = "flit_core.buildapi"
 module = "gradsflow"
 author = "Aniket Maurya"
 author-email = "hello@gradsflow.com"
-home-page = "https://docs.gradsflow.com"
+home-page = "https://automl.gradsflow.com"
 description-file = "README.md"
 classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
@@ -29,7 +29,7 @@ requires = [
     "optuna",
     "smart_open"
 ]
-requires-python = ">=3.7"
+requires-python = ">=3.6"
 
 
 [tool.isort]
