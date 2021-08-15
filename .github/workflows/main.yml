@@ -1,4 +1,4 @@
-name: Python Main CI
+name: pytest
 on:
   push:
     branches: [ main ]
@@ -31,8 +31,8 @@ jobs:
         run: |
           python --version
           pip --version
-          pip install .
-          pip install ".[test]"
+          pip install flit
+          flit install --deps all
           pip list
         shell: bash
 
