@@ -14,11 +14,11 @@ DEFAULT_MODELS = ["ssl_resnet18", "ssl_resnet50"]
 # noinspection PyTypeChecker
 class AutoImageClassifier(AutoModel):
     def __init__(
-        self,
-        datamodule: DataModule,
-        optimization_metric: Optional[str] = None,
-        suggested_backbones: Union[List, str, None] = None,
-        n_trials: int = 100,
+            self,
+            datamodule: DataModule,
+            optimization_metric: Optional[str] = None,
+            suggested_backbones: Union[List, str, None] = None,
+            n_trials: int = 100,
     ):
         super().__init__(datamodule, optimization_metric, n_trials)
 
@@ -40,25 +40,29 @@ class AutoImageClassifier(AutoModel):
     def build_model(self, trial: optuna.Trial):
 
         trial_backbone = trial.suggest_categorical("backbone", self.suggested_backbones)
+        trial_lr = trial.suggest_float("lr", 1e-5, 1e-1, log=True)
+        trial_optimizer = trial.suggest_categorical("optimizer", ["Adam", "SGD"])
 
         model = ImageClassifier(
             self.num_classes,
             backbone=trial_backbone,
+            optimizer=trial_optimizer,
+            learning_rate=trial_lr
         )
 
         return model
 
     def objective(
-        self,
-        trial: optuna.Trial,
+            self,
+            trial: optuna.Trial,
     ):
         trainer = pl.Trainer(
             logger=True,
             callbacks=PyTorchLightningPruningCallback(trial, monitor="val_acc"),
         )
         model = self.build_model(trial)
-        hyperparameters = dict(model=model.hparams)
-        trainer.logger.log_hyperparams(hyperparameters)
+        hparams = dict(model=model.hparams)
+        trainer.logger.log_hyperparams(hparams)
         trainer.fit(model, datamodule=self.datamodule)
 
         return trainer.callback_metrics[self.optimization_metric].item()
