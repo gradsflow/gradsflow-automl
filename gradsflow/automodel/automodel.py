@@ -15,4 +15,4 @@ class AutoModel:
         self.datamodule = datamodule
         self.n_trials = n_trials
         if not optimization_metric:
-            self.optimization_metric = "val_acc"
+            self.optimization_metric = "val_loss"

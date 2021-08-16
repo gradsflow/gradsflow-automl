@@ -58,7 +58,7 @@ class AutoImageClassifier(AutoModel):
     ):
         trainer = pl.Trainer(
             logger=True,
-            callbacks=PyTorchLightningPruningCallback(trial, monitor="val_acc"),
+            callbacks=PyTorchLightningPruningCallback(trial, monitor=self.optimization_metric),
         )
         model = self.build_model(trial)
         hparams = dict(model=model.hparams)
