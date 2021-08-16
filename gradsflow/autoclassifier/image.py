@@ -14,11 +14,11 @@ DEFAULT_MODELS = ["ssl_resnet18", "ssl_resnet50"]
 # noinspection PyTypeChecker
 class AutoImageClassifier(AutoModel):
     def __init__(
-            self,
-            datamodule: DataModule,
-            optimization_metric: Optional[str] = None,
-            suggested_backbones: Union[List, str, None] = None,
-            n_trials: int = 100,
+        self,
+        datamodule: DataModule,
+        optimization_metric: Optional[str] = None,
+        suggested_backbones: Union[List, str, None] = None,
+        n_trials: int = 100,
     ):
         super().__init__(datamodule, optimization_metric, n_trials)
 
@@ -47,18 +47,20 @@ class AutoImageClassifier(AutoModel):
             self.num_classes,
             backbone=trial_backbone,
             optimizer=trial_optimizer,
-            learning_rate=trial_lr
+            learning_rate=trial_lr,
         )
 
         return model
 
     def objective(
-            self,
-            trial: optuna.Trial,
+        self,
+        trial: optuna.Trial,
     ):
         trainer = pl.Trainer(
             logger=True,
-            callbacks=PyTorchLightningPruningCallback(trial, monitor=self.optimization_metric),
+            callbacks=PyTorchLightningPruningCallback(
+                trial, monitor=self.optimization_metric
+            ),
         )
         model = self.build_model(trial)
         hparams = dict(model=model.hparams)
