@@ -1,7 +1,7 @@
-build_docs:
+build-docs:
 	cp README.md docs/index.md
 
-docs_serve:
+docs-serve:
 	mkdocs serve
 
 test:
