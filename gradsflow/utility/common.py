@@ -1,4 +1,6 @@
+import inspect
 import os
+import sys
 from glob import glob
 from pathlib import Path
 
@@ -17,3 +19,15 @@ def get_file_extension(path: str) -> str:
 def get_files(folder: str):
     folder = str(Path(folder) / "**" / "*")
     return glob(folder, recursive=True)
+
+
+def create_module_index(module, lower_key: bool = True) -> dict:
+
+    class_members = inspect.getmembers(sys.modules[module.__name__], inspect.isclass)
+    mapping = {}
+    for k, v in class_members:
+        if lower_key:
+            k = k.lower()
+        mapping[k] = v
+
+    return mapping

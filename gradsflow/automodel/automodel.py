@@ -1,10 +1,15 @@
 from typing import Optional
 
 import optuna
+import torch
 from flash import DataModule
+
+from gradsflow.utility.common import create_module_index
 
 
 class AutoModel:
+    OPTIMIZER_INDEX = create_module_index(torch.optim, True)
+
     def __init__(
         self,
         datamodule: DataModule,
