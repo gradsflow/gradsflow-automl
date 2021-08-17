@@ -17,11 +17,12 @@ class AutoImageClassifier(AutoModel):
     def __init__(
         self,
         datamodule: DataModule,
+        max_epochs: int = 10,
         optimization_metric: Optional[str] = None,
         suggested_backbones: Union[List, str, None] = None,
         n_trials: int = 100,
     ):
-        super().__init__(datamodule, optimization_metric, n_trials)
+        super().__init__(datamodule, max_epochs, optimization_metric, n_trials)
 
         if not suggested_backbones:
             self.suggested_backbones = self.DEFAULT_BACKBONES
@@ -66,6 +67,7 @@ class AutoImageClassifier(AutoModel):
         trainer = pl.Trainer(
             logger=True,
             gpus=1 if torch.cuda.is_available() else None,
+            max_epochs=self.max_epochs,
             callbacks=PyTorchLightningPruningCallback(
                 trial, monitor=self.optimization_metric
             ),

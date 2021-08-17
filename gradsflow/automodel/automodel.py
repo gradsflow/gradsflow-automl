@@ -3,6 +3,7 @@ from typing import Optional
 import optuna
 import torch
 from flash import DataModule
+from optuna.integration import PyTorchLightningPruningCallback
 
 from gradsflow.utility.common import create_module_index
 
@@ -13,10 +14,12 @@ class AutoModel:
     def __init__(
         self,
         datamodule: DataModule,
+        max_epochs: int = 10,
         optimization_metric: Optional[str] = None,
         n_trials: int = 100,
         prune: bool = True,
     ):
+        self.max_epochs = max_epochs
         self.pruner: optuna.pruners.BasePruner = (
             optuna.pruners.MedianPruner() if prune else optuna.pruners.NopPruner()
         )
