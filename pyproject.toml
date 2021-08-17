@@ -27,7 +27,8 @@ classifiers = [
 requires = [
     "torch",
     "optuna",
-    "smart_open"
+    "smart_open",
+    "lightning-flash[image]",
 ]
 requires-python = ">=3.6"
 
