@@ -31,4 +31,5 @@ class AutoModel:
         self.max_epochs = max_epochs
         self.timeout = timeout
         if not optimization_metric:
-            self.optimization_metric = "val_loss"
+            optimization_metric = "val_loss"
+        self.optimization_metric = optimization_metric

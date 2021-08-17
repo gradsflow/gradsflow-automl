@@ -50,14 +50,12 @@ class AutoImageClassifier(AutoModel):
 
         trial_backbone = trial.suggest_categorical("backbone", self.suggested_backbones)
         trial_lr = trial.suggest_float("lr", 1e-5, 1e-1, log=True)
-        trial_optimizer = trial.suggest_categorical(
-            "optimizer", [optimizer["adam"], optimizer["sgd"]]
-        )
+        trial_optimizer = trial.suggest_categorical("optimizer", ["adam", "sgd"])
 
         model = ImageClassifier(
             self.num_classes,
             backbone=trial_backbone,
-            optimizer=trial_optimizer,
+            optimizer=optimizer[trial_optimizer],
             learning_rate=trial_lr,
         )
 
