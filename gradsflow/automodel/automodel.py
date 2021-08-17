@@ -14,5 +14,6 @@ class AutoModel:
         self.study = optuna.create_study()
         self.datamodule = datamodule
         self.n_trials = n_trials
+        self.model = None
         if not optimization_metric:
             self.optimization_metric = "val_loss"
