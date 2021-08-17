@@ -25,11 +25,14 @@ style:
 	black gradsflow tests examples
 	isort gradsflow tests examples
 
-dist: clean
+build: clean
 	flit build
 
-pypi: dist
+pypi: build
 	flit publish
 
 push:
 	git push && git push --tags
+
+install: style clean
+	flit install --deps none
