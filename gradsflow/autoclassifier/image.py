@@ -1,5 +1,5 @@
 from typing import List, Optional, Union
-
+from gradsflow.logging import logger
 import optuna
 import pytorch_lightning as pl
 import torch
@@ -78,6 +78,7 @@ class AutoImageClassifier(AutoModel):
         trainer.logger.log_hyperparams(hparams)
         trainer.fit(model, datamodule=self.datamodule)
 
+        logger.info(trainer.callback_metrics)
         return trainer.callback_metrics[self.optimization_metric].item()
 
     def fit(self):

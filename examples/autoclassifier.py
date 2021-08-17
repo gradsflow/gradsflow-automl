@@ -11,7 +11,9 @@ datamodule = ImageClassificationData.from_folders(
     val_folder="data/hymenoptera_data/val/",
 )
 
-model = AutoImageClassifier(datamodule, optimization_metric="train_loss")
+model = AutoImageClassifier(datamodule,
+                            max_epochs=2,
+                            optimization_metric="val_accuracy")
 print("AutoImageClassifier initialised!")
 
 model.fit()
