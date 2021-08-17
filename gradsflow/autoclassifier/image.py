@@ -1,5 +1,5 @@
 from typing import List, Optional, Union
-from gradsflow.logging import logger
+
 import optuna
 import pytorch_lightning as pl
 import torch
@@ -8,6 +8,7 @@ from flash.image.classification import ImageClassifier
 from optuna.integration import PyTorchLightningPruningCallback
 
 from gradsflow.automodel.automodel import AutoModel
+from gradsflow.logging import logger
 
 
 # noinspection PyTypeChecker
