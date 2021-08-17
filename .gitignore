@@ -130,3 +130,8 @@ dmypy.json
 
 .idea/
 lightning_logs/
+*.zip
+*.jpg
+*.jpeg
+*.png
+*.gif
