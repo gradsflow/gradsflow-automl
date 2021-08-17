@@ -15,8 +15,12 @@ class AutoModel:
         datamodule: DataModule,
         optimization_metric: Optional[str] = None,
         n_trials: int = 100,
+        prune: bool = True,
     ):
-        self.study = optuna.create_study()
+        self.pruner: optuna.pruners.BasePruner = (
+            optuna.pruners.MedianPruner() if prune else optuna.pruners.NopPruner()
+        )
+        self.study = optuna.create_study(pruner=self.pruner)
         self.datamodule = datamodule
         self.n_trials = n_trials
         self.model = None
