@@ -2,6 +2,7 @@ from typing import List, Optional, Union
 
 import optuna
 import pytorch_lightning as pl
+import torch
 from flash.core.data.data_module import DataModule
 from flash.image.classification import ImageClassifier
 from optuna.integration import PyTorchLightningPruningCallback
@@ -64,6 +65,7 @@ class AutoImageClassifier(AutoModel):
     ):
         trainer = pl.Trainer(
             logger=True,
+            gpus=1 if torch.cuda.is_available() else None,
             callbacks=PyTorchLightningPruningCallback(
                 trial, monitor=self.optimization_metric
             ),
