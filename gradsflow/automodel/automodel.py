@@ -17,11 +17,10 @@ class AutoModel:
         max_epochs: int = 10,
         optimization_metric: Optional[str] = None,
         n_trials: int = 100,
-        timeout: int=600,
+        timeout: int = 600,
         prune: bool = True,
-    ):  
-        
-        
+    ):
+
         self.pruner: optuna.pruners.BasePruner = (
             optuna.pruners.MedianPruner() if prune else optuna.pruners.NopPruner()
         )
