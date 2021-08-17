@@ -1,6 +1,11 @@
 import torch
 
-from gradsflow.utility.common import create_module_index, get_files, get_file_extension, download
+from gradsflow.utility.common import (
+    create_module_index,
+    download,
+    get_file_extension,
+    get_files,
+)
 
 
 def test_create_module_index():
