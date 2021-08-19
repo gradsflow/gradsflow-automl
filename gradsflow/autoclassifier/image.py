@@ -19,13 +19,14 @@ class AutoImageClassifier(AutoModel):
         self,
         datamodule: DataModule,
         max_epochs: int = 10,
+        n_trials: int = 100,
         optimization_metric: Optional[str] = None,
         suggested_backbones: Union[List, str, None] = None,
-        n_trials: int = 100,
+        suggested_confs:Optional[dict] = None,
         **kwargs,
     ):
         super().__init__(
-            datamodule, max_epochs, optimization_metric, n_trials, **kwargs
+            datamodule, max_epochs, optimization_metric, n_trials,suggested_confs, **kwargs
         )
 
         if not suggested_backbones:
@@ -83,6 +84,6 @@ class AutoImageClassifier(AutoModel):
         return trainer.callback_metrics[self.optimization_metric].item()
 
     def fit(self):
-        self.study.optimize(
+        self.opt_results = self.study.optimize(
             self.objective, n_trials=self.n_trials, timeout=self.timeout
         )
