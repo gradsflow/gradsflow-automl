@@ -7,7 +7,16 @@ An AutoML Library made with Optuna and PyTorch Lightning
 [![Documentation Status](https://readthedocs.org/projects/gradsflow/badge/?version=latest)](https://gradsflow.readthedocs.io/en/latest/?badge=latest)
 
 
-## Image Classification
+## Installation
+#### Recommended
+`pip install -U gradsflow`
+
+#### From source
+`pip install git+https://github.com/gradsflow/gradsflow@main`
+
+## Examples
+
+### Image Classification
 
 ```python
 from flash.core.data.utils import download_data
