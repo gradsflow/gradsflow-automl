@@ -17,7 +17,7 @@ class AutoModel:
         max_epochs: int = 10,
         optimization_metric: Optional[str] = None,
         n_trials: int = 100,
-        suggested_confs:Optional[dict]=None,
+        suggested_conf: Optional[dict] = None,
         timeout: int = 600,
         prune: bool = True,
     ):
@@ -35,6 +35,7 @@ class AutoModel:
             optimization_metric = "val_accuracy"
         self.optimization_metric = optimization_metric
 
-        if not suggested_confs:
-            suggested_confs = {}
-        self.suggested_confs = suggested_confs
+        if not suggested_conf:
+            suggested_conf = {}
+        self.suggested_conf = suggested_conf
+        self.suggested_optimizers = suggested_conf.get("optimizer", ["adam", "sgd"])

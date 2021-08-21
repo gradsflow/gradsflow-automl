@@ -22,11 +22,16 @@ class AutoImageClassifier(AutoModel):
         n_trials: int = 100,
         optimization_metric: Optional[str] = None,
         suggested_backbones: Union[List, str, None] = None,
-        suggested_confs:Optional[dict] = None,
+        suggested_conf: Optional[dict] = None,
         **kwargs,
     ):
         super().__init__(
-            datamodule, max_epochs, optimization_metric, n_trials,suggested_confs, **kwargs
+            datamodule,
+            max_epochs,
+            optimization_metric,
+            n_trials,
+            suggested_conf,
+            **kwargs,
         )
 
         if not suggested_backbones:
@@ -52,7 +57,9 @@ class AutoImageClassifier(AutoModel):
 
         trial_backbone = trial.suggest_categorical("backbone", self.suggested_backbones)
         trial_lr = trial.suggest_float("lr", 1e-5, 1e-1, log=True)
-        trial_optimizer = trial.suggest_categorical("optimizer", ["adam", "sgd"])
+        trial_optimizer = trial.suggest_categorical(
+            "optimizer", self.suggested_optimizers
+        )
 
         model = ImageClassifier(
             self.num_classes,
