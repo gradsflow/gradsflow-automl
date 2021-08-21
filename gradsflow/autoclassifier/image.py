@@ -52,23 +52,31 @@ class AutoImageClassifier(AutoModel):
         return self.model(x)
 
     # noinspection PyTypeChecker
-    def build_model(self, trial: optuna.Trial):
-        optimizer = self.OPTIMIZER_INDEX
+    def get_trial_model(self, trial: optuna.Trial):
 
         trial_backbone = trial.suggest_categorical("backbone", self.suggested_backbones)
         trial_lr = trial.suggest_float("lr", *self.suggested_lr, log=True)
         trial_optimizer = trial.suggest_categorical(
             "optimizer", self.suggested_optimizers
         )
+        hparams = {
+            "backbone": trial_backbone,
+            "lr": trial_lr,
+            "optimizer": trial_optimizer,
+        }
+        return hparams
 
-        model = ImageClassifier(
+    def build_model(self, **kwargs):
+        backbone = kwargs["backbone"]
+        optimizer = kwargs["optimizer"]
+        learning_rate = kwargs["lr"]
+
+        return ImageClassifier(
             self.num_classes,
-            backbone=trial_backbone,
-            optimizer=optimizer[trial_optimizer],
-            learning_rate=trial_lr,
+            backbone=backbone,
+            optimizer=self.OPTIMIZER_INDEX[optimizer],
+            learning_rate=learning_rate,
         )
-
-        return model
 
     def objective(
         self,
@@ -82,7 +90,8 @@ class AutoImageClassifier(AutoModel):
                 trial, monitor=self.optimization_metric
             ),
         )
-        model = self.build_model(trial)
+        trial_confs = self.get_trial_model(trial)
+        model = self.build_model(**trial_confs)
         hparams = dict(model=model.hparams)
         trainer.logger.log_hyperparams(hparams)
         trainer.fit(model, datamodule=self.datamodule)
@@ -91,6 +100,4 @@ class AutoImageClassifier(AutoModel):
         return trainer.callback_metrics[self.optimization_metric].item()
 
     def fit(self):
-        return self.study.optimize(
-            self.objective, n_trials=self.n_trials, timeout=self.timeout
-        )
+        self.hp_tune()

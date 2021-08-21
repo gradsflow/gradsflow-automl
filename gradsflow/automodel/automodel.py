@@ -1,9 +1,9 @@
+from abc import abstractmethod
 from typing import Optional
 
 import optuna
 import torch
 from flash import DataModule
-from optuna.integration import PyTorchLightningPruningCallback
 
 from gradsflow.utility.common import create_module_index
 
@@ -42,7 +42,21 @@ class AutoModel:
 
         default_lr = (1e-5, 1e-1)
         self.suggested_lr = (
-            default_lr
-            or suggested_conf.get("lr")
+            suggested_conf.get("lr")
             or suggested_conf.get("learning_rate")
+            or default_lr
         )
+
+    @abstractmethod
+    def objective(self, trial):
+        raise NotImplementedError
+
+    @abstractmethod
+    def build_model(self, confs: dict):
+        raise NotImplementedError
+
+    def hp_tune(self):
+        self.study.optimize(
+            self.objective, n_trials=self.n_trials, timeout=self.timeout
+        )
+        self.model = self.build_model(**self.study.best_params)
