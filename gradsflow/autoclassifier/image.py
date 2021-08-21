@@ -91,6 +91,6 @@ class AutoImageClassifier(AutoModel):
         return trainer.callback_metrics[self.optimization_metric].item()
 
     def fit(self):
-        self.opt_results = self.study.optimize(
+        return self.study.optimize(
             self.objective, n_trials=self.n_trials, timeout=self.timeout
         )
