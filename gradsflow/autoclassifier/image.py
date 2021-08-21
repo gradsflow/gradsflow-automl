@@ -56,7 +56,7 @@ class AutoImageClassifier(AutoModel):
         optimizer = self.OPTIMIZER_INDEX
 
         trial_backbone = trial.suggest_categorical("backbone", self.suggested_backbones)
-        trial_lr = trial.suggest_float("lr", 1e-5, 1e-1, log=True)
+        trial_lr = trial.suggest_float("lr", *self.suggested_lr, log=True)
         trial_optimizer = trial.suggest_categorical(
             "optimizer", self.suggested_optimizers
         )

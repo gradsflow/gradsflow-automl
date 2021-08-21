@@ -39,3 +39,10 @@ class AutoModel:
             suggested_conf = {}
         self.suggested_conf = suggested_conf
         self.suggested_optimizers = suggested_conf.get("optimizer", ["adam", "sgd"])
+
+        default_lr = (1e-5, 1e-1)
+        self.suggested_lr = (
+            default_lr
+            or suggested_conf.get("lr")
+            or suggested_conf.get("learning_rate")
+        )
