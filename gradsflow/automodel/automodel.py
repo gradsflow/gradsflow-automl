@@ -51,6 +51,10 @@ class AutoModel:
         )
 
     @abstractmethod
+    def get_trial_model(self, trial):
+        raise NotImplementedError
+
+    @abstractmethod
     def objective(self, trial):
         raise NotImplementedError
 
@@ -58,6 +62,7 @@ class AutoModel:
     def build_model(self, confs: dict):
         raise NotImplementedError
 
+    # noinspection PyTypeChecker
     def objective(
         self,
         trial: optuna.Trial,
