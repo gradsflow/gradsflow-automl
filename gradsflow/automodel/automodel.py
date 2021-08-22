@@ -41,8 +41,7 @@ class AutoModel:
         if not suggested_conf:
             suggested_conf = {}
         self.suggested_conf = suggested_conf
-        self.suggested_optimizers = suggested_conf.get(
-            "optimizer", ["adam", "sgd"])
+        self.suggested_optimizers = suggested_conf.get("optimizer", ["adam", "sgd"])
 
         default_lr = (1e-5, 1e-1)
         self.suggested_lr = (
@@ -53,10 +52,6 @@ class AutoModel:
 
     @abstractmethod
     def get_trial_model(self, trial):
-        raise NotImplementedError
-
-    @abstractmethod
-    def objective(self, trial):
         raise NotImplementedError
 
     @abstractmethod
