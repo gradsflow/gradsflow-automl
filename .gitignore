@@ -135,3 +135,5 @@ lightning_logs/
 *.jpeg
 *.png
 *.gif
+
+/data
