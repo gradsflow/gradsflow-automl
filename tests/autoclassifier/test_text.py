@@ -1,28 +1,21 @@
+from unittest.mock import MagicMock
+
 from flash.core.data.utils import download_data
 from flash.text import TextClassificationData
 
 from gradsflow.autoclassifier import AutoTextClassifier
 
-# 1. Create the DataModule
-download_data("https://pl-flash-data.s3.amazonaws.com/imdb.zip", "./data/")
 
-datamodule = TextClassificationData.from_csv(
-    "review",
-    "sentiment",
-    train_file="data/imdb/train.csv",
-    val_file="data/imdb/valid.csv",
-    backbone="prajjwal1/bert-medium",
-)
-
-
-def test_model():
+def test_build_model():
     suggested_conf = dict(
         optimizers=["adam"],
         lr=(5e-4, 1e-3),
     )
-
-    model = AutoTextClassifier(datamodule,
-        suggested_backbones=['sgugger/tiny-distilbert-classification'],
+    datamodule = MagicMock()
+    datamodule.num_classes = 2
+    model = AutoTextClassifier(
+        datamodule,
+        suggested_backbones=["sgugger/tiny-distilbert-classification"],
         suggested_conf=suggested_conf,
         max_epochs=1,
         optimization_metric="val_accuracy",
@@ -30,4 +23,9 @@ def test_model():
         n_trials=1,
     )
 
-    model.hp_tune()
+    model_confs = {
+        "backbone": model.DEFAULT_BACKBONES[-1],
+        "optimizer": "adam",
+        "lr": 1e-3,
+    }
+    model.build_model(**model_confs)
