@@ -50,7 +50,8 @@ class AutoImageClassifier(AutoModel):
     # noinspection PyTypeChecker
     def get_trial_model(self, trial: optuna.Trial):
 
-        trial_backbone = trial.suggest_categorical("backbone", self.suggested_backbones)
+        trial_backbone = trial.suggest_categorical(
+            "backbone", self.suggested_backbones)
         trial_lr = trial.suggest_float("lr", *self.suggested_lr, log=True)
         trial_optimizer = trial.suggest_categorical(
             "optimizer", self.suggested_optimizers
