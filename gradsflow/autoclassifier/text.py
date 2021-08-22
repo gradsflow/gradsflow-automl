@@ -1,15 +1,22 @@
 from typing import List, Optional, Union
 
 import optuna
+import pytorch_lightning as pl
+import torch
 from flash.core.data.data_module import DataModule
-from flash.image.classification import ImageClassifier
+from flash.text.classification import TextClassifier
+from optuna.integration import PyTorchLightningPruningCallback
 
 from gradsflow.automodel.automodel import AutoModel
+from gradsflow.logging import logger
 
 
 # noinspection PyTypeChecker
-class AutoImageClassifier(AutoModel):
-    DEFAULT_BACKBONES = ["ssl_resnet18", "ssl_resnet50"]
+class AutoTextClassifier(AutoModel):
+    DEFAULT_BACKBONES = [
+        "distilbert-base-uncased-finetuned-sst-2-english",
+        "sgugger/tiny-distilbert-classification",
+    ]
 
     def __init__(
         self,
@@ -67,7 +74,7 @@ class AutoImageClassifier(AutoModel):
         optimizer = kwargs["optimizer"]
         learning_rate = kwargs["lr"]
 
-        return ImageClassifier(
+        return TextClassifier(
             self.num_classes,
             backbone=backbone,
             optimizer=self.OPTIMIZER_INDEX[optimizer],

@@ -2,9 +2,12 @@ from abc import abstractmethod
 from typing import Optional
 
 import optuna
+import pytorch_lightning as pl
 import torch
 from flash import DataModule
+from optuna.integration import PyTorchLightningPruningCallback
 
+from gradsflow.logging import logger
 from gradsflow.utility.common import create_module_index
 
 
@@ -54,6 +57,27 @@ class AutoModel:
     @abstractmethod
     def build_model(self, confs: dict):
         raise NotImplementedError
+
+    def objective(
+        self,
+        trial: optuna.Trial,
+    ):
+        trainer = pl.Trainer(
+            logger=True,
+            gpus=1 if torch.cuda.is_available() else None,
+            max_epochs=self.max_epochs,
+            callbacks=PyTorchLightningPruningCallback(
+                trial, monitor=self.optimization_metric
+            ),
+        )
+        trial_confs = self.get_trial_model(trial)
+        model = self.build_model(**trial_confs)
+        hparams = dict(model=model.hparams)
+        trainer.logger.log_hyperparams(hparams)
+        trainer.fit(model, datamodule=self.datamodule)
+
+        logger.info(trainer.callback_metrics)
+        return trainer.callback_metrics[self.optimization_metric].item()
 
     def hp_tune(self):
         self.study.optimize(
