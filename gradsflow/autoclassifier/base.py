@@ -1,5 +1,5 @@
-from typing import List, Optional, Union
 from abc import abstractmethod
+from typing import List, Optional, Union
 
 import optuna
 from flash.core.data.data_module import DataModule
