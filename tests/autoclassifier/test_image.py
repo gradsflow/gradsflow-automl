@@ -17,12 +17,12 @@ def test_forward():
         model.forward(torch.rand(1, 3, 8, 8))
 
 
-def test_fit():
+def test_model():
     model = AutoImageClassifier(
         datamodule,
         max_epochs=1,
-        timeout=10,
+        timeout=5,
         suggested_backbones="ssl_resnet18",
         n_trials=1,
     )
-    model.fit()
+    model.hp_tune()

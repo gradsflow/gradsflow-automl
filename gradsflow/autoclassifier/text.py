@@ -1,13 +1,13 @@
-import torch.nn
-from flash.image.classification import ImageClassifier
+import torch
+from flash.text.classification import TextClassifier
 
 from gradsflow.autoclassifier.base import AutoClassifier
 
 
 # noinspection PyTypeChecker
-class AutoImageClassifier(AutoClassifier):
+class AutoTextClassifier(AutoClassifier):
     """
-    Automatically finds Image Classification Model
+    Automatically finds Text Classification Model
 
     Args:
         datamodule: PL Lightning DataModule with `num_classes` property.
@@ -25,24 +25,27 @@ class AutoImageClassifier(AutoClassifier):
                 optimizers=["adam"],
                 lr=(5e-4, 1e-3),
             )
-            model = AutoImageClassifier(datamodule,
-                                        suggested_backbones=['ssl_resnet18'],
-                                        suggested_conf=suggested_conf,
-                                        max_epochs=1,
-                                        optimization_metric="val_accuracy",
-                                        timeout=30)
+            model = AutoTextClassifier(datamodule,
+                                       suggested_backbones=['sgugger/tiny-distilbert-classification'],
+                                       suggested_conf=suggested_conf,
+                                       max_epochs=1,
+                                       optimization_metric="val_accuracy",
+                                       timeout=30)
             model.hp_tune()
         ```
     """
 
-    DEFAULT_BACKBONES = ["ssl_resnet18", "ssl_resnet50"]
+    DEFAULT_BACKBONES = [
+        "distilbert-base-uncased-finetuned-sst-2-english",
+        "sgugger/tiny-distilbert-classification",
+    ]
 
     def build_model(self, **kwargs) -> torch.nn.Module:
         backbone = kwargs["backbone"]
         optimizer = kwargs["optimizer"]
         learning_rate = kwargs["lr"]
 
-        return ImageClassifier(
+        return TextClassifier(
             self.num_classes,
             backbone=backbone,
             optimizer=self.OPTIMIZER_INDEX[optimizer],
