@@ -1,4 +1,5 @@
 from typing import List, Optional, Union
+from abc import abstractmethod
 
 import optuna
 from flash.core.data.data_module import DataModule
@@ -36,7 +37,7 @@ class AutoClassifier(AutoModel):
         elif isinstance(suggested_backbones, (list, tuple)):
             self.suggested_backbones = suggested_backbones
         else:
-            raise UserWarning(f"Invalid suggested_backbone type!")
+            raise UserWarning("Invalid suggested_backbone type!")
 
         self.datamodule = datamodule
         self.num_classes = datamodule.num_classes
@@ -60,3 +61,7 @@ class AutoClassifier(AutoModel):
             "optimizer": trial_optimizer,
         }
         return hparams
+
+    @abstractmethod
+    def build_model(self, **kwargs):
+        raise NotImplementedError
