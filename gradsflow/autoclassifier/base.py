@@ -1,7 +1,8 @@
-from typing import List, Optional, Union
 from abc import abstractmethod
+from typing import Dict, List, Optional, Union
 
 import optuna
+import torch
 from flash.core.data.data_module import DataModule
 
 from gradsflow.automodel.automodel import AutoModel
@@ -48,10 +49,9 @@ class AutoClassifier(AutoModel):
         return self.model(x)
 
     # noinspection PyTypeChecker
-    def get_trial_model(self, trial: optuna.Trial):
+    def get_trial_model(self, trial: optuna.Trial) -> Dict[str, str]:
 
-        trial_backbone = trial.suggest_categorical(
-            "backbone", self.suggested_backbones)
+        trial_backbone = trial.suggest_categorical("backbone", self.suggested_backbones)
         trial_lr = trial.suggest_float("lr", *self.suggested_lr, log=True)
         trial_optimizer = trial.suggest_categorical(
             "optimizer", self.suggested_optimizers
@@ -64,5 +64,5 @@ class AutoClassifier(AutoModel):
         return hparams
 
     @abstractmethod
-    def build_model(self, **kwargs):
+    def build_model(self, **kwargs) -> torch.nn.Module:
         raise NotImplementedError
