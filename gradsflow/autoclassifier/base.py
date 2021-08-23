@@ -20,6 +20,7 @@ class AutoClassifier(AutoModel):
         optimization_metric: Optional[str] = None,
         suggested_backbones: Union[List, str, None] = None,
         suggested_conf: Optional[dict] = None,
+        optuna_confs: Optional[Dict] = None,
         **kwargs,
     ):
         super().__init__(
@@ -28,6 +29,7 @@ class AutoClassifier(AutoModel):
             optimization_metric,
             n_trials,
             suggested_conf,
+            optuna_confs,
             **kwargs,
         )
 

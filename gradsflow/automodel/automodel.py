@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 import optuna
 import pytorch_lightning as pl
@@ -13,6 +13,8 @@ from gradsflow.utility.common import create_module_index
 
 class AutoModel:
     OPTIMIZER_INDEX = create_module_index(torch.optim, True)
+    DEFAULT_OPTIMIZERS = ["adam", "sgd"]
+    DEFAULT_LR = (1e-5, 1e-1)
 
     def __init__(
         self,
@@ -23,27 +25,39 @@ class AutoModel:
         suggested_conf: Optional[dict] = None,
         timeout: int = 600,
         prune: bool = True,
+        optuna_confs: Optional[Dict] = None,
+        **kwargs
     ):
 
         self.pruner: optuna.pruners.BasePruner = (
             optuna.pruners.MedianPruner() if prune else optuna.pruners.NopPruner()
         )
-        self.study = optuna.create_study(pruner=self.pruner)
         self.datamodule = datamodule
         self.n_trials = n_trials
-        self.model = None
+        self.model: Union[torch.nn.Module, pl.LightningModule, None] = None
         self.max_epochs = max_epochs
         self.timeout = timeout
         if not optimization_metric:
             optimization_metric = "val_accuracy"
         self.optimization_metric = optimization_metric
+        if not optuna_confs:
+            optuna_confs = {}
+        self.optuna_confs = optuna_confs
+        self.study = optuna.create_study(
+            optuna_confs.get("storage"),
+            pruner=self.pruner,
+            study_name=optuna_confs.get("study_name"),
+            direction=optuna_confs.get("direction"),
+        )
 
         if not suggested_conf:
             suggested_conf = {}
         self.suggested_conf = suggested_conf
-        self.suggested_optimizers = suggested_conf.get("optimizer", ["adam", "sgd"])
+        self.suggested_optimizers = suggested_conf.get(
+            "optimizer", self.DEFAULT_OPTIMIZERS
+        )
 
-        default_lr = (1e-5, 1e-1)
+        default_lr = self.DEFAULT_LR
         self.suggested_lr = (
             suggested_conf.get("lr")
             or suggested_conf.get("learning_rate")
@@ -77,7 +91,7 @@ class AutoModel:
         trainer.logger.log_hyperparams(hparams)
         trainer.fit(model, datamodule=self.datamodule)
 
-        logger.info(trainer.callback_metrics)
+        logger.debug(trainer.callback_metrics)
         return trainer.callback_metrics[self.optimization_metric].item()
 
     def hp_tune(self):
