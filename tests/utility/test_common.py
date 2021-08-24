@@ -1,7 +1,7 @@
 import torch
 
 from gradsflow.utility.common import (
-    create_module_index,
+    module_to_cls_index,
     download,
     get_file_extension,
     get_files,
@@ -9,7 +9,7 @@ from gradsflow.utility.common import (
 
 
 def test_create_module_index():
-    assert isinstance(create_module_index(torch.optim), dict)
+    assert isinstance(module_to_cls_index(torch.optim), dict)
 
 
 def test_get_files():
