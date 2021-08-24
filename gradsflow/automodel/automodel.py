@@ -76,14 +76,14 @@ class AutoModel:
         raise NotImplementedError
 
     # noinspection PyTypeChecker
-    def objective(
+    def _objective(
         self,
         trial: optuna.Trial,
     ):
         """
-        Defines objective function
+        Defines _objective function to minimize
         Args:
-            trial:
+            trial [optuna.Trial]: optuna.Trial object passed during `optuna.Study.optimize`
 
         Returns:
 
@@ -106,7 +106,13 @@ class AutoModel:
         return trainer.callback_metrics[self.optimization_metric].item()
 
     def hp_tune(self):
+        """
+        Search Hyperparameter and builds model with the best params
+        Returns:
+            sets `self.model` to the best model.
+
+        """
         self.study.optimize(
-            self.objective, n_trials=self.n_trials, timeout=self.timeout
+            self._objective, n_trials=self.n_trials, timeout=self.timeout
         )
         self.model = self.build_model(**self.study.best_params)

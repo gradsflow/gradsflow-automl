@@ -22,4 +22,4 @@ def test_build_model():
 def test_build_model():
     model = AutoModel(datamodule)
     with pytest.raises(NotImplementedError):
-        model.objective(None)
+        model._objective(None)

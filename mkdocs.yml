@@ -41,7 +41,7 @@ markdown_extensions:
       emoji_generator: !!python/name:materialx.emoji.to_svg
 
 plugins:
-#  - git-revision-date-localized
+  - git-revision-date-localized
   - search
   - autorefs
   - mkdocstrings:
@@ -49,9 +49,7 @@ plugins:
       handlers:
         python:
           rendering:
-            show_source: false
-      watch:
-        - gradsflow
+            show_source: true
 
 extra:
   homepage: https://docs.gradsflow.com/en/latest/
