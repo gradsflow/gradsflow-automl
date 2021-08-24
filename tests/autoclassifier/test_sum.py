@@ -1,10 +1,10 @@
 
-from gradsflow.autoclassifier import AutoSummarisation
+from gradsflow.autoclassifier import AutoSummarization
 
 
 def test_model():
     datamodule = MagicMock()
-    model = AutoSummarisation(
+    model = AutoSummarization(
         datamodule,
         max_epochs=1,
         timeout=5,

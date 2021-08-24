@@ -5,7 +5,7 @@ from gradsflow.autoclassifier.base import AutoClassifier
 
 
 # noinspection PyTypeChecker
-class AutoSummarisation(AutoClassifier):
+class AutoSummarization(AutoClassifier):
     """
     Automatically finds Text Summarization Model
 
