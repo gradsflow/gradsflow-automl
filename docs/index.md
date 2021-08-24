@@ -1,9 +1,13 @@
 # Gradsflow
 
+![logo](https://ik.imagekit.io/gradsflow/logo/logo-small_g2MxLWesD.png?updatedAt=1627716948296)
+
 An AutoML Library made with Optuna and PyTorch Lightning
 
-[![CodeFactor](https://www.codefactor.io/repository/github/gradsflow/gradsflow/badge)](https://www.codefactor.io/repository/github/gradsflow/gradsflow)
-[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/gradsflow/gradsflow/main.svg)](https://results.pre-commit.ci/latest/github/gradsflow/gradsflow/main)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=gradsflow_gradsflow&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=gradsflow_gradsflow)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=gradsflow_gradsflow&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=gradsflow_gradsflow)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=gradsflow_gradsflow&metric=security_rating)](https://sonarcloud.io/dashboard?id=gradsflow_gradsflow)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=gradsflow_gradsflow&metric=coverage)](https://sonarcloud.io/dashboard?id=gradsflow_gradsflow)
 [![Documentation Status](https://readthedocs.org/projects/gradsflow/badge/?version=latest)](https://gradsflow.readthedocs.io/en/latest/?badge=latest)
 
 
