@@ -45,4 +45,6 @@ def listify(item: Any) -> list:
         return item
     if isinstance(item, (tuple, set)):
         return list(item)
+    if isinstance(item, (int, float, str)):
+        return [item]
     return list(item)
