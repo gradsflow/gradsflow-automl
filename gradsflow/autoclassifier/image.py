@@ -40,8 +40,10 @@ class AutoImageClassifier(AutoClassifier):
     def build_model(self, **kwargs) -> torch.nn.Module:
         """Build ImageClassifier model from optuna.Trial object or via keyword arguments.
 
-        kwargs:
-            backbone [str]: Image classification backbone name - resnet18, resnet50,... (Check Lightning-Flash for full model list)
+        Arguments:
+            backbone [str]: Image classification backbone name - resnet18, resnet50,...
+            (Check Lightning-Flash for full model list)
+
             optimizer [str]: PyTorch Optimizers. Check `AutoImageClassification.OPTIMIZER_INDEX`
             learning_rate [float]: Learning rate for the model.
         """
