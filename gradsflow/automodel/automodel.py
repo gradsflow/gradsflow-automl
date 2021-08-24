@@ -8,7 +8,7 @@ from flash import DataModule
 from optuna.integration import PyTorchLightningPruningCallback
 
 from gradsflow.logging import logger
-from gradsflow.utility.common import create_module_index
+from gradsflow.utility.common import module_to_cls_index
 
 
 class AutoModel:
@@ -16,7 +16,7 @@ class AutoModel:
     Creates Optuna instance and suggested objects from hparams
     """
 
-    OPTIMIZER_INDEX = create_module_index(torch.optim, True)
+    OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
     DEFAULT_OPTIMIZERS = ["adam", "sgd"]
     DEFAULT_LR = (1e-5, 1e-1)
 

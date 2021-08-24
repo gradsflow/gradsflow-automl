@@ -1,5 +1,3 @@
-# Gradsflow
-
 ![logo](https://ik.imagekit.io/gradsflow/logo/logo-small_g2MxLWesD.png?updatedAt=1627716948296)
 
 An AutoML Library made with Optuna and PyTorch Lightning
@@ -9,6 +7,8 @@ An AutoML Library made with Optuna and PyTorch Lightning
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=gradsflow_gradsflow&metric=security_rating)](https://sonarcloud.io/dashboard?id=gradsflow_gradsflow)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=gradsflow_gradsflow&metric=coverage)](https://sonarcloud.io/dashboard?id=gradsflow_gradsflow)
 [![Documentation Status](https://readthedocs.org/projects/gradsflow/badge/?version=latest)](https://gradsflow.readthedocs.io/en/latest/?badge=latest)
+[![DOI](https://zenodo.org/badge/395070308.svg)](https://zenodo.org/badge/latestdoi/395070308)
+[![Slack](https://img.shields.io/badge/slack-chat-orange.svg?logo=slack)](https://join.slack.com/t/gradsflow/shared_invite/zt-ulc0m0ef-xstzyowuTgYceVmFbJlBmg)
 
 
 ## Installation

@@ -1,15 +1,16 @@
 import torch
 
 from gradsflow.utility.common import (
-    create_module_index,
     download,
     get_file_extension,
     get_files,
+    listify,
+    module_to_cls_index,
 )
 
 
 def test_create_module_index():
-    assert isinstance(create_module_index(torch.optim), dict)
+    assert isinstance(module_to_cls_index(torch.optim), dict)
 
 
 def test_get_files():
@@ -22,3 +23,11 @@ def test_get_file_extension():
 
 def test_download():
     assert "gradsflow" in (download("README.md")).lower()
+
+
+def test_listify():
+    assert listify(None) == []
+    assert listify(1) == [1]
+    assert listify((1, 2)) == [1, 2]
+    assert listify([1]) == [1]
+    assert listify({"a": 1}) == ["a"]
