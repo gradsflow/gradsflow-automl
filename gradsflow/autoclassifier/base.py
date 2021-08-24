@@ -9,6 +9,9 @@ from gradsflow.automodel.automodel import AutoModel
 
 
 # noinspection PyTypeChecker
+from gradsflow.utility.common import listify
+
+
 class AutoClassifier(AutoModel):
     DEFAULT_BACKBONES = []
 
@@ -35,12 +38,8 @@ class AutoClassifier(AutoModel):
             optuna_confs=optuna_confs,
         )
 
-        if not suggested_backbones:
-            self.suggested_backbones = self.DEFAULT_BACKBONES
-        elif isinstance(suggested_backbones, str):
-            self.suggested_backbones = [suggested_backbones]
-        elif isinstance(suggested_backbones, (list, tuple)):
-            self.suggested_backbones = suggested_backbones
+        if isinstance(suggested_backbones, (str, list, tuple)):
+            self.suggested_backbones = listify(suggested_backbones)
         else:
             raise UserWarning("Invalid suggested_backbone type!")
 
@@ -53,7 +52,7 @@ class AutoClassifier(AutoModel):
         return self.model(x)
 
     # noinspection PyTypeChecker
-    def get_trial_model(self, trial: optuna.Trial) -> Dict[str, str]:
+    def _get_trial_model(self, trial: optuna.Trial) -> Dict[str, str]:
 
         trial_backbone = trial.suggest_categorical("backbone", self.suggested_backbones)
         trial_lr = trial.suggest_float("lr", *self.suggested_lr, log=True)

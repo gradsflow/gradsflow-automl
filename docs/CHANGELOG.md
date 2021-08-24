@@ -1,4 +1,7 @@
 # Release Notes
+
+## 0.0.1
+
 * This changed: Adding text summarisation. Done by [the GitHub user gagan3012](https://github.com/gagan3012). Check the [Pull Request 14 with the changes and stuff](https://github.com/gradsflow/gradsflow/pull/14). now back to code. 🤓
 * This changed: add codecov CI. Done by [the GitHub user aniketmaurya](https://github.com/aniketmaurya). Check the [Pull Request 15 with the changes and stuff](https://github.com/gradsflow/gradsflow/pull/15). now back to code. 🤓
 * This changed: 📚 update documentation - added citation, acknowledgments, docstrings automation. Done by [the GitHub user aniketmaurya](https://github.com/aniketmaurya). Check the [Pull Request 13 with the changes and stuff](https://github.com/gradsflow/gradsflow/pull/13). now back to code. 🤓
