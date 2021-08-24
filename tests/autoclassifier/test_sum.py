@@ -1,5 +1,7 @@
 from gradsflow.autoclassifier import AutoSummarization
 
+from unittest.mock import MagicMock
+
 
 def test_model():
     datamodule = MagicMock()
