@@ -13,7 +13,7 @@ from gradsflow.utility.common import module_to_cls_index
 
 class AutoModel:
     """
-    Creates Optuna instance and suggested objects from hparams
+    Creates Optuna instance, defines methods required for hparam search
     """
 
     OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
@@ -32,7 +32,7 @@ class AutoModel:
         optuna_confs: Optional[Dict] = None,
     ):
 
-        self.pruner: optuna.pruners.BasePruner = (
+        self._pruner: optuna.pruners.BasePruner = (
             optuna.pruners.MedianPruner() if prune else optuna.pruners.NopPruner()
         )
         self.datamodule = datamodule
@@ -48,7 +48,7 @@ class AutoModel:
         self.optuna_confs = optuna_confs
         self.study = optuna.create_study(
             optuna_confs.get("storage"),
-            pruner=self.pruner,
+            pruner=self._pruner,
             study_name=optuna_confs.get("study_name"),
             direction=optuna_confs.get("direction"),
         )

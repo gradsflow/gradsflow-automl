@@ -13,6 +13,8 @@ from gradsflow.utility.common import listify
 
 
 class AutoClassifier(AutoModel):
+    """Base Class for Auto Classification Hyperparameter search"""
+
     DEFAULT_BACKBONES = []
 
     def __init__(
