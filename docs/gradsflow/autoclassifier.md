@@ -2,4 +2,4 @@
 
 ::: gradsflow.autoclassifier.text
 
-::: gradsflow.autoclassifier.summarisation
+::: gradsflow.autoclassifier.summarization
