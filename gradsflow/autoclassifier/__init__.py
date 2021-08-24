@@ -1,3 +1,3 @@
 from .image import AutoImageClassifier
-from .text import AutoTextClassifier
 from .summarization import AutoSummarization
+from .text import AutoTextClassifier
