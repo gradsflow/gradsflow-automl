@@ -103,7 +103,7 @@ model.hp_tune()
 
 📑 For detailed usage examples please visit our [documentation page](https://docs.gradsflow.com).
 
-Join our [Slack](https://join.slack.com/t/gradsflow/shared_invite/zt-ulc0m0ef-xstzyowuTgYceVmFbJlBmg) group chat with us.
+💬 Join the [Slack](https://join.slack.com/t/gradsflow/shared_invite/zt-ulc0m0ef-xstzyowuTgYceVmFbJlBmg) group to chat with us.
 
 ## 🤗 Contribute
 
