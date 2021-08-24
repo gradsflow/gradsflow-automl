@@ -82,6 +82,7 @@ class AutoModel:
     ):
         """
         Defines _objective function to minimize
+
         Args:
             trial [optuna.Trial]: optuna.Trial object passed during `optuna.Study.optimize`
 
@@ -108,6 +109,7 @@ class AutoModel:
     def hp_tune(self):
         """
         Search Hyperparameter and builds model with the best params
+
         Returns:
             sets `self.model` to the best model.
 
