@@ -41,6 +41,8 @@ class AutoClassifier(AutoModel):
 
         if isinstance(suggested_backbones, (str, list, tuple)):
             self.suggested_backbones = listify(suggested_backbones)
+        elif suggested_backbones is None:
+            self.suggested_backbones = self.DEFAULT_BACKBONES
         else:
             raise UserWarning("Invalid suggested_backbone type!")
 
