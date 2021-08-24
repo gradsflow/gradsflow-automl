@@ -41,11 +41,21 @@ markdown_extensions:
       emoji_generator: !!python/name:materialx.emoji.to_svg
 
 plugins:
-  - git-revision-date-localized
+#  - git-revision-date-localized
   - search
+  - autorefs
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          rendering:
+            show_source: true
 
 extra:
-  homepage: https://gradsflow.readthedocs.io/en/latest
+  homepage: https://docs.gradsflow.com/en/latest/
 
 nav:
   - Introduction: 'index.md'
+  - Reference:
+      - AutoModel: gradsflow/automodel.md
+      - AutoClassifier: gradsflow/autoclassifier.md
