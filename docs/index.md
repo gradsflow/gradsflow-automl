@@ -10,13 +10,13 @@
 [![DOI](https://zenodo.org/badge/395070308.svg)](https://zenodo.org/badge/latestdoi/395070308)
 [![Slack](https://img.shields.io/badge/slack-chat-orange.svg?logo=slack)](https://join.slack.com/t/gradsflow/shared_invite/zt-ulc0m0ef-xstzyowuTgYceVmFbJlBmg)
 
-
-## Installation
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/gradsflow)](https://pypi.org/project/gradsflow/)
 [![PyPI version](https://badge.fury.io/py/gradsflow.svg)](https://badge.fury.io/py/gradsflow)
 [![Downloads](https://pepy.tech/badge/gradsflow)](https://pepy.tech/project/gradsflow)
 [![Downloads](https://pepy.tech/badge/gradsflow/month)](https://pepy.tech/project/gradsflow)
 [![license](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/gradsflow/gradsflow/blob/master/LICENSE)
+
+## Installation
 
 #### Recommended
 `pip install -U gradsflow`
@@ -118,7 +118,7 @@ Read full [**Contributor Covenant Code of Conduct**](https://github.com/gradsflo
 
 ## Acknowledgement
 
-*gradsflow* is built with help of Optuna and PyTorch Lightning 💜
+**Gradsflow** is built with help of Optuna and PyTorch Lightning 💜
 
 ## Cite
 ### BibTeX
