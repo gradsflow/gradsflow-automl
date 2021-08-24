@@ -20,6 +20,7 @@ The sections below outline the steps in each case.
 1. use the search functionality [here](https://github.com/gradsflow/gradsflow/issues) to see if someone already filed the same issue;
 2. if your issue search did not yield any relevant results, make a new issue;
 3. apply the "Question" label; apply other labels when relevant.
+4. You can join our Slack group as well.
 
 ## You think you may have found a bug
 
@@ -39,7 +40,7 @@ The sections below outline the steps in each case.
 1. add your own tests (if necessary);
 1. update or expand the documentation;
 1. update the `docs/CHANGELOG.md` file with change;
-1. push your feature branch to (your fork of) the https://github.com/aniketmaurya/chitra repository on GitHub;
+1. push your feature branch to (your fork of) the https://github.com/gradsflow/gradsflow repository on GitHub;
 1. create the pull request, e.g. following the instructions [here](https://help.github.com/articles/creating-a-pull-request/).
 
 In case you feel like you've made a valuable contribution, but you don't know how to write or run tests for it, or how to generate the documentation: don't let this discourage you from making the pull request; we can help you! Just go ahead and submit the pull request, but keep in mind that you might be asked to append additional commits to your pull request.
