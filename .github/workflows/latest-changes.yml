@@ -21,6 +21,6 @@ jobs:
       - uses: docker://tiangolo/latest-changes:0.0.3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          latest_changes_file: docs/latest-changes.md
+          latest_changes_file: docs/CHANGELOG.md
           latest_changes_header: '# Release Notes\n\n'
           debug_logs: true
