@@ -1,11 +1,11 @@
 import torch
 
 from gradsflow.utility.common import (
-    module_to_cls_index,
     download,
     get_file_extension,
     get_files,
     listify,
+    module_to_cls_index,
 )
 
 
@@ -29,3 +29,5 @@ def test_listify():
     assert listify(None) == []
     assert listify(1) == [1]
     assert listify((1, 2)) == [1, 2]
+    assert listify([1]) == [1]
+    assert listify({"a": 1}) == ["a"]
