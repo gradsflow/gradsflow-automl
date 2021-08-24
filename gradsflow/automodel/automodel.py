@@ -80,6 +80,14 @@ class AutoModel:
         self,
         trial: optuna.Trial,
     ):
+        """
+        Defines objective function
+        Args:
+            trial:
+
+        Returns:
+
+        """
         trainer = pl.Trainer(
             logger=True,
             gpus=1 if torch.cuda.is_available() else None,
