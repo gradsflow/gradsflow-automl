@@ -1,5 +1,6 @@
 
 from gradsflow.autoclassifier import AutoSummarisation
+from flash.text import SummarizationTask
 
 from unittest.mock import MagicMock
 
@@ -13,4 +14,4 @@ def test_model():
         suggested_backbones="sshleifer/distilbart-cnn-12-6",
         n_trials=1,
     )
-    model.hp_tune()
+    assert isinstance(model.model, SummarizationTask)
