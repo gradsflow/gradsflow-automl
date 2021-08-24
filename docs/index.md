@@ -1,6 +1,6 @@
 ![logo](https://ik.imagekit.io/gradsflow/logo/logo-small_g2MxLWesD.png?updatedAt=1627716948296)
 
-An AutoML Library made with Optuna and PyTorch Lightning
+# An AutoML Library made with Optuna and PyTorch Lightning
 
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=gradsflow_gradsflow&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=gradsflow_gradsflow)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=gradsflow_gradsflow&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=gradsflow_gradsflow)
@@ -26,7 +26,7 @@ An AutoML Library made with Optuna and PyTorch Lightning
 
 ## Examples
 
-### Image Classification
+### Auto Image Classification
 
 <details>
 
@@ -62,7 +62,7 @@ model.hp_tune()
 
 </details>
 
-### Text Classification
+### Auto Text Classification
 
 <details>
 
