@@ -52,6 +52,7 @@ jobs:
 
       - name: Run Test with Coverage
         run: |
+          python tests  # download test data
           coverage erase
           coverage run -m pytest
 

@@ -5,6 +5,7 @@ docs-serve:
 	mkdocs serve
 
 test:
+	python tests/__init__.py
 	pytest
 
 coverage:  ## Run tests with coverage

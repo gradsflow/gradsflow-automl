@@ -21,7 +21,6 @@ class AutoClassifier(AutoModel):
         suggested_backbones: Union[List, str, None] = None,
         suggested_conf: Optional[dict] = None,
         optuna_confs: Optional[Dict] = None,
-        **kwargs,
     ):
         super().__init__(
             datamodule,
@@ -30,7 +29,6 @@ class AutoClassifier(AutoModel):
             n_trials=n_trials,
             suggested_conf=suggested_conf,
             optuna_confs=optuna_confs,
-            **kwargs,
         )
 
         if not suggested_backbones:
