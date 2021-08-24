@@ -7,6 +7,7 @@ from flash.core.data.data_module import DataModule
 
 from gradsflow.automodel.automodel import AutoModel
 
+
 # noinspection PyTypeChecker
 from gradsflow.utility.common import listify
 
@@ -53,8 +54,9 @@ class AutoClassifier(AutoModel):
         return self.model(x)
 
     # noinspection PyTypeChecker
-    def _get_trial_model(self, trial: optuna.Trial) -> Dict[str, str]:
-
+    def _get_trial_hparams(self, trial: optuna.Trial) -> Dict[str, str]:
+        """Fetch hyperparameters from current optuna.Trial and returns
+        key-value pair of hparams"""
         trial_backbone = trial.suggest_categorical("backbone", self.suggested_backbones)
         trial_lr = trial.suggest_float("lr", *self.suggested_lr, log=True)
         trial_optimizer = trial.suggest_categorical(

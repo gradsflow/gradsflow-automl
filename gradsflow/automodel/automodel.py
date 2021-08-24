@@ -68,7 +68,7 @@ class AutoModel:
         )
 
     @abstractmethod
-    def _get_trial_model(self, trial) -> Dict[str, str]:
+    def _get_trial_hparams(self, trial) -> Dict[str, str]:
         raise NotImplementedError
 
     @abstractmethod
@@ -96,7 +96,7 @@ class AutoModel:
                 trial, monitor=self.optimization_metric
             ),
         )
-        trial_confs = self._get_trial_model(trial)
+        trial_confs = self._get_trial_hparams(trial)
         model = self.build_model(**trial_confs)
         hparams = dict(model=model.hparams)
         trainer.logger.log_hyperparams(hparams)
