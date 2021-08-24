@@ -15,6 +15,7 @@ class AutoModel:
     """
     Creates Optuna instance and suggested objects from hparams
     """
+
     OPTIMIZER_INDEX = create_module_index(torch.optim, True)
     DEFAULT_OPTIMIZERS = ["adam", "sgd"]
     DEFAULT_LR = (1e-5, 1e-1)
