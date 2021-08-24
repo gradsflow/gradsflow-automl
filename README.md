@@ -161,8 +161,8 @@ Read full [**Contributor Covenant Code of Conduct**](https://github.com/gradsflo
 
 **Gradsflow** is built with help of Optuna and PyTorch Lightning 💜
 
-## Cite
-### BibTeX
+
+### Citing
 ```
 @software{aniket_maurya_2021_5245151,
   author       = {Aniket Maurya},
