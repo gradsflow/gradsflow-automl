@@ -50,6 +50,8 @@ plugins:
         python:
           rendering:
             show_source: true
+      watch:
+        - gradsflow
 
 extra:
   homepage: https://docs.gradsflow.com/en/latest/
