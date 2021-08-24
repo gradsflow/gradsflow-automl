@@ -1,3 +1,4 @@
+from unittest.mock import MagicMock
 
 from gradsflow.autoclassifier import AutoSummarization
 
