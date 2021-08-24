@@ -5,6 +5,7 @@ from gradsflow.utility.common import (
     download,
     get_file_extension,
     get_files,
+    listify,
 )
 
 
@@ -22,3 +23,9 @@ def test_get_file_extension():
 
 def test_download():
     assert "gradsflow" in (download("README.md")).lower()
+
+
+def test_listify():
+    assert listify(None) == []
+    assert listify(1) == [1]
+    assert listify((1, 2)) == [1, 2]
