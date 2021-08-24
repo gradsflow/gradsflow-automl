@@ -6,7 +6,7 @@ build-backend = "flit_core.buildapi"
 module = "gradsflow"
 author = "Aniket Maurya"
 author-email = "hello@gradsflow.com"
-home-page = "https://docs.gradsflow.com"
+home-page = "https://github.com/gradsflow/gradsflow"
 description-file = "README.md"
 classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
@@ -25,9 +25,10 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
 ]
 requires = [
-    "optuna == 2.9.1",
-    "smart_open == 5.1.0",
-    "lightning-flash[all] == 0.4.0",
+    "optuna==2.9.1",
+    "smart_open==5.1.0",
+    "lightning-flash[all]==0.4.0",
+    "pytorch-lightning==1.4.0",
     "loguru"
 ]
 requires-python = ">=3.6"
@@ -40,3 +41,7 @@ test = [
 
 [tool.isort]
 profile = "black"
+
+
+[tool.flit.metadata.urls]
+Documentation = "https://docs.gradsflow.com"

@@ -1,8 +1,5 @@
 from unittest.mock import MagicMock
 
-from flash.core.data.utils import download_data
-from flash.text import TextClassificationData
-
 from gradsflow.autoclassifier import AutoTextClassifier
 
 

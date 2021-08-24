@@ -2,7 +2,10 @@ version = 1
 
 test_patterns = ["tests/**"]
 
-exclude_patterns = ["tests/**", "examples/**"]
+exclude_patterns = [
+  "tests/**",
+  "examples/**"
+]
 
 [[analyzers]]
 name = "python"
@@ -14,10 +17,6 @@ enabled = true
 [[transformers]]
 name = "black"
 enabled = true
-
-[[transformers]]
-name = "autopep8"
-enabled = false
 
 [[transformers]]
 name = "isort"
