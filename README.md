@@ -101,6 +101,47 @@ model.hp_tune()
 
 </details>
 
+### Auto Text Summarization
+
+<details>
+
+```python
+from gradsflow.autoclassifier import AutoSummarization
+
+from flash.core.data.utils import download_data
+from flash.text import SummarizationData
+
+# 1. Download the data
+download_data("https://pl-flash-data.s3.amazonaws.com/xsum.zip", "data/")
+
+# 2. Load the data
+datamodule = SummarizationData.from_csv(
+    "input",
+    "target",
+    train_file="data/xsum/train.csv",
+    val_file="data/xsum/valid.csv",
+    test_file="data/xsum/test.csv",
+)
+
+suggested_conf = dict(
+    optimizers=["adam"],
+    lr=(5e-4, 1e-3),
+)
+
+model = AutoSummarization(
+        datamodule,
+        max_epochs=1,
+        timeout=5,
+        suggested_backbones="sshleifer/distilbart-cnn-12-6",
+        n_trials=1,
+    )
+
+print("AutoSummarization initialised!")
+model.hp_tune()
+```
+
+</details>
+
 📑 For detailed usage examples please visit our [documentation page](https://docs.gradsflow.com).
 
 💬 Join the [Slack](https://join.slack.com/t/gradsflow/shared_invite/zt-ulc0m0ef-xstzyowuTgYceVmFbJlBmg) group to chat with us.
