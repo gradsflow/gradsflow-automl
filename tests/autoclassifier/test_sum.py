@@ -10,4 +10,4 @@ def test_model():
         suggested_backbones="sshleifer/distilbart-cnn-12-6",
         n_trials=1,
     )
-    assert model.model == None
+    assert model.model is None
