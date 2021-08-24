@@ -1,5 +1,3 @@
-from unittest.mock import MagicMock
-
 from gradsflow.autoclassifier import AutoSummarization
 
 
@@ -12,4 +10,4 @@ def test_model():
         suggested_backbones="sshleifer/distilbart-cnn-12-6",
         n_trials=1,
     )
-    assert isinstance(model.model, None)
+    assert model.model == None
