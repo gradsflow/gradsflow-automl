@@ -2,7 +2,7 @@ import pytest
 import torch
 from flash.image import ImageClassificationData, ImageClassifier
 
-from gradsflow.autoclassifier import AutoImageClassifier
+from gradsflow.autotasks import AutoImageClassifier
 
 datamodule = ImageClassificationData.from_folders(
     train_folder="data/hymenoptera_data/train/",
