@@ -50,6 +50,37 @@ class AutoSummarization(AutoClassifier):
 
             optimizer [str]: PyTorch Optimizers. Check `AutoImageClassification.OPTIMIZER_INDEX`
             learning_rate [float]: Learning rate for the model.
+
+        Examples:
+            ```python
+            from gradsflow import AutoSummarization
+
+            from flash.core.data.utils import download_data
+            from flash.text import SummarizationData, SummarizationTask
+
+            # 1. Download the data
+            download_data("https://pl-flash-data.s3.amazonaws.com/xsum.zip", "data/")
+            # 2. Load the data
+            datamodule = SummarizationData.from_csv(
+                "input",
+                "target",
+                train_file="data/xsum/train.csv",
+                val_file="data/xsum/valid.csv",
+                test_file="data/xsum/test.csv",
+            )
+
+            suggested_conf = dict(
+                optimizers=["adam", "sgd"],
+                lr=(5e-4, 1e-3),
+            )
+            model = AutoSummarization(datamodule,
+                                        suggested_conf=suggested_conf,
+                                        max_epochs=10,
+                                        optimization_metric="val_accuracy",
+                                        timeout=300)
+            model.hp_tune()
+        ```
+
         """
         backbone = kwargs["backbone"]
         optimizer = kwargs["optimizer"]

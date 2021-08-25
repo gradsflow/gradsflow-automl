@@ -7,7 +7,7 @@ from gradsflow.core.autoclassifier import AutoClassifier
 # noinspection PyTypeChecker
 class AutoTextClassifier(AutoClassifier):
     """
-    Automatically finds Text Classification Model
+    Automatically find Text Classification Model
 
     Arguments:
         datamodule [DataModule]: PL Lightning DataModule with `num_classes` property.
@@ -19,18 +19,31 @@ class AutoTextClassifier(AutoClassifier):
             learning rate, and all the hyperparameters.
         timeout [int]: Hyperparameter search will stop after timeout.
 
-    Example:
+    Examples:
         ```python
+            from gradsflow import AutoTextClassifier
+
+            from flash.core.data.utils import download_data
+            from flash.text import TextClassificationData
+
+            download_data("https://pl-flash-data.s3.amazonaws.com/imdb.zip", "./data/")
+            datamodule = TextClassificationData.from_csv(
+                "review",
+                "sentiment",
+                train_file="data/imdb/train.csv",
+                val_file="data/imdb/valid.csv",
+            )
+
             suggested_conf = dict(
-                optimizers=["adam"],
+                optimizers=["adam", "sgd"],
                 lr=(5e-4, 1e-3),
             )
             model = AutoTextClassifier(datamodule,
                                        suggested_backbones=['sgugger/tiny-distilbert-classification'],
                                        suggested_conf=suggested_conf,
-                                       max_epochs=1,
+                                       max_epochs=10,
                                        optimization_metric="val_accuracy",
-                                       timeout=30)
+                                       timeout=300)
             model.hp_tune()
         ```
     """
