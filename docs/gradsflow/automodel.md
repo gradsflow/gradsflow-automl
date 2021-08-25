@@ -1,1 +1,1 @@
-::: gradsflow.automodel.automodel
+::: gradsflow.core.automodel

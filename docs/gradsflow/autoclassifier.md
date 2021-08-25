@@ -1,5 +1,5 @@
-::: gradsflow.autoclassifier.image
+::: gradsflow.autotasks.AutoImageClassification
 
-::: gradsflow.autoclassifier.text
+::: gradsflow.autotasks.AutoTextClassifier
 
-::: gradsflow.autoclassifier.summarization
+::: gradsflow.autotasks.AutoSummarization
