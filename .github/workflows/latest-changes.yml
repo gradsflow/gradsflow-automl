@@ -25,5 +25,5 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           latest_changes_file: docs/CHANGELOG.md
           template_file: ./.github/workflows/release-notes.jinja2
-          latest_changes_header: '## 0.0.1\n\n'
+          latest_changes_header: '## 0.0.1\n'
           debug_logs: true

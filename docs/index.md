@@ -24,84 +24,19 @@
 #### From source
 `pip install git+https://github.com/gradsflow/gradsflow@main`
 
-## Examples
+## What is Gradsflow?
 
-### Auto Image Classification
+Gradsflow is based on Optuna and PyTorch Lightning.
+You do not need to write any PyTorch or Optuna code 🎉.
 
-<details>
+- `gradsflow.core`: [Core](https://docs.gradsflow.com/en/latest/gradsflow/core/) defines the building blocks
+of AutoML.
 
-```python
-from gradsflow.autoclassifier import AutoImageClassifier
+- `gradsflow.taskauto`: [AutoTasks](https://docs.gradsflow.com/en/latest/gradsflow/autotasks/) defines
+different ML/DL tasks which is provided by Gradsflow AutoML API.
 
-from flash.core.data.utils import download_data
-from flash.image import ImageClassificationData
 
-# 1. Create the DataModule
-download_data("https://pl-flash-data.s3.amazonaws.com/hymenoptera_data.zip", "./data")
-
-datamodule = ImageClassificationData.from_folders(
-    train_folder="data/hymenoptera_data/train/",
-    val_folder="data/hymenoptera_data/val/",
-)
-
-suggested_conf = dict(
-    optimizers=["adam"],
-    lr=(5e-4, 1e-3),
-)
-
-model = AutoImageClassifier(datamodule,
-                            suggested_backbones=['ssl_resnet18'],
-                            suggested_conf=suggested_conf,
-                            max_epochs=1,
-                            optimization_metric="val_accuracy",
-                            timeout=30)
-
-print("AutoImageClassifier initialised!")
-model.hp_tune()
-```
-
-</details>
-
-### Auto Text Classification
-
-<details>
-
-```python
-from gradsflow.autoclassifier import AutoTextClassifier
-
-from flash.core.data.utils import download_data
-from flash.text import TextClassificationData
-
-# 1. Create the DataModule
-download_data("https://pl-flash-data.s3.amazonaws.com/imdb.zip", "./data/")
-
-datamodule = TextClassificationData.from_csv(
-    "review",
-    "sentiment",
-    train_file="data/imdb/train.csv",
-    val_file="data/imdb/valid.csv",
-    backbone="prajjwal1/bert-medium",
-)
-
-suggested_conf = dict(
-    optimizers=["adam"],
-    lr=(5e-4, 1e-3),
-)
-
-model = AutoTextClassifier(datamodule,
-                           suggested_backbones=['sgugger/tiny-distilbert-classification'],
-                           suggested_conf=suggested_conf,
-                           max_epochs=1,
-                           optimization_metric="val_accuracy",
-                           timeout=30)
-
-print("AutoTextClassifier initialised!")
-model.hp_tune()
-```
-
-</details>
-
-📑 For detailed usage examples please visit our [documentation page](https://docs.gradsflow.com).
+📑 Check out [notebooks examples](https://github.com/gradsflow/gradsflow/tree/main/examples/nbs).
 
 💬 Join the [Slack](https://join.slack.com/t/gradsflow/shared_invite/zt-ulc0m0ef-xstzyowuTgYceVmFbJlBmg) group to chat with us.
 
