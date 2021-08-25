@@ -1,7 +1,7 @@
 import torch.nn
 from flash.image.classification import ImageClassifier
 
-from gradsflow.autoclassifier.base import AutoClassifier
+from gradsflow.core.autoclassifier import AutoClassifier
 
 
 # noinspection PyTypeChecker

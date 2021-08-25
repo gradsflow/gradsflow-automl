@@ -1,7 +1,7 @@
 import pytest
 from flash.image import ImageClassificationData
 
-from gradsflow.automodel import AutoModel
+from gradsflow.core.automodel import AutoModel
 
 datamodule = ImageClassificationData.from_folders(
     train_folder="data/hymenoptera_data/train/",

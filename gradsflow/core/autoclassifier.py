@@ -5,7 +5,7 @@ import optuna
 import torch
 from flash.core.data.data_module import DataModule
 
-from gradsflow.automodel.automodel import AutoModel
+from gradsflow.core.automodel import AutoModel
 
 # noinspection PyTypeChecker
 from gradsflow.utility.common import listify
