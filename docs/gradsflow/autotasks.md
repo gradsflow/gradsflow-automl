@@ -1,4 +1,4 @@
-::: gradsflow.autotasks.AutoImageClassification
+::: gradsflow.autotasks.AutoImageClassifier
 
 ::: gradsflow.autotasks.AutoTextClassifier
 
