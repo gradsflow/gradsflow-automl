@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock
 
-from gradsflow.autoclassifier import AutoTextClassifier
+from gradsflow.autotasks import AutoTextClassifier
 
 
 def test_build_model():

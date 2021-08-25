@@ -1,9 +1,9 @@
-from gradsflow.autoclassifier import AutoSummarization
+from gradsflow.autotasks import AutoSummarization
 
 from unittest.mock import MagicMock
 
 
-def test_model():
+def test_build_model():
     datamodule = MagicMock()
     model = AutoSummarization(
         datamodule,
@@ -12,4 +12,9 @@ def test_model():
         suggested_backbones="sshleifer/distilbart-cnn-12-6",
         n_trials=1,
     )
-    assert model.model is None
+    model_confs = {
+        "backbone": model.DEFAULT_BACKBONES[-1],
+        "optimizer": "adam",
+        "lr": 1e-3,
+    }
+    model.build_model(**model_confs)

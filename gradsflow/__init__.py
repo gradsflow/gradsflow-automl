@@ -1,7 +1,8 @@
 """An AutoML Library made with Optuna and PyTorch Lightning"""
 
-from gradsflow.autoclassifier.image import AutoImageClassifier
-from gradsflow.autoclassifier.text import AutoTextClassifier
-from gradsflow.automodel import AutoModel
+from gradsflow.autotasks.autoclassification.image import AutoImageClassifier
+from gradsflow.autotasks.autoclassification.text import AutoTextClassifier
+from gradsflow.autotasks.autosummarization import AutoSummarization
+from gradsflow.core.automodel import AutoModel
 
-__version__ = "0.0.1b1"
+__version__ = "0.0.1"

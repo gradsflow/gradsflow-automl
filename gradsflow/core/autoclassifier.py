@@ -5,11 +5,15 @@ import optuna
 import torch
 from flash.core.data.data_module import DataModule
 
-from gradsflow.automodel.automodel import AutoModel
-
+from gradsflow.core.automodel import AutoModel
 
 # noinspection PyTypeChecker
+from gradsflow.utility.common import listify
+
+
 class AutoClassifier(AutoModel):
+    """Base Class for Auto Classification Hyperparameter search"""
+
     DEFAULT_BACKBONES = []
 
     def __init__(
@@ -35,12 +39,10 @@ class AutoClassifier(AutoModel):
             optuna_confs=optuna_confs,
         )
 
-        if not suggested_backbones:
+        if isinstance(suggested_backbones, (str, list, tuple)):
+            self.suggested_backbones = listify(suggested_backbones)
+        elif suggested_backbones is None:
             self.suggested_backbones = self.DEFAULT_BACKBONES
-        elif isinstance(suggested_backbones, str):
-            self.suggested_backbones = [suggested_backbones]
-        elif isinstance(suggested_backbones, (list, tuple)):
-            self.suggested_backbones = suggested_backbones
         else:
             raise UserWarning("Invalid suggested_backbone type!")
 
@@ -49,11 +51,13 @@ class AutoClassifier(AutoModel):
 
     def forward(self, x):
         if not self.model:
-            raise UserWarning("model not initialized yet!")
+            raise UserWarning("model not initialized yet, run `hp_tune()` first.")
         return self.model(x)
 
     # noinspection PyTypeChecker
-    def get_trial_model(self, trial: optuna.Trial) -> Dict[str, str]:
+    def _get_trial_hparams(self, trial: optuna.Trial) -> Dict[str, str]:
+        """Fetch hyperparameters from current optuna.Trial and returns
+        key-value pair of hparams"""
 
         trial_backbone = trial.suggest_categorical("backbone", self.suggested_backbones)
         trial_lr = trial.suggest_float("lr", *self.suggested_lr, log=True)
@@ -69,4 +73,8 @@ class AutoClassifier(AutoModel):
 
     @abstractmethod
     def build_model(self, **kwargs) -> torch.nn.Module:
+        """Every Task implementing AutoClassifier has to implement a
+        build model method that can build `torch.nn.Module` from keyword arguments
+        and return the model.
+        """
         raise NotImplementedError

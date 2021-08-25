@@ -57,7 +57,7 @@ extra:
 nav:
   - Introduction: 'index.md'
   - Reference:
-      - AutoModel: gradsflow/automodel.md
-      - AutoClassifier: gradsflow/autoclassifier.md
+      - Core: gradsflow/core.md
+      - Auto Tasks: gradsflow/autotasks.md
       - utility: gradsflow/utility.md
   - Release Notes: 'CHANGELOG.md'

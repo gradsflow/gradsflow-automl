@@ -13,7 +13,7 @@ from gradsflow.utility.common import module_to_cls_index
 
 class AutoModel:
     """
-    Creates Optuna instance and suggested objects from hparams
+    Creates Optuna instance, defines methods required for hparam search
     """
 
     OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
@@ -32,7 +32,7 @@ class AutoModel:
         optuna_confs: Optional[Dict] = None,
     ):
 
-        self.pruner: optuna.pruners.BasePruner = (
+        self._pruner: optuna.pruners.BasePruner = (
             optuna.pruners.MedianPruner() if prune else optuna.pruners.NopPruner()
         )
         self.datamodule = datamodule
@@ -46,9 +46,9 @@ class AutoModel:
         if not optuna_confs:
             optuna_confs = {}
         self.optuna_confs = optuna_confs
-        self.study = optuna.create_study(
+        self._study = optuna.create_study(
             optuna_confs.get("storage"),
-            pruner=self.pruner,
+            pruner=self._pruner,
             study_name=optuna_confs.get("study_name"),
             direction=optuna_confs.get("direction"),
         )
@@ -68,7 +68,7 @@ class AutoModel:
         )
 
     @abstractmethod
-    def get_trial_model(self, trial) -> Dict[str, str]:
+    def _get_trial_hparams(self, trial) -> Dict[str, str]:
         raise NotImplementedError
 
     @abstractmethod
@@ -82,11 +82,9 @@ class AutoModel:
     ):
         """
         Defines _objective function to minimize
+
         Args:
             trial [optuna.Trial]: optuna.Trial object passed during `optuna.Study.optimize`
-
-        Returns:
-
         """
         trainer = pl.Trainer(
             logger=True,
@@ -96,7 +94,7 @@ class AutoModel:
                 trial, monitor=self.optimization_metric
             ),
         )
-        trial_confs = self.get_trial_model(trial)
+        trial_confs = self._get_trial_hparams(trial)
         model = self.build_model(**trial_confs)
         hparams = dict(model=model.hparams)
         trainer.logger.log_hyperparams(hparams)
@@ -108,11 +106,8 @@ class AutoModel:
     def hp_tune(self):
         """
         Search Hyperparameter and builds model with the best params
-        Returns:
-            sets `self.model` to the best model.
-
         """
-        self.study.optimize(
+        self._study.optimize(
             self._objective, n_trials=self.n_trials, timeout=self.timeout
         )
-        self.model = self.build_model(**self.study.best_params)
+        self.model = self.build_model(**self._study.best_params)
