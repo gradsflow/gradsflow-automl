@@ -7,7 +7,7 @@ from gradsflow.core.autoclassifier import AutoClassifier
 # noinspection PyTypeChecker
 class AutoImageClassifier(AutoClassifier):
     """
-    Automatically finds Image Classification Model
+    Automatically find Image Classification Model
 
     Args:
         datamodule [DataModule]: PL Lightning DataModule with `num_classes` property.
@@ -19,18 +19,30 @@ class AutoImageClassifier(AutoClassifier):
             learning rate, and all the hyperparameters.
         timeout [int]: Hyperparameter search will stop after timeout.
 
-    Example:
+    Examples:
         ```python
+            from flash.core.data.utils import download_data
+            from flash.image import ImageClassificationData
+
+            from gradsflow import AutoImageClassifier
+
+            # 1. Create the DataModule
+            download_data("https://pl-flash-data.s3.amazonaws.com/hymenoptera_data.zip", "./data")
+
+            datamodule = ImageClassificationData.from_folders(
+                train_folder="data/hymenoptera_data/train/",
+                val_folder="data/hymenoptera_data/val/",
+            )
+
             suggested_conf = dict(
-                optimizers=["adam"],
+                optimizers=["adam", "sgd"],
                 lr=(5e-4, 1e-3),
             )
             model = AutoImageClassifier(datamodule,
-                                        suggested_backbones=['ssl_resnet18'],
                                         suggested_conf=suggested_conf,
-                                        max_epochs=1,
+                                        max_epochs=10,
                                         optimization_metric="val_accuracy",
-                                        timeout=30)
+                                        timeout=300)
             model.hp_tune()
         ```
     """

@@ -1,7 +1,7 @@
 from flash.core.data.utils import download_data
 from flash.image import ImageClassificationData
 
-from gradsflow.autoclassifier import AutoImageClassifier
+from gradsflow import AutoImageClassifier
 
 # 1. Create the DataModule
 download_data("https://pl-flash-data.s3.amazonaws.com/hymenoptera_data.zip", "./data")
@@ -16,4 +16,4 @@ model = AutoImageClassifier(
 )
 print("AutoImageClassifier initialised!")
 
-model.fit()
+model.hp_tune()

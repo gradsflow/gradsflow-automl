@@ -24,13 +24,21 @@
 #### From source
 `pip install git+https://github.com/gradsflow/gradsflow@main`
 
+## Highlights
+
+- 2020-8-15: Released first version [0.0.1](https://pypi.org/project/gradsflow/) ✨ :tada:
+
 ## What is Gradsflow?
 
-Gradsflow is based on Optuna and PyTorch Lightning.
-You do not need to write any PyTorch or Optuna code 🎉.
+Gradsflow is based on Optuna and PyTorch Lightning ⚡️.
+It leverages PyTorch Lightning Flash so that you don't have to write any
+PyTorch or Optuna code for model building or hyperparameter tuning 🚀
+
+Although you might want to train a custom model and search hyperparameters,
+You can easily integrate any PyTorch/Lightning Flash Model with Gradsflow [AutoModel](https://docs.gradsflow.com/en/latest/gradsflow/core/) ✨
 
 - `gradsflow.core`: [Core](https://docs.gradsflow.com/en/latest/gradsflow/core/) defines the building blocks
-of AutoML.
+of AutoML tasks.
 
 - `gradsflow.taskauto`: [AutoTasks](https://docs.gradsflow.com/en/latest/gradsflow/autotasks/) defines
 different ML/DL tasks which is provided by Gradsflow AutoML API.
