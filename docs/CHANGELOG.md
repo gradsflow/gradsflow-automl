@@ -1,7 +1,7 @@
 # Release Notes
 
 ## 0.0.1
-
+* This changed: 📝 update example and documentation. Done by [ aniketmaurya](https://github.com/aniketmaurya). Check the [Pull Request 20 with the changes and stuff](https://github.com/gradsflow/gradsflow/pull/20). now back to code. 🤓\n
 * This changed: :tada::sparkles: First Release - v0.0.1 - Refactor API & tested Python 3.7+. Done by [ aniketmaurya](https://github.com/aniketmaurya). Check the [Pull Request 18 with the changes and stuff](https://github.com/gradsflow/gradsflow/pull/18). now back to code. 🤓
 * This changed: Adding example notebook for AutoSummarization. Done by [the GitHub user gagan3012](https://github.com/gagan3012). Check the [Pull Request 19 with the changes and stuff](https://github.com/gradsflow/gradsflow/pull/19). now back to code. 🤓
 * This changed: Adding text summarisation. Done by [the GitHub user gagan3012](https://github.com/gagan3012). Check the [Pull Request 14 with the changes and stuff](https://github.com/gradsflow/gradsflow/pull/14). now back to code. 🤓
