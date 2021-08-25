@@ -46,7 +46,7 @@ class AutoModel:
         if not optuna_confs:
             optuna_confs = {}
         self.optuna_confs = optuna_confs
-        self.study = optuna.create_study(
+        self._study = optuna.create_study(
             optuna_confs.get("storage"),
             pruner=self._pruner,
             study_name=optuna_confs.get("study_name"),
@@ -85,9 +85,6 @@ class AutoModel:
 
         Args:
             trial [optuna.Trial]: optuna.Trial object passed during `optuna.Study.optimize`
-
-        Returns:
-
         """
         trainer = pl.Trainer(
             logger=True,
@@ -109,12 +106,8 @@ class AutoModel:
     def hp_tune(self):
         """
         Search Hyperparameter and builds model with the best params
-
-        Returns:
-            sets `self.model` to the best model.
-
         """
-        self.study.optimize(
+        self._study.optimize(
             self._objective, n_trials=self.n_trials, timeout=self.timeout
         )
-        self.model = self.build_model(**self.study.best_params)
+        self.model = self.build_model(**self._study.best_params)

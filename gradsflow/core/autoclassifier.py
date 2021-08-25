@@ -51,7 +51,7 @@ class AutoClassifier(AutoModel):
 
     def forward(self, x):
         if not self.model:
-            raise UserWarning("model not initialized yet!")
+            raise UserWarning("model not initialized yet, run `hp_tune()` first.")
         return self.model(x)
 
     # noinspection PyTypeChecker
@@ -73,4 +73,8 @@ class AutoClassifier(AutoModel):
 
     @abstractmethod
     def build_model(self, **kwargs) -> torch.nn.Module:
+        """Every Task implementing AutoClassifier has to implement a
+        build model method that can build `torch.nn.Module` from keyword arguments
+        and return the model.
+        """
         raise NotImplementedError
