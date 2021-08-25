@@ -24,6 +24,10 @@
 #### From source
 `pip install git+https://github.com/gradsflow/gradsflow@main`
 
+## Highlights
+
+- 2020-8-15: Released first version [0.0.1](https://pypi.org/project/gradsflow/) ✨ :tada:
+
 ## What is Gradsflow?
 
 Gradsflow is based on Optuna and PyTorch Lightning ⚡️.
