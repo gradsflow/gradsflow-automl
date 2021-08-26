@@ -13,7 +13,7 @@
 #  limitations under the License.
 
 from abc import abstractmethod
-from copy import deepcopy
+from copy import deepcopy as c
 from typing import Dict, Optional, Union
 
 import flash
@@ -120,7 +120,7 @@ class AutoModel:
         if self.max_steps:
             val_check_interval = max(self.max_steps - 1, 1)
 
-        datamodule = deepcopy(self.datamodule)
+        datamodule = c(self.datamodule)
 
         trainer = flash.Trainer(
             logger=True,
