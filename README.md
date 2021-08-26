@@ -26,7 +26,7 @@
 
 ## Highlights
 
-- 2020-8-15: Released first version [0.0.1](https://pypi.org/project/gradsflow/) ✨ :tada:
+- 2020-8-15: [Released first version 0.0.1](https://pypi.org/project/gradsflow/) ✨ :tada:
 
 ## What is Gradsflow?
 
@@ -62,19 +62,3 @@ Read full [**Contributor Covenant Code of Conduct**](https://github.com/gradsflo
 ## Acknowledgement
 
 **Gradsflow** is built with help of Optuna and PyTorch Lightning 💜
-
-
-### Citing
-```
-@software{aniket_maurya_2021_5245151,
-  author       = {Aniket Maurya},
-  title        = {{gradsflow/gradsflow: An AutoML Library made with
-                   Optuna and PyTorch Lightning}},
-  month        = aug,
-  year         = 2021,
-  publisher    = {Zenodo},
-  version      = {v0.0.1b1},
-  doi          = {10.5281/zenodo.5245151},
-  url          = {https://doi.org/10.5281/zenodo.5245151}
-}
-```
