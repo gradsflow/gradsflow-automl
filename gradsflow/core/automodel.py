@@ -1,3 +1,17 @@
+#  Copyright (c) 2021 GradsFlow. All rights reserved.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
 from abc import abstractmethod
 from typing import Dict, Optional, Union
 
@@ -15,6 +29,19 @@ from gradsflow.utility.optuna import is_best_trial
 class AutoModel:
     """
     Creates Optuna instance, defines methods required for hparam search
+
+    Args:
+        datamodule [flash.DataModule]: DataModule from Flash or PyTorch Lightning
+        max_epochs [int]: Maximum number of epochs for which model will train
+        optimization_metric [str]: Value on which hyperparameter search will run.
+        By default, it is `val_accuracy`.
+        n_trials [int]: Number of trials for HPO
+        suggested_conf [Dict]: Any extra suggested configuration
+        timeout [int]: HPO will stop after timeout
+        prune [bool]: Whether to stop unpromising training.
+        optuna_confs [Dict]: Optuna configs
+        best_trial [bool]: If true model will be loaded with best weights from HPO otherwise
+        a best trial model without trained weights will be created.
     """
 
     OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
