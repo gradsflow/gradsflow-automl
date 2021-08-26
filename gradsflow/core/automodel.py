@@ -119,6 +119,9 @@ class AutoModel:
         val_check_interval = None
         if self.max_steps:
             val_check_interval = max(self.max_steps - 1, 1)
+
+        datamodule = deepcopy(self.datamodule)
+
         trainer = flash.Trainer(
             logger=True,
             gpus=1 if torch.cuda.is_available() else None,
@@ -136,7 +139,7 @@ class AutoModel:
         trial.set_user_attr(key="current_model", value=model)
         hparams = dict(model=model.hparams)
         trainer.logger.log_hyperparams(hparams)
-        trainer.fit(model, datamodule=self.datamodule)
+        trainer.fit(model, datamodule=datamodule)
 
         logger.debug(trainer.callback_metrics)
         return trainer.callback_metrics[self.optimization_metric].item()
