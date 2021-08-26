@@ -116,9 +116,9 @@ class AutoModel:
         Args:
             trial [optuna.Trial]: optuna.Trial object passed during `optuna.Study.optimize`
         """
-        val_check_interval = None
+        val_check_interval = 1.0
         if self.max_steps:
-            val_check_interval = max(self.max_steps - 1, 1)
+            val_check_interval = max(self.max_steps - 1, 1.0)
 
         datamodule = self.datamodule
 
