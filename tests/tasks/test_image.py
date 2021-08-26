@@ -22,6 +22,7 @@ from gradsflow.autotasks import AutoImageClassifier
 
 warnings.filterwarnings("ignore")
 
+
 datamodule = ImageClassificationData.from_folders(
     train_folder="data/hymenoptera_data/train/",
     val_folder="data/hymenoptera_data/val/",
@@ -55,6 +56,8 @@ def test_hp_tune():
         max_steps=5,
         timeout=10,
         suggested_backbones="ssl_resnet18",
+        optimization_metric="train_accuracy",
         n_trials=1,
+        optuna_confs={"direction": "maximize"}
     )
     model.hp_tune()
