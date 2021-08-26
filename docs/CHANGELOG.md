@@ -12,3 +12,4 @@
 * Add AutoImageClassifier. PR [#1](https://github.com/gradsflow/gradsflow/pull/1) by [@aniketmaurya](https://github.com/aniketmaurya).
 
 ## 0.0.2
+* fetch best trial model. PR [#21](https://github.com/gradsflow/gradsflow/pull/21) by [@aniketmaurya](https://github.com/aniketmaurya).
