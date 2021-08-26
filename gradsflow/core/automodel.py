@@ -73,7 +73,7 @@ class AutoModel:
         self._pruner: optuna.pruners.BasePruner = (
             optuna.pruners.MedianPruner() if prune else optuna.pruners.NopPruner()
         )
-        self. datamodule = datamodule
+        self.datamodule = datamodule
         self.n_trials = n_trials
         self.best_trial = best_trial
         self.model: Union[torch.nn.Module, pl.LightningModule, None] = None
