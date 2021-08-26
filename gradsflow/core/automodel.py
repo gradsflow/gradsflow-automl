@@ -84,19 +84,19 @@ class AutoModel:
         self.suggested_conf = suggested_conf or {}
 
         self._study = optuna.create_study(
-            optuna_confs.get("storage"),
+            self.optuna_confs.get("storage"),
             pruner=self._pruner,
-            study_name=optuna_confs.get("study_name"),
-            direction=optuna_confs.get("direction"),
+            study_name=self.optuna_confs.get("study_name"),
+            direction=self.optuna_confs.get("direction"),
         )
 
-        self.suggested_optimizers = suggested_conf.get(
+        self.suggested_optimizers = self.suggested_conf.get(
             "optimizer", self.DEFAULT_OPTIMIZERS
         )
         default_lr = self.DEFAULT_LR
         self.suggested_lr = (
-            suggested_conf.get("lr")
-            or suggested_conf.get("learning_rate")
+            self.suggested_conf.get("lr")
+            or self.suggested_conf.get("learning_rate")
             or default_lr
         )
 
