@@ -54,18 +54,18 @@ class AutoModel:
     _CURRENT_MODEL = "current_model"
 
     def __init__(
-        self,
-        datamodule: DataModule,
-        max_epochs: int = 10,
-        max_steps: int = 100,
-        optimization_metric: Optional[str] = None,
-        n_trials: int = 100,
-        suggested_conf: Optional[dict] = None,
-        timeout: int = 600,
-        prune: bool = True,
-        optuna_confs: Optional[Dict] = None,
-        trainer_confs: Optional[Dict] = None,
-        best_trial: bool = True,
+            self,
+            datamodule: DataModule,
+            max_epochs: int = 10,
+            max_steps: int = 100,
+            optimization_metric: Optional[str] = None,
+            n_trials: int = 100,
+            suggested_conf: Optional[dict] = None,
+            timeout: int = 600,
+            prune: bool = True,
+            optuna_confs: Optional[Dict] = None,
+            trainer_confs: Optional[Dict] = None,
+            best_trial: bool = True,
     ):
 
         self._pruner: optuna.pruners.BasePruner = (
@@ -90,9 +90,9 @@ class AutoModel:
         )
         default_lr = self.DEFAULT_LR
         self.suggested_lr = (
-            self.suggested_conf.get("lr")
-            or self.suggested_conf.get("learning_rate")
-            or default_lr
+                self.suggested_conf.get("lr")
+                or self.suggested_conf.get("learning_rate")
+                or default_lr
         )
 
     @abstractmethod
@@ -105,8 +105,8 @@ class AutoModel:
 
     # noinspection PyTypeChecker
     def _objective(
-        self,
-        trial: optuna.Trial,
+            self,
+            trial: optuna.Trial,
     ):
         """
         Defines _objective function to minimize
@@ -158,3 +158,14 @@ class AutoModel:
             self.model = self._study.user_attrs[self._BEST_MODEL]
         else:
             self.model = self.build_model(**self._study.best_params)
+
+    def plot_optimization_history(self, target_name: str):
+        """
+        Plot optimization history of optuna.Study.
+        [See more](https://optuna.readthedocs.io/en/stable/reference/visualization/generated/optuna.visualization.plot_optimization_history.html)
+
+        Args:
+            target_name str: target name to display on plot.
+        """
+        fig = optuna.visualization.plot_optimization_history(self._study, target_name=target_name)
+        fig.show()
