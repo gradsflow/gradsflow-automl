@@ -118,7 +118,7 @@ class AutoModel:
         """
         val_check_interval = None
         if self.max_steps:
-            val_check_interval = self.max_steps - 1
+            val_check_interval = max(self.max_steps - 1, 1)
         trainer = flash.Trainer(
             logger=True,
             gpus=1 if torch.cuda.is_available() else None,
