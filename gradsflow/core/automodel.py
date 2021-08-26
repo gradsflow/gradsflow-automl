@@ -35,7 +35,7 @@ class AutoModel:
         max_epochs int: Maximum number of epochs for which model will train
         max_steps int: Maximum number of steps for each epoch
         optimization_metric str: Value on which hyperparameter search will run.
-        By default, it is `val_accuracy`.
+        By default, it is `train_accuracy`.
         n_trials int: Number of trials for HPO
         suggested_conf Dict: Any extra suggested configuration
         timeout int: HPO will stop after timeout
@@ -78,7 +78,7 @@ class AutoModel:
         self.max_epochs = max_epochs
         self.max_steps = max_steps
         self.timeout = timeout
-        self.optimization_metric = optimization_metric or "val_accuracy"
+        self.optimization_metric = optimization_metric or "train_accuracy"
         self.optuna_confs = optuna_confs or {}
         self.trainer_confs = trainer_confs or {}
         self.suggested_conf = suggested_conf or {}
