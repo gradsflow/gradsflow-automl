@@ -120,7 +120,7 @@ class AutoModel:
         if self.max_steps:
             val_check_interval = max(self.max_steps - 1, 1)
 
-        datamodule = c(self.datamodule)
+        datamodule = self.datamodule
 
         trainer = flash.Trainer(
             logger=True,
