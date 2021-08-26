@@ -122,7 +122,7 @@ class AutoModel:
 
         datamodule = self.datamodule
 
-        trainer = flash.Trainer(
+        trainer = pl.Trainer(
             logger=True,
             gpus=1 if torch.cuda.is_available() else None,
             max_epochs=self.max_epochs,
