@@ -13,8 +13,8 @@
 #  limitations under the License.
 
 from abc import abstractmethod
+from copy import deepcopy as c
 from typing import Dict, Optional, Union
-from copy import deepcopy
 
 import flash
 import optuna
@@ -116,7 +116,13 @@ class AutoModel:
         Args:
             trial [optuna.Trial]: optuna.Trial object passed during `optuna.Study.optimize`
         """
-        trainer = flash.Trainer(
+        val_check_interval = 1.0
+        if self.max_steps:
+            val_check_interval = max(self.max_steps - 1, 1.0)
+
+        datamodule = self.datamodule
+
+        trainer = pl.Trainer(
             logger=True,
             gpus=1 if torch.cuda.is_available() else None,
             max_epochs=self.max_epochs,
@@ -125,6 +131,7 @@ class AutoModel:
                 trial, monitor=self.optimization_metric
             ),
             **self.trainer_confs,
+            val_check_interval=val_check_interval
         )
 
         trial_confs = self._get_trial_hparams(trial)
@@ -132,7 +139,7 @@ class AutoModel:
         trial.set_user_attr(key="current_model", value=model)
         hparams = dict(model=model.hparams)
         trainer.logger.log_hyperparams(hparams)
-        trainer.fit(model, datamodule=deepcopy(self.datamodule))
+        trainer.fit(model, datamodule=datamodule)
 
         logger.debug(trainer.callback_metrics)
         return trainer.callback_metrics[self.optimization_metric].item()
@@ -162,7 +169,7 @@ class AutoModel:
         else:
             self.model = self.build_model(**self._study.best_params)
 
-    def plot_optimization_history(self, target_name: str):
+    def plot_optimization_history(self, target_name: Optional[str] = None):
         """
         Plot optimization history of optuna.Study.
         [See more](https://optuna.readthedocs.io/en/stable/reference/visualization/generated/optuna.visualization.plot_optimization_history.html)
