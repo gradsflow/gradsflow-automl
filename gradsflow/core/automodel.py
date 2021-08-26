@@ -49,7 +49,7 @@ class AutoModel:
 
     OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
     DEFAULT_OPTIMIZERS = ["adam", "sgd"]
-    DEFAULT_LR = (1e-5, 1e-1)
+    DEFAULT_LR = (1e-5, 1e-2)
     _BEST_MODEL = "best_model"
     _CURRENT_MODEL = "current_model"
 
@@ -83,12 +83,7 @@ class AutoModel:
         self.trainer_confs = trainer_confs or {}
         self.suggested_conf = suggested_conf or {}
 
-        self._study = optuna.create_study(
-            self.optuna_confs.get("storage"),
-            pruner=self._pruner,
-            study_name=self.optuna_confs.get("study_name"),
-            direction=self.optuna_confs.get("direction"),
-        )
+        self._study = optuna.create_study(pruner=self._pruner, **self.optuna_confs)
 
         self.suggested_optimizers = self.suggested_conf.get(
             "optimizer", self.DEFAULT_OPTIMIZERS

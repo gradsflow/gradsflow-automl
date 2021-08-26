@@ -12,11 +12,15 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import warnings
+
 import pytest
 import torch
 from flash.image import ImageClassificationData, ImageClassifier
 
 from gradsflow.autotasks import AutoImageClassifier
+
+warnings.filterwarnings("ignore")
 
 datamodule = ImageClassificationData.from_folders(
     train_folder="data/hymenoptera_data/train/",
@@ -44,11 +48,12 @@ def test_build_model():
     assert isinstance(model.model, ImageClassifier)
 
 
-def test_model():
+def test_hp_tune():
     model = AutoImageClassifier(
         datamodule,
         max_epochs=1,
-        timeout=5,
+        max_steps=5,
+        timeout=10,
         suggested_backbones="ssl_resnet18",
         n_trials=1,
     )
