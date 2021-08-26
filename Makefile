@@ -24,7 +24,7 @@ clean:
 
 style:
 	black gradsflow tests examples
-	isort gradsflow tests examples
+	isort --profile black gradsflow tests examples
 
 build: clean
 	flit build
