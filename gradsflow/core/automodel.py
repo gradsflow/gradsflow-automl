@@ -78,12 +78,11 @@ class AutoModel:
         self.max_epochs = max_epochs
         self.max_steps = max_steps
         self.timeout = timeout
-        if not optimization_metric:
-            optimization_metric = "val_accuracy"
-        self.optimization_metric = optimization_metric
-        if not optuna_confs:
-            optuna_confs = {}
-        self.optuna_confs = optuna_confs
+        self.optimization_metric = optimization_metric or "val_accuracy"
+        self.optuna_confs = optuna_confs or {}
+        self.trainer_confs = trainer_confs or {}
+        self.suggested_conf = suggested_conf or {}
+
         self._study = optuna.create_study(
             optuna_confs.get("storage"),
             pruner=self._pruner,
@@ -91,13 +90,9 @@ class AutoModel:
             direction=optuna_confs.get("direction"),
         )
 
-        if not suggested_conf:
-            suggested_conf = {}
-        self.suggested_conf = suggested_conf
         self.suggested_optimizers = suggested_conf.get(
             "optimizer", self.DEFAULT_OPTIMIZERS
         )
-
         default_lr = self.DEFAULT_LR
         self.suggested_lr = (
             suggested_conf.get("lr")
@@ -132,6 +127,7 @@ class AutoModel:
             callbacks=PyTorchLightningPruningCallback(
                 trial, monitor=self.optimization_metric
             ),
+            **self.trainer_confs,
         )
         trial_confs = self._get_trial_hparams(trial)
         model = self.build_model(**trial_confs)
