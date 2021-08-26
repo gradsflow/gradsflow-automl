@@ -13,8 +13,8 @@
 #  limitations under the License.
 
 from abc import abstractmethod
-from typing import Dict, Optional, Union
 from copy import deepcopy
+from typing import Dict, Optional, Union
 
 import flash
 import optuna
