@@ -27,11 +27,11 @@ classifiers = [
 ]
 requires-python = ">=3.7"
 requires = [
-    "optuna==2.9.1",
-    "smart_open==5.1.0",
+    "optuna==2.9",
+    "smart_open==5.1",
     "lightning-flash[all]==0.4.0",
     "pytorch-lightning==1.4.0",
-    "loguru==0.5"
+    "loguru~=0.5"
 ]
 
 [tool.flit.metadata.urls]
