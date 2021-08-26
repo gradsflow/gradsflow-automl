@@ -34,22 +34,26 @@ class AutoClassifier(AutoModel):
         self,
         datamodule: DataModule,
         max_epochs: int = 10,
+        max_steps: int = 10,
         n_trials: int = 100,
         optimization_metric: Optional[str] = None,
         suggested_backbones: Union[List, str, None] = None,
         suggested_conf: Optional[dict] = None,
         timeout: int = 600,
         prune: bool = True,
+        trainer_confs: Optional[Dict] = None,
         optuna_confs: Optional[Dict] = None,
     ):
         super().__init__(
             datamodule,
             max_epochs=max_epochs,
+            max_steps=max_steps,
             optimization_metric=optimization_metric,
             n_trials=n_trials,
             suggested_conf=suggested_conf,
             timeout=timeout,
             prune=prune,
+            trainer_confs=trainer_confs,
             optuna_confs=optuna_confs,
         )
 

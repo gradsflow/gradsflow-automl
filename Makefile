@@ -2,7 +2,7 @@ build-docs:
 	cp README.md docs/index.md
 
 docsserve:
-	mkdocs serve --dirtyreload
+	mkdocs serve --dirtyreload --livereload
 
 test:
 	python tests/__init__.py

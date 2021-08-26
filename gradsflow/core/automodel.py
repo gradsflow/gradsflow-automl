@@ -31,22 +31,25 @@ class AutoModel:
     Creates Optuna instance, defines methods required for hparam search
 
     Args:
-        datamodule [flash.DataModule]: DataModule from Flash or PyTorch Lightning
-        max_epochs [int]: Maximum number of epochs for which model will train
-        optimization_metric [str]: Value on which hyperparameter search will run.
-        By default, it is `val_accuracy`.
-        n_trials [int]: Number of trials for HPO
-        suggested_conf [Dict]: Any extra suggested configuration
-        timeout [int]: HPO will stop after timeout
-        prune [bool]: Whether to stop unpromising training.
-        optuna_confs [Dict]: Optuna configs
-        best_trial [bool]: If true model will be loaded with best weights from HPO otherwise
+        datamodule flash.DataModule: DataModule from Flash or PyTorch Lightning
+        max_epochs int: Maximum number of epochs for which model will train
+        max_steps int: Maximum number of steps for each epoch
+        optimization_metric str: Value on which hyperparameter search will run.
+        By default, it is `train_accuracy`.
+        n_trials int: Number of trials for HPO
+        suggested_conf Dict: Any extra suggested configuration
+        timeout int: HPO will stop after timeout
+        prune bool: Whether to stop unpromising training.
+        trainer_confs Dict: PL.Trainer confs,
+            See more at [PyTorch Lightning Docs](https://pytorch-lightning.readthedocs.io/en/latest/common/trainer.html)
+        optuna_confs Dict: Optuna configs
+        best_trial bool: If true model will be loaded with best weights from HPO otherwise
         a best trial model without trained weights will be created.
     """
 
     OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
     DEFAULT_OPTIMIZERS = ["adam", "sgd"]
-    DEFAULT_LR = (1e-5, 1e-1)
+    DEFAULT_LR = (1e-5, 1e-2)
     _BEST_MODEL = "best_model"
     _CURRENT_MODEL = "current_model"
 
@@ -54,12 +57,14 @@ class AutoModel:
         self,
         datamodule: DataModule,
         max_epochs: int = 10,
+        max_steps: int = 100,
         optimization_metric: Optional[str] = None,
         n_trials: int = 100,
         suggested_conf: Optional[dict] = None,
         timeout: int = 600,
         prune: bool = True,
         optuna_confs: Optional[Dict] = None,
+        trainer_confs: Optional[Dict] = None,
         best_trial: bool = True,
     ):
 
@@ -71,31 +76,22 @@ class AutoModel:
         self.best_trial = best_trial
         self.model: Union[torch.nn.Module, pl.LightningModule, None] = None
         self.max_epochs = max_epochs
+        self.max_steps = max_steps
         self.timeout = timeout
-        if not optimization_metric:
-            optimization_metric = "val_accuracy"
-        self.optimization_metric = optimization_metric
-        if not optuna_confs:
-            optuna_confs = {}
-        self.optuna_confs = optuna_confs
-        self._study = optuna.create_study(
-            optuna_confs.get("storage"),
-            pruner=self._pruner,
-            study_name=optuna_confs.get("study_name"),
-            direction=optuna_confs.get("direction"),
-        )
+        self.optimization_metric = optimization_metric or "train_accuracy"
+        self.optuna_confs = optuna_confs or {}
+        self.trainer_confs = trainer_confs or {}
+        self.suggested_conf = suggested_conf or {}
 
-        if not suggested_conf:
-            suggested_conf = {}
-        self.suggested_conf = suggested_conf
-        self.suggested_optimizers = suggested_conf.get(
+        self._study = optuna.create_study(pruner=self._pruner, **self.optuna_confs)
+
+        self.suggested_optimizers = self.suggested_conf.get(
             "optimizer", self.DEFAULT_OPTIMIZERS
         )
-
         default_lr = self.DEFAULT_LR
         self.suggested_lr = (
-            suggested_conf.get("lr")
-            or suggested_conf.get("learning_rate")
+            self.suggested_conf.get("lr")
+            or self.suggested_conf.get("learning_rate")
             or default_lr
         )
 
@@ -122,9 +118,11 @@ class AutoModel:
             logger=True,
             gpus=1 if torch.cuda.is_available() else None,
             max_epochs=self.max_epochs,
+            max_steps=self.max_steps,
             callbacks=PyTorchLightningPruningCallback(
                 trial, monitor=self.optimization_metric
             ),
+            **self.trainer_confs,
         )
         trial_confs = self._get_trial_hparams(trial)
         model = self.build_model(**trial_confs)
