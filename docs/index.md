@@ -26,7 +26,7 @@
 
 ## Highlights
 
-- 2020-8-15: [Released first version 0.0.1](https://pypi.org/project/gradsflow/) ✨ :tada:
+- 2020-8-25: [Released first version 0.0.1](https://pypi.org/project/gradsflow/) ✨ :tada:
 
 ## What is Gradsflow?
 
