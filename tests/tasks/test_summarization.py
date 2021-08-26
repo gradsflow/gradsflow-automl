@@ -1,6 +1,6 @@
-from gradsflow.autotasks import AutoSummarization
-
 from unittest.mock import MagicMock
+
+from gradsflow.autotasks import AutoSummarization
 
 
 def test_build_model():

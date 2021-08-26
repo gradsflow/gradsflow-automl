@@ -9,6 +9,7 @@ from optuna.integration import PyTorchLightningPruningCallback
 
 from gradsflow.logging import logger
 from gradsflow.utility.common import module_to_cls_index
+from gradsflow.utility.optuna import is_best_trial
 
 
 class AutoModel:
@@ -19,6 +20,8 @@ class AutoModel:
     OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
     DEFAULT_OPTIMIZERS = ["adam", "sgd"]
     DEFAULT_LR = (1e-5, 1e-1)
+    _BEST_MODEL = "best_model"
+    _CURRENT_MODEL = "current_model"
 
     def __init__(
         self,
@@ -30,6 +33,7 @@ class AutoModel:
         timeout: int = 600,
         prune: bool = True,
         optuna_confs: Optional[Dict] = None,
+        best_trial: bool = True,
     ):
 
         self._pruner: optuna.pruners.BasePruner = (
@@ -37,6 +41,7 @@ class AutoModel:
         )
         self.datamodule = datamodule
         self.n_trials = n_trials
+        self.best_trial = best_trial
         self.model: Union[torch.nn.Module, pl.LightningModule, None] = None
         self.max_epochs = max_epochs
         self.timeout = timeout
@@ -96,6 +101,7 @@ class AutoModel:
         )
         trial_confs = self._get_trial_hparams(trial)
         model = self.build_model(**trial_confs)
+        trial.set_user_attr(key="current_model", value=model)
         hparams = dict(model=model.hparams)
         trainer.logger.log_hyperparams(hparams)
         trainer.fit(model, datamodule=self.datamodule)
@@ -103,11 +109,27 @@ class AutoModel:
         logger.debug(trainer.callback_metrics)
         return trainer.callback_metrics[self.optimization_metric].item()
 
+    def callback_best_trial(self, study: optuna.Study, trial: optuna.Trial) -> None:
+        if is_best_trial(study, trial):
+            study.set_user_attr(
+                key=self._BEST_MODEL, value=trial.user_attrs[self._CURRENT_MODEL]
+            )
+
     def hp_tune(self):
         """
         Search Hyperparameter and builds model with the best params
         """
+        callbacks = []
+        if self.best_trial:
+            callbacks.append(self.callback_best_trial)
         self._study.optimize(
-            self._objective, n_trials=self.n_trials, timeout=self.timeout
+            self._objective,
+            n_trials=self.n_trials,
+            timeout=self.timeout,
+            callbacks=callbacks,
         )
-        self.model = self.build_model(**self._study.best_params)
+
+        if self.best_trial:
+            self.model = self._study.user_attrs[self._BEST_MODEL]
+        else:
+            self.model = self.build_model(**self._study.best_params)
