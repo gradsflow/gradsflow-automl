@@ -15,6 +15,7 @@
 from abc import abstractmethod
 from typing import Dict, Optional, Union
 
+import flash
 import optuna
 import pytorch_lightning as pl
 import torch
@@ -32,10 +33,10 @@ class AutoModel:
 
     Args:
         datamodule flash.DataModule: DataModule from Flash or PyTorch Lightning
-        max_epochs int: Maximum number of epochs for which model will train
-        max_steps int: Maximum number of steps for each epoch
+        max_epochs [int]: Maximum number of epochs for which model will train
+        max_steps Optional[int]: Maximum number of steps for each epoch. Defaults None.
         optimization_metric str: Value on which hyperparameter search will run.
-        By default, it is `train_accuracy`.
+        By default, it is `val_accuracy`.
         n_trials int: Number of trials for HPO
         suggested_conf Dict: Any extra suggested configuration
         timeout int: HPO will stop after timeout
@@ -54,18 +55,18 @@ class AutoModel:
     _CURRENT_MODEL = "current_model"
 
     def __init__(
-        self,
-        datamodule: DataModule,
-        max_epochs: int = 10,
-        max_steps: int = 100,
-        optimization_metric: Optional[str] = None,
-        n_trials: int = 100,
-        suggested_conf: Optional[dict] = None,
-        timeout: int = 600,
-        prune: bool = True,
-        optuna_confs: Optional[Dict] = None,
-        trainer_confs: Optional[Dict] = None,
-        best_trial: bool = True,
+            self,
+            datamodule: DataModule,
+            max_epochs: int = 10,
+            max_steps: Optional[int] = None,
+            optimization_metric: Optional[str] = None,
+            n_trials: int = 100,
+            suggested_conf: Optional[dict] = None,
+            timeout: int = 600,
+            prune: bool = True,
+            optuna_confs: Optional[Dict] = None,
+            trainer_confs: Optional[Dict] = None,
+            best_trial: bool = True,
     ):
 
         self._pruner: optuna.pruners.BasePruner = (
@@ -78,7 +79,7 @@ class AutoModel:
         self.max_epochs = max_epochs
         self.max_steps = max_steps
         self.timeout = timeout
-        self.optimization_metric = optimization_metric or "train_accuracy"
+        self.optimization_metric = optimization_metric or "val_accuracy"
         self.optuna_confs = optuna_confs or {}
         self.trainer_confs = trainer_confs or {}
         self.suggested_conf = suggested_conf or {}
@@ -90,9 +91,9 @@ class AutoModel:
         )
         default_lr = self.DEFAULT_LR
         self.suggested_lr = (
-            self.suggested_conf.get("lr")
-            or self.suggested_conf.get("learning_rate")
-            or default_lr
+                self.suggested_conf.get("lr")
+                or self.suggested_conf.get("learning_rate")
+                or default_lr
         )
 
     @abstractmethod
@@ -105,8 +106,8 @@ class AutoModel:
 
     # noinspection PyTypeChecker
     def _objective(
-        self,
-        trial: optuna.Trial,
+            self,
+            trial: optuna.Trial,
     ):
         """
         Defines _objective function to minimize
@@ -114,7 +115,7 @@ class AutoModel:
         Args:
             trial [optuna.Trial]: optuna.Trial object passed during `optuna.Study.optimize`
         """
-        trainer = pl.Trainer(
+        trainer = flash.Trainer(
             logger=True,
             gpus=1 if torch.cuda.is_available() else None,
             max_epochs=self.max_epochs,
@@ -124,6 +125,7 @@ class AutoModel:
             ),
             **self.trainer_confs,
         )
+
         trial_confs = self._get_trial_hparams(trial)
         model = self.build_model(**trial_confs)
         trial.set_user_attr(key="current_model", value=model)

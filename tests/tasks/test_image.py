@@ -53,10 +53,10 @@ def test_hp_tune():
     model = AutoImageClassifier(
         datamodule,
         max_epochs=1,
-        max_steps=5,
+        max_steps=2,
         timeout=10,
         suggested_backbones="ssl_resnet18",
-        optimization_metric="train_accuracy",
+        optimization_metric="val_accuracy",
         n_trials=1,
         optuna_confs={"direction": "maximize"}
     )
