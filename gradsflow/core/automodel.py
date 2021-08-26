@@ -14,6 +14,7 @@
 
 from abc import abstractmethod
 from typing import Dict, Optional, Union
+from copy import deepcopy
 
 import flash
 import optuna
@@ -131,7 +132,7 @@ class AutoModel:
         trial.set_user_attr(key="current_model", value=model)
         hparams = dict(model=model.hparams)
         trainer.logger.log_hyperparams(hparams)
-        trainer.fit(model, datamodule=self.datamodule)
+        trainer.fit(model, datamodule=deepcopy(self.datamodule))
 
         logger.debug(trainer.callback_metrics)
         return trainer.callback_metrics[self.optimization_metric].item()
