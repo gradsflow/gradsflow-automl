@@ -19,9 +19,9 @@ import optuna
 import pytorch_lightning as pl
 import torch
 from flash import DataModule
+from loguru import logger
 from optuna.integration import PyTorchLightningPruningCallback
 
-from gradsflow.logging import logger
 from gradsflow.utility.common import module_to_cls_index
 from gradsflow.utility.optuna import is_best_trial
 
