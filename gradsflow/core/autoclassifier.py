@@ -15,9 +15,9 @@
 from abc import abstractmethod
 from typing import Dict, List, Optional, Union
 
-import optuna
 import torch
 from flash.core.data.data_module import DataModule
+from ray import tune
 
 from gradsflow.core.automodel import AutoModel
 
@@ -73,15 +73,13 @@ class AutoClassifier(AutoModel):
         return self.model(x)
 
     # noinspection PyTypeChecker
-    def _get_trial_hparams(self, trial: optuna.Trial) -> Dict[str, str]:
-        """Fetch hyperparameters from current optuna.Trial and returns
+    def _create_hparam_config(self) -> Dict[str, str]:
+        """Fetch hyperparameters from current o     ptuna.Trial and returns
         key-value pair of hparams"""
 
-        trial_backbone = trial.suggest_categorical("backbone", self.suggested_backbones)
-        trial_lr = trial.suggest_float("lr", *self.suggested_lr, log=True)
-        trial_optimizer = trial.suggest_categorical(
-            "optimizer", self.suggested_optimizers
-        )
+        trial_backbone = tune.choice(self.suggested_backbones)
+        trial_lr = tune.loguniform(*self.suggested_lr)
+        trial_optimizer = tune.choice(self.suggested_optimizers)
         hparams = {
             "backbone": trial_backbone,
             "lr": trial_lr,

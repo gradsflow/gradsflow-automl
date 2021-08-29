@@ -27,6 +27,7 @@
 ## Highlights
 
 - 2020-8-25: [Released first version 0.0.1](https://pypi.org/project/gradsflow/) ✨ :tada:
+- 2020-9-1: Migrated to Ray Tune
 
 ## What is Gradsflow?
 
