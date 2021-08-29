@@ -12,6 +12,9 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from flash.core.data.utils import download_data
+from pathlib import Path
 
-download_data("https://pl-flash-data.s3.amazonaws.com/hymenoptera_data.zip", "~/data")
+from flash.core.data.utils import download_data
+home = str(Path.home())
+
+download_data("https://pl-flash-data.s3.amazonaws.com/hymenoptera_data.zip", f"{home}/data")

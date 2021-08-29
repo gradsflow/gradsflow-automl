@@ -20,13 +20,13 @@ import torch
 from flash.image import ImageClassificationData, ImageClassifier
 
 from gradsflow.autotasks import AutoImageClassifier
-
+from pathlib import Path
 warnings.filterwarnings("ignore")
 
-cwd = os.getcwd()
+home = Path.home()
 datamodule = ImageClassificationData.from_folders(
-    train_folder=f"{cwd}/data/hymenoptera_data/train/",
-    val_folder=f"{cwd}/data/hymenoptera_data/val/",
+    train_folder=f"{home}/data/hymenoptera_data/train/",
+    val_folder=f"{home}/data/hymenoptera_data/val/",
 )
 
 
