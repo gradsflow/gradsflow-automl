@@ -115,14 +115,14 @@ class AutoModel:
             max_epochs=self.max_epochs,
             max_steps=self.max_steps,
             callbacks=[
-            TuneReportCallback(
-                {
-                    "val_accuracy": "val_accuracy",
-                    "train_accuracy": "train_accuracy",
-                },
-                on="validation_end",
-            )
-        ],
+                TuneReportCallback(
+                    {
+                        "val_accuracy": "val_accuracy",
+                        "train_accuracy": "train_accuracy",
+                    },
+                    on="validation_end",
+                )
+            ],
             val_check_interval=val_check_interval,
             **trainer_config,
         )
