@@ -53,17 +53,17 @@ class AutoModel:
     _CURRENT_MODEL = "current_model"
 
     def __init__(
-            self,
-            datamodule: DataModule,
-            max_epochs: int = 10,
-            max_steps: Optional[int] = None,
-            optimization_metric: Optional[str] = None,
-            n_trials: int = 100,
-            suggested_conf: Optional[dict] = None,
-            timeout: int = 600,
-            prune: bool = True,
-            tune_confs: Optional[Dict] = None,
-            best_trial: bool = True,
+        self,
+        datamodule: DataModule,
+        max_epochs: int = 10,
+        max_steps: Optional[int] = None,
+        optimization_metric: Optional[str] = None,
+        n_trials: int = 100,
+        suggested_conf: Optional[dict] = None,
+        timeout: int = 600,
+        prune: bool = True,
+        tune_confs: Optional[Dict] = None,
+        best_trial: bool = True,
     ):
         self.prune = prune
         self.datamodule = datamodule
