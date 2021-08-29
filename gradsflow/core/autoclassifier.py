@@ -71,7 +71,7 @@ class AutoClassifier(AutoModel):
         return self.model(x)
 
     # noinspection PyTypeChecker
-    def _create_hparam_config(self) -> Dict[str, str]:
+    def _create_search_space(self) -> Dict[str, str]:
         """Create hyperparameter config from `ray.tune`
 
         Returns:
