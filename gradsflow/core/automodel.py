@@ -136,10 +136,29 @@ class AutoModel:
         return trainer.callback_metrics[self.optimization_metric].item()
 
     def hp_tune(
-        self, ray_config: Optional[dict] = None, trainer_config: Optional[dict] = None
+        self,
+        name: Optional[str] = None,
+        ray_config: Optional[dict] = None,
+        trainer_config: Optional[dict] = None,
+        mode: Optional[str] = None,
+        gpu: Optional[float] = 0,
+        cpu: Optional[float] = None,
+        resume: bool = False,
     ):
         """
         Search Hyperparameter and builds model with the best params
+
+        Args:
+            name Optional[str]: name of the experiment.
+            ray_config dict:
+            trainer_config dict:
+            mode Optional[str]:
+            gpu float:
+            cpu float:
+            resume bool:
+
+        Returns:
+            tune analysis object
         """
         trainer_config = trainer_config or {}
         ray_config = ray_config or {}
@@ -147,12 +166,23 @@ class AutoModel:
         search_space = self._create_search_space()
         trainable = self.objective
 
+        resources_per_trial = {}
+        if gpu:
+            resources_per_trial["gpu"] = gpu
+        if cpu:
+            resources_per_trial["cpu"] = cpu
+
+        mode = mode or "max"
+
         analysis = tune.run(
             tune.with_parameters(trainable, trainer_config=trainer_config),
+            name=name,
             num_samples=self.n_trials,
             metric=self.optimization_metric,
-            mode="max",
+            mode=mode,
             config=search_space,
+            resources_per_trial=resources_per_trial,
+            resume=resume,
             **ray_config,
         )
         self.analysis = analysis
