@@ -173,7 +173,7 @@ class AutoModel:
             resources_per_trial["cpu"] = cpu
 
         mode = mode or "max"
-
+        timeout_stopper = tune.stopper.TimeoutStopper(self.timeout)
         analysis = tune.run(
             tune.with_parameters(trainable, trainer_config=trainer_config),
             name=name,
@@ -183,6 +183,7 @@ class AutoModel:
             config=search_space,
             resources_per_trial=resources_per_trial,
             resume=resume,
+            stop=timeout_stopper,
             **ray_config,
         )
         self.analysis = analysis
