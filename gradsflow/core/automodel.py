@@ -88,7 +88,7 @@ class AutoModel:
         )
 
     @abstractmethod
-    def _create_hparam_config(self) -> Dict[str, str]:
+    def _create_search_space(self) -> Dict[str, str]:
         raise NotImplementedError
 
     @abstractmethod
@@ -144,7 +144,7 @@ class AutoModel:
         trainer_config = trainer_config or {}
         ray_config = ray_config or {}
 
-        search_space = self._create_hparam_config()
+        search_space = self._create_search_space()
         trainable = self.objective
 
         analysis = tune.run(

@@ -13,8 +13,10 @@
 #  limitations under the License.
 
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 import pytest
+import torch
 from flash.image import ImageClassificationData
 
 from gradsflow.core.automodel import AutoModel
@@ -34,3 +36,21 @@ def test_build_model():
     model = AutoModel(datamodule)
     with pytest.raises(NotImplementedError):
         model.build_model({"lr": 1})
+
+
+def test_create_search_space():
+    model = AutoModel(datamodule)
+    with pytest.raises(NotImplementedError):
+        model._create_search_space()
+
+
+@patch("gradsflow.core.automodel.pl")
+def test_objective(mock_pl):
+    optimization_metric = "val_accuracy"
+    model = AutoModel(datamodule, optimization_metric=optimization_metric)
+
+    model.build_model = MagicMock()
+    trainer = mock_pl.Trainer = MagicMock()
+    trainer.callback_metrics = {optimization_metric: torch.as_tensor([1])}
+
+    model.objective({}, {})
