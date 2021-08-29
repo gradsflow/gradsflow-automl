@@ -156,10 +156,7 @@ class AutoModel:
             cpu float: CPU cores per trial
             resume bool: Whether to resume the training or not.
 
-        Returns:
-            tune analysis object
-
-        !!! note:
+        !!! note
             ```python
                 automodel = AutoClassifier(data)  # implements `AutoModel`
                 automodel.hp_tune(name="gflow-example", gpu=1)
