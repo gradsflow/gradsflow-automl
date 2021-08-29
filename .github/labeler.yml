@@ -7,3 +7,8 @@ example:
 
 test:
 - tests/**/*
+
+CI:
+- .github/**/*
+- "*.yaml"
+- "*.yml"
