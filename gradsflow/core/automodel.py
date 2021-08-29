@@ -48,8 +48,6 @@ class AutoModel:
     OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
     DEFAULT_OPTIMIZERS = ["adam", "sgd"]
     DEFAULT_LR = (1e-5, 1e-2)
-    _BEST_MODEL = "best_model"
-    _CURRENT_MODEL = "current_model"
 
     def __init__(
         self,
@@ -57,7 +55,7 @@ class AutoModel:
         max_epochs: int = 10,
         max_steps: Optional[int] = None,
         optimization_metric: Optional[str] = None,
-        n_trials: int = 100,
+        n_trials: int = 20,
         suggested_conf: Optional[dict] = None,
         timeout: int = 600,
         prune: bool = True,
@@ -136,23 +134,59 @@ class AutoModel:
         return trainer.callback_metrics[self.optimization_metric].item()
 
     def hp_tune(
-        self, ray_config: Optional[dict] = None, trainer_config: Optional[dict] = None
+        self,
+        name: Optional[str] = None,
+        ray_config: Optional[dict] = None,
+        trainer_config: Optional[dict] = None,
+        mode: Optional[str] = None,
+        gpu: Optional[float] = 0,
+        cpu: Optional[float] = None,
+        resume: bool = False,
     ):
         """
         Search Hyperparameter and builds model with the best params
+
+        Args:
+            name Optional[str]: name of the experiment.
+            ray_config dict: configuration passed to `ray.tune.run(...)`
+            trainer_config dict: configuration passed to `pl.trainer.fit(...)`
+            mode Optional[str]: Whether to maximize or mimimize the `optimization_metric`.
+            Values are `max` or `min`
+            gpu Optional[float]: Amount of GPU resource per trial.
+            cpu float: CPU cores per trial
+            resume bool: Whether to resume the training or not.
+
+        !!! note
+            ```python
+                automodel = AutoClassifier(data)  # implements `AutoModel`
+                automodel.hp_tune(name="gflow-example", gpu=1)
+            ```
         """
+
         trainer_config = trainer_config or {}
         ray_config = ray_config or {}
 
         search_space = self._create_search_space()
         trainable = self.objective
 
+        resources_per_trial = {}
+        if gpu:
+            resources_per_trial["gpu"] = gpu
+        if cpu:
+            resources_per_trial["cpu"] = cpu
+
+        mode = mode or "max"
+        timeout_stopper = tune.stopper.TimeoutStopper(self.timeout)
         analysis = tune.run(
             tune.with_parameters(trainable, trainer_config=trainer_config),
+            name=name,
             num_samples=self.n_trials,
             metric=self.optimization_metric,
-            mode="max",
+            mode=mode,
             config=search_space,
+            resources_per_trial=resources_per_trial,
+            resume=resume,
+            stop=timeout_stopper,
             **ray_config,
         )
         self.analysis = analysis
