@@ -148,16 +148,24 @@ class AutoModel:
 
         Args:
             name Optional[str]: name of the experiment.
-            ray_config dict:
-            trainer_config dict:
-            mode Optional[str]:
-            gpu float:
-            cpu float:
-            resume bool:
+            ray_config dict: configuration passed to `ray.tune.run(...)`
+            trainer_config dict: configuration passed to `pl.trainer.fit(...)`
+            mode Optional[str]: Whether to maximize or mimimize the `optimization_metric`.
+            Values are `max` or `min`
+            gpu Optional[float]: Amount of GPU resource per trial.
+            cpu float: CPU cores per trial
+            resume bool: Whether to resume the training or not.
 
         Returns:
             tune analysis object
+
+        !!! note:
+            ```python
+                automodel = AutoClassifier(data)  # implements `AutoModel`
+                automodel.hp_tune(name="gflow-example", gpu=1)
+            ```
         """
+
         trainer_config = trainer_config or {}
         ray_config = ray_config or {}
 
