@@ -1,5 +1,5 @@
 site_name: GradsFlow
-site_description: "An AutoML Library made with Optuna and PyTorch Lightning"
+site_description: "An open-source AutoML Library in PyTorch"
 banner_url: https://ik.imagekit.io/gradsflow/logo/logo-small_g2MxLWesD.png?updatedAt=1627716948296
 repo_url: https://github.com/gradsflow/gradsflow/
 repo_name: gradsflow/gradsflow

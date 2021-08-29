@@ -72,9 +72,11 @@ class AutoClassifier(AutoModel):
 
     # noinspection PyTypeChecker
     def _create_hparam_config(self) -> Dict[str, str]:
-        """Fetch hyperparameters from current o     ptuna.Trial and returns
-        key-value pair of hparams"""
+        """Create hyperparameter config from `ray.tune`
 
+        Returns:
+             key-value pair of `ray.tune` hparams
+        """
         trial_backbone = tune.choice(self.suggested_backbones)
         trial_lr = tune.loguniform(*self.suggested_lr)
         trial_optimizer = tune.choice(self.suggested_optimizers)

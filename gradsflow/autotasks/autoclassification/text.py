@@ -68,7 +68,8 @@ class AutoTextClassifier(AutoClassifier):
     ]
 
     def build_model(self, **kwargs) -> torch.nn.Module:
-        """Build ImageClassifier model from optuna.Trial object or via keyword arguments.
+        """Build TextClassifier model from `ray.tune` hyperparameter configs
+        or via keyword arguments
 
         Arguments:
             backbone [str]: Image classification backbone name - resnet18, resnet50,...
