@@ -41,8 +41,6 @@ class AutoModel:
         suggested_conf Dict: Any extra suggested configuration
         timeout int: HPO will stop after timeout
         prune bool: Whether to stop unpromising training.
-        trainer_confs Dict: PL.Trainer confs,
-            See more at [PyTorch Lightning Docs](https://pytorch-lightning.readthedocs.io/en/latest/common/trainer.html)
         tune_confs Dict: raytune configurations. See more at Ray docs.
         best_trial bool: If true model will be loaded with best weights from HPO otherwise
         a best trial model without trained weights will be created.
@@ -65,9 +63,9 @@ class AutoModel:
             timeout: int = 600,
             prune: bool = True,
             tune_confs: Optional[Dict] = None,
-            trainer_confs: Optional[Dict] = None,
             best_trial: bool = True,
     ):
+        self.prune = prune
         self.datamodule = datamodule
         self.n_trials = n_trials
         self.best_trial = best_trial
@@ -77,7 +75,6 @@ class AutoModel:
         self.timeout = timeout
         self.optimization_metric = optimization_metric or "val_accuracy"
         self.optuna_confs = tune_confs or {}
-        self.trainer_confs = trainer_confs or {}
         self.suggested_conf = suggested_conf or {}
 
         self.suggested_optimizers = self.suggested_conf.get(
@@ -128,7 +125,7 @@ class AutoModel:
 
         trainer = pl.Trainer(
             logger=True,
-            gpus=1 if torch.cuda.is_available() else None,
+            gpus=1 if torch.cuda.is_available() else trainer_config,
             max_epochs=self.max_epochs,
             max_steps=self.max_steps,
             callbacks=callbacks,
