@@ -56,11 +56,10 @@ def test_objective(mock_pl):
     model.objective({}, {})
 
 
-@patch("gradsflow.core.automodel.tune")
+@patch("gradsflow.core.automodel.tune.run")
 def test_hp_tune(mock_tune):
     automodel = AutoModel(datamodule)
     automodel._create_search_space = MagicMock()
     automodel.hp_tune(gpu=1, cpu=2)
 
-    mock_tune.run = MagicMock()
-    # mock_tune.run.assert_called()
+    mock_tune.assert_called()
