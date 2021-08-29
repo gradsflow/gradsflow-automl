@@ -27,9 +27,12 @@
 ## Highlights
 
 - 2020-8-25: [Released first version 0.0.1](https://pypi.org/project/gradsflow/) ✨ :tada:
-- 2020-8-29: Migrated to Ray Tune. [Read more...](https://github.com/gradsflow/gradsflow/issues/35)
+- 2020-8-29: Migrated from Optuna to Ray Tune. [Read more...](https://github.com/gradsflow/gradsflow/issues/35)
 
 ## What is GradsFlow?
+
+!!! attention
+    GradsFlow is changing fast and is not stable yet.
 
 GradsFlow is based on Ray and PyTorch Lightning ⚡️ (support for other torch frameworks will be added soon).
 It leverages PyTorch Lightning Flash so that you don't have to write any

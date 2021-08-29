@@ -1,5 +1,8 @@
 site_name: GradsFlow
 site_description: "An open-source AutoML Library in PyTorch"
+site_author: Aniket Maurya
+copyright: 'Copyright &copy; 2021 GradsFlow'
+
 banner_url: https://ik.imagekit.io/gradsflow/logo/logo-small_g2MxLWesD.png?updatedAt=1627716948296
 repo_url: https://github.com/gradsflow/gradsflow/
 repo_name: gradsflow/gradsflow
@@ -36,14 +39,20 @@ markdown_extensions:
   - meta
   - pymdownx.highlight
   - pymdownx.superfences
+  - pymdownx.details
+  - pymdownx.superfences
+  - admonition
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji
       emoji_generator: !!python/name:materialx.emoji.to_svg
+  - toc:
+      permalink: true
 
 plugins:
   - git-revision-date-localized
   - search
   - autorefs
+  - mkdocs-jupyter
   - mkdocstrings:
       default_handler: python
       handlers:
@@ -56,7 +65,12 @@ extra:
 
 nav:
   - Introduction: 'index.md'
-  - Reference:
+  - Guide:
+      - Examples:
+          - Auto Image Classification: 'examples/nbs/01-ImageClassification.ipynb'
+          - Auto Text Classification: 'examples/nbs/02-TextClassification.ipynb'
+          - Auto Summarization: 'examples/nbs/03-TextSummarization.ipynb'
+  - References:
       - Core: gradsflow/core.md
       - Auto Tasks: gradsflow/autotasks.md
       - utility: gradsflow/utility.md
