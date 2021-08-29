@@ -127,7 +127,7 @@ class AutoModel:
             **trainer_config,
         )
 
-        model = self.build_model(**config)
+        model = self.build_model(config)
         hparams = dict(model=model.hparams)
         trainer.logger.log_hyperparams(hparams)
         trainer.fit(model, datamodule=datamodule)
