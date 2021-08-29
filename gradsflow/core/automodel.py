@@ -52,17 +52,17 @@ class AutoModel:
     _CURRENT_MODEL = "current_model"
 
     def __init__(
-            self,
-            datamodule: DataModule,
-            max_epochs: int = 10,
-            max_steps: Optional[int] = None,
-            optimization_metric: Optional[str] = None,
-            n_trials: int = 100,
-            suggested_conf: Optional[dict] = None,
-            timeout: int = 600,
-            prune: bool = True,
-            tune_confs: Optional[Dict] = None,
-            best_trial: bool = True,
+        self,
+        datamodule: DataModule,
+        max_epochs: int = 10,
+        max_steps: Optional[int] = None,
+        optimization_metric: Optional[str] = None,
+        n_trials: int = 100,
+        suggested_conf: Optional[dict] = None,
+        timeout: int = 600,
+        prune: bool = True,
+        tune_confs: Optional[Dict] = None,
+        best_trial: bool = True,
     ):
         self.prune = prune
         self.datamodule = datamodule
@@ -81,9 +81,9 @@ class AutoModel:
         )
         default_lr = self.DEFAULT_LR
         self.suggested_lr = (
-                self.suggested_conf.get("lr")
-                or self.suggested_conf.get("learning_rate")
-                or default_lr
+            self.suggested_conf.get("lr")
+            or self.suggested_conf.get("learning_rate")
+            or default_lr
         )
 
     @abstractmethod
@@ -136,7 +136,7 @@ class AutoModel:
         return trainer.callback_metrics[self.optimization_metric].item()
 
     def hp_tune(
-            self, ray_config: Optional[dict] = None, trainer_config: Optional[dict] = None
+        self, ray_config: Optional[dict] = None, trainer_config: Optional[dict] = None
     ):
         """
         Search Hyperparameter and builds model with the best params
