@@ -19,4 +19,4 @@ from gradsflow.autotasks.autoclassification.text import AutoTextClassifier
 from gradsflow.autotasks.autosummarization import AutoSummarization
 from gradsflow.core.automodel import AutoModel
 
-__version__ = "0.0.3a2"
+__version__ = "0.0.3"
