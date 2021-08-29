@@ -82,9 +82,9 @@ class AutoModel:
         )
         default_lr = self.DEFAULT_LR
         self.suggested_lr = (
-                self.suggested_conf.get("lr")
-                or self.suggested_conf.get("learning_rate")
-                or default_lr
+            self.suggested_conf.get("lr")
+            or self.suggested_conf.get("learning_rate")
+            or default_lr
         )
 
         self._setup()
@@ -125,7 +125,7 @@ class AutoModel:
 
         trainer = pl.Trainer(
             logger=True,
-            gpus=1 if torch.cuda.is_available() else trainer_config,
+            gpus=1 if torch.cuda.is_available() else None,
             max_epochs=self.max_epochs,
             max_steps=self.max_steps,
             callbacks=callbacks,
@@ -142,7 +142,7 @@ class AutoModel:
         return trainer.callback_metrics[self.optimization_metric].item()
 
     def hp_tune(
-            self, ray_config: Optional[dict] = None, trainer_config: Optional[dict] = None
+        self, ray_config: Optional[dict] = None, trainer_config: Optional[dict] = None
     ):
         """
         Search Hyperparameter and builds model with the best params
@@ -158,7 +158,7 @@ class AutoModel:
             metric=self.optimization_metric,
             mode="max",
             config=search_space,
-            **ray_config
+            **ray_config,
         )
 
         logger.info("🎉 Best hyperparameters found were: ", analysis.best_config)
