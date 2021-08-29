@@ -16,10 +16,13 @@ import pytest
 from flash.image import ImageClassificationData
 
 from gradsflow.core.automodel import AutoModel
+from pathlib import Path
 
+
+cwd = Path.cwd()
 datamodule = ImageClassificationData.from_folders(
-    train_folder="data/hymenoptera_data/train/",
-    val_folder="data/hymenoptera_data/val/",
+    train_folder=f"{cwd}/data/hymenoptera_data/train/",
+    val_folder=f"{cwd}/data/hymenoptera_data/val/",
 )
 
 

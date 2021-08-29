@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 import warnings
+from pathlib import Path
 
 import pytest
 import torch
 from flash.image import ImageClassificationData, ImageClassifier
 
 from gradsflow.autotasks import AutoImageClassifier
-from pathlib import Path
+
 warnings.filterwarnings("ignore")
 
 data_dir = Path.cwd()

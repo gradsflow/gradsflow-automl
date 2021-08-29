@@ -15,6 +15,6 @@
 from pathlib import Path
 
 from flash.core.data.utils import download_data
-home = str(Path.home())
+cwd = str(Path.cwd())
 
-download_data("https://pl-flash-data.s3.amazonaws.com/hymenoptera_data.zip", f"{home}/data")
+download_data("https://pl-flash-data.s3.amazonaws.com/hymenoptera_data.zip", f"{cwd}/data")
