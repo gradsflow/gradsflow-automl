@@ -88,9 +88,9 @@ class AutoClassifier(AutoModel):
         return hparams
 
     @abstractmethod
-    def build_model(self, **kwargs) -> torch.nn.Module:
+    def build_model(self, config: dict) -> torch.nn.Module:
         """Every Task implementing AutoClassifier has to implement a
-        build model method that can build `torch.nn.Module` from keyword arguments
+        build model method that can build `torch.nn.Module` from dictionary config
         and return the model.
         """
         raise NotImplementedError

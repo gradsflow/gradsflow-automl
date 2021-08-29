@@ -92,7 +92,7 @@ class AutoModel:
         raise NotImplementedError
 
     @abstractmethod
-    def build_model(self, **kwargs) -> torch.nn.Module:
+    def build_model(self, config: dict) -> torch.nn.Module:
         raise NotImplementedError
 
     # noinspection PyTypeChecker
