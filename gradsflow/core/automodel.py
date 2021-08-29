@@ -55,7 +55,7 @@ class AutoModel:
         max_epochs: int = 10,
         max_steps: Optional[int] = None,
         optimization_metric: Optional[str] = None,
-        n_trials: int = 100,
+        n_trials: int = 20,
         suggested_conf: Optional[dict] = None,
         timeout: int = 600,
         prune: bool = True,

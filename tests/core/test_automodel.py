@@ -54,3 +54,13 @@ def test_objective(mock_pl):
     trainer.callback_metrics = {optimization_metric: torch.as_tensor([1])}
 
     model.objective({}, {})
+
+
+@patch("gradsflow.core.automodel.tune")
+def test_hp_tune(mock_tune):
+    automodel = AutoModel(datamodule)
+    automodel._create_search_space = MagicMock()
+    automodel.hp_tune(gpu=1, cpu=2)
+
+    mock_tune.run = MagicMock()
+    # mock_tune.run.assert_called()
