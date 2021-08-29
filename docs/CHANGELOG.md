@@ -22,3 +22,4 @@
 * add max_steps for HPO. PR [#25](https://github.com/gradsflow/gradsflow/pull/25) by [@aniketmaurya](https://github.com/aniketmaurya).
 * :memo: update docs & license. PR [#23](https://github.com/gradsflow/gradsflow/pull/23) by [@aniketmaurya](https://github.com/aniketmaurya).
 * fetch best trial model. PR [#21](https://github.com/gradsflow/gradsflow/pull/21) by [@aniketmaurya](https://github.com/aniketmaurya).
+* migrate to ray_tune 🌟. Read more [here](https://github.com/gradsflow/gradsflow/issues/35). PR [#36](https://github.com/gradsflow/gradsflow/pull/36) by [@aniketmaurya](https://github.com/aniketmaurya).
