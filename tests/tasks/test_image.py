@@ -46,7 +46,7 @@ def test_build_model():
         n_trials=1,
     )
     kwargs = {"backbone": "ssl_resnet18", "optimizer": "adam", "lr": 1e-1}
-    model.model = model.build_model(**kwargs)
+    model.model = model.build_model(kwargs)
     assert isinstance(model.model, ImageClassifier)
 
 
