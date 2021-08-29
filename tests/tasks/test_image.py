@@ -60,4 +60,4 @@ def test_hp_tune():
         optimization_metric="train_accuracy",
         n_trials=1,
     )
-    model.hp_tune()
+    model.hp_tune({}, {})

@@ -108,7 +108,13 @@ class AutoModel:
             val_check_interval = max(self.max_steps - 1, 1.0)
 
         datamodule = self.datamodule
-        callbacks = [
+
+        trainer = pl.Trainer(
+            logger=True,
+            gpus=1 if torch.cuda.is_available() else None,
+            max_epochs=self.max_epochs,
+            max_steps=self.max_steps,
+            callbacks=[
             TuneReportCallback(
                 {
                     "val_accuracy": "val_accuracy",
@@ -116,14 +122,7 @@ class AutoModel:
                 },
                 on="validation_end",
             )
-        ]
-
-        trainer = pl.Trainer(
-            logger=True,
-            gpus=1 if torch.cuda.is_available() else None,
-            max_epochs=self.max_epochs,
-            max_steps=self.max_steps,
-            callbacks=callbacks,
+        ],
             val_check_interval=val_check_interval,
             **trainer_config,
         )
