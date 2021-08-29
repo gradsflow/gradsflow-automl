@@ -52,7 +52,7 @@ plugins:
             show_source: false
 
 extra:
-  homepage: https://docs.gradsflow.com/en/latest/
+  homepage: https://docs.gradsflow.com
 
 nav:
   - Introduction: 'index.md'
