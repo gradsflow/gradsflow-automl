@@ -24,3 +24,5 @@
 * fetch best trial model. PR [#21](https://github.com/gradsflow/gradsflow/pull/21) by [@aniketmaurya](https://github.com/aniketmaurya).
 * migrate to ray_tune 🌟. Read more [here](https://github.com/gradsflow/gradsflow/issues/35). PR [#36](https://github.com/gradsflow/gradsflow/pull/36) by [@aniketmaurya](https://github.com/aniketmaurya).
 * render jupyter notebooks in documentation. PR [#38](https://github.com/gradsflow/gradsflow/pull/38) by [@aniketmaurya](https://github.com/aniketmaurya).
+
+## 0.0.4
