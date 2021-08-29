@@ -23,10 +23,10 @@ from gradsflow.autotasks import AutoImageClassifier
 from pathlib import Path
 warnings.filterwarnings("ignore")
 
-home = Path.home()
+data_dir = Path.cwd()
 datamodule = ImageClassificationData.from_folders(
-    train_folder=f"{home}/data/hymenoptera_data/train/",
-    val_folder=f"{home}/data/hymenoptera_data/val/",
+    train_folder=f"{data_dir}/data/hymenoptera_data/train/",
+    val_folder=f"{data_dir}/data/hymenoptera_data/val/",
 )
 
 
@@ -57,7 +57,7 @@ def test_hp_tune():
         max_steps=2,
         timeout=10,
         suggested_backbones="ssl_resnet18",
-        optimization_metric="val_accuracy",
+        optimization_metric="train_accuracy",
         n_trials=1,
         optuna_confs={"direction": "maximize"},
     )

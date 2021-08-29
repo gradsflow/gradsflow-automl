@@ -11,16 +11,14 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-import sys
 
-sys.path.append("../../../")
-
+import os
 from flash.image import ImageClassificationData
 
 from gradsflow import AutoImageClassifier
 
 # 1. Create the DataModule
-data_dir = "/Users/aniket/personal/gradsflow/gradsflow/data"
+data_dir = os.getcwd() + '/data'
 # download_data("https://pl-flash-data.s3.amazonaws.com/hymenoptera_data.zip", data_dir)
 
 datamodule = ImageClassificationData.from_folders(
@@ -33,9 +31,6 @@ model = AutoImageClassifier(
     max_epochs=2,
     optimization_metric="train_accuracy",
     max_steps=2,
-    trainer_confs={
-        "limit_train_batches": 0.1,
-    },
 )
 print("AutoImageClassifier initialised!")
 
