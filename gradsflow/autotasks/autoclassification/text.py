@@ -67,8 +67,9 @@ class AutoTextClassifier(AutoClassifier):
         "sgugger/tiny-distilbert-classification",
     ]
 
-    def build_model(self, **kwargs) -> torch.nn.Module:
-        """Build ImageClassifier model from optuna.Trial object or via keyword arguments.
+    def build_model(self, config: dict) -> torch.nn.Module:
+        """Build TextClassifier model from `ray.tune` hyperparameter configs
+        or via config dictionary arguments
 
         Arguments:
             backbone [str]: Image classification backbone name - resnet18, resnet50,...
@@ -77,9 +78,9 @@ class AutoTextClassifier(AutoClassifier):
             optimizer [str]: PyTorch Optimizers. Check `AutoImageClassification.OPTIMIZER_INDEX`
             learning_rate [float]: Learning rate for the model.
         """
-        backbone = kwargs["backbone"]
-        optimizer = kwargs["optimizer"]
-        learning_rate = kwargs["lr"]
+        backbone = config["backbone"]
+        optimizer = config["optimizer"]
+        learning_rate = config["lr"]
 
         return TextClassifier(
             self.num_classes,

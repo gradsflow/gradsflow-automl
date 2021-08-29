@@ -13,24 +13,22 @@
 #  limitations under the License.
 
 from abc import abstractmethod
-from copy import deepcopy as c
 from typing import Dict, Optional, Union
 
-import flash
-import optuna
 import pytorch_lightning as pl
 import torch
 from flash import DataModule
 from loguru import logger
-from optuna.integration import PyTorchLightningPruningCallback
+from ray import tune
+from ray.tune.integration.pytorch_lightning import TuneReportCallback
 
 from gradsflow.utility.common import module_to_cls_index
-from gradsflow.utility.optuna import is_best_trial
 
 
 class AutoModel:
     """
-    Creates Optuna instance, defines methods required for hparam search
+    Base model that defines hyperparameter search methods and initializes `Ray`.
+    All other tasks are implementation of `AutoModel`.
 
     Args:
         datamodule flash.DataModule: DataModule from Flash or PyTorch Lightning
@@ -42,9 +40,7 @@ class AutoModel:
         suggested_conf Dict: Any extra suggested configuration
         timeout int: HPO will stop after timeout
         prune bool: Whether to stop unpromising training.
-        trainer_confs Dict: PL.Trainer confs,
-            See more at [PyTorch Lightning Docs](https://pytorch-lightning.readthedocs.io/en/latest/common/trainer.html)
-        optuna_confs Dict: Optuna configs
+        tune_confs Dict: raytune configurations. See more at Ray docs.
         best_trial bool: If true model will be loaded with best weights from HPO otherwise
         a best trial model without trained weights will be created.
     """
@@ -65,14 +61,11 @@ class AutoModel:
         suggested_conf: Optional[dict] = None,
         timeout: int = 600,
         prune: bool = True,
-        optuna_confs: Optional[Dict] = None,
-        trainer_confs: Optional[Dict] = None,
+        tune_confs: Optional[Dict] = None,
         best_trial: bool = True,
     ):
-
-        self._pruner: optuna.pruners.BasePruner = (
-            optuna.pruners.MedianPruner() if prune else optuna.pruners.NopPruner()
-        )
+        self.analysis = None
+        self.prune = prune
         self.datamodule = datamodule
         self.n_trials = n_trials
         self.best_trial = best_trial
@@ -81,11 +74,8 @@ class AutoModel:
         self.max_steps = max_steps
         self.timeout = timeout
         self.optimization_metric = optimization_metric or "val_accuracy"
-        self.optuna_confs = optuna_confs or {}
-        self.trainer_confs = trainer_confs or {}
+        self.optuna_confs = tune_confs or {}
         self.suggested_conf = suggested_conf or {}
-
-        self._study = optuna.create_study(pruner=self._pruner, **self.optuna_confs)
 
         self.suggested_optimizers = self.suggested_conf.get(
             "optimizer", self.DEFAULT_OPTIMIZERS
@@ -98,23 +88,20 @@ class AutoModel:
         )
 
     @abstractmethod
-    def _get_trial_hparams(self, trial) -> Dict[str, str]:
+    def _create_hparam_config(self) -> Dict[str, str]:
         raise NotImplementedError
 
     @abstractmethod
-    def build_model(self, **kwargs) -> torch.nn.Module:
+    def build_model(self, config: dict) -> torch.nn.Module:
         raise NotImplementedError
 
     # noinspection PyTypeChecker
-    def _objective(
-        self,
-        trial: optuna.Trial,
-    ):
+    def objective(self, config: Dict, trainer_config: Dict):
         """
-        Defines _objective function to minimize
+        Defines objective function which is used by tuner to minimize/maximize the metric.
 
         Args:
-            trial [optuna.Trial]: optuna.Trial object passed during `optuna.Study.optimize`
+            config dict: key value pair of hyperparameters.
         """
         val_check_interval = 1.0
         if self.max_steps:
@@ -127,16 +114,20 @@ class AutoModel:
             gpus=1 if torch.cuda.is_available() else None,
             max_epochs=self.max_epochs,
             max_steps=self.max_steps,
-            callbacks=PyTorchLightningPruningCallback(
-                trial, monitor=self.optimization_metric
-            ),
-            **self.trainer_confs,
-            val_check_interval=val_check_interval
+            callbacks=[
+                TuneReportCallback(
+                    {
+                        "val_accuracy": "val_accuracy",
+                        "train_accuracy": "train_accuracy",
+                    },
+                    on="validation_end",
+                )
+            ],
+            val_check_interval=val_check_interval,
+            **trainer_config,
         )
 
-        trial_confs = self._get_trial_hparams(trial)
-        model = self.build_model(**trial_confs)
-        trial.set_user_attr(key="current_model", value=model)
+        model = self.build_model(config)
         hparams = dict(model=model.hparams)
         trainer.logger.log_hyperparams(hparams)
         trainer.fit(model, datamodule=datamodule)
@@ -144,40 +135,27 @@ class AutoModel:
         logger.debug(trainer.callback_metrics)
         return trainer.callback_metrics[self.optimization_metric].item()
 
-    def callback_best_trial(self, study: optuna.Study, trial: optuna.Trial) -> None:
-        if is_best_trial(study, trial):
-            study.set_user_attr(
-                key=self._BEST_MODEL, value=trial.user_attrs[self._CURRENT_MODEL]
-            )
-
-    def hp_tune(self):
+    def hp_tune(
+        self, ray_config: Optional[dict] = None, trainer_config: Optional[dict] = None
+    ):
         """
         Search Hyperparameter and builds model with the best params
         """
-        callbacks = []
-        if self.best_trial:
-            callbacks.append(self.callback_best_trial)
-        self._study.optimize(
-            self._objective,
-            n_trials=self.n_trials,
-            timeout=self.timeout,
-            callbacks=callbacks,
+        trainer_config = trainer_config or {}
+        ray_config = ray_config or {}
+
+        search_space = self._create_hparam_config()
+        trainable = self.objective
+
+        analysis = tune.run(
+            tune.with_parameters(trainable, trainer_config=trainer_config),
+            num_samples=self.n_trials,
+            metric=self.optimization_metric,
+            mode="max",
+            config=search_space,
+            **ray_config,
         )
+        self.analysis = analysis
 
-        if self.best_trial:
-            self.model = self._study.user_attrs[self._BEST_MODEL]
-        else:
-            self.model = self.build_model(**self._study.best_params)
-
-    def plot_optimization_history(self, target_name: Optional[str] = None):
-        """
-        Plot optimization history of optuna.Study.
-        [See more](https://optuna.readthedocs.io/en/stable/reference/visualization/generated/optuna.visualization.plot_optimization_history.html)
-
-        Args:
-            target_name str: target name to display on plot.
-        """
-        fig = optuna.visualization.plot_optimization_history(
-            self._study, target_name=target_name
-        )
-        fig.show()
+        logger.info("🎉 Best hyperparameters found were: ", analysis.best_config)
+        return analysis

@@ -1,6 +1,6 @@
 ![logo](https://ik.imagekit.io/gradsflow/logo/logo-small_g2MxLWesD.png?updatedAt=1627716948296)
 
-# An AutoML Library made with Optuna and PyTorch Lightning
+# An open-source AutoML Library in PyTorch
 
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=gradsflow_gradsflow&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=gradsflow_gradsflow)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=gradsflow_gradsflow&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=gradsflow_gradsflow)
@@ -27,10 +27,11 @@
 ## Highlights
 
 - 2020-8-25: [Released first version 0.0.1](https://pypi.org/project/gradsflow/) ✨ :tada:
+- 2020-8-29: Migrated to Ray Tune. [Read more...](https://github.com/gradsflow/gradsflow/issues/35)
 
-## What is Gradsflow?
+## What is GradsFlow?
 
-Gradsflow is based on Optuna and PyTorch Lightning ⚡️.
+GradsFlow is based on Ray and PyTorch Lightning ⚡️ (support for other torch frameworks will be added soon).
 It leverages PyTorch Lightning Flash so that you don't have to write any
 PyTorch or Optuna code for model building or hyperparameter tuning 🚀
 
@@ -40,8 +41,8 @@ You can easily integrate any PyTorch/Lightning Flash Model with Gradsflow [AutoM
 - `gradsflow.core`: [Core](https://docs.gradsflow.com/en/latest/gradsflow/core/) defines the building blocks
 of AutoML tasks.
 
-- `gradsflow.taskauto`: [AutoTasks](https://docs.gradsflow.com/en/latest/gradsflow/autotasks/) defines
-different ML/DL tasks which is provided by Gradsflow AutoML API.
+- `gradsflow.autotasks`: [AutoTasks](https://docs.gradsflow.com/en/latest/gradsflow/autotasks/) defines
+different ML/DL tasks which is provided by gradsflow AutoML API.
 
 
 📑 Check out [notebooks examples](https://github.com/gradsflow/gradsflow/tree/main/examples/nbs).
@@ -61,4 +62,4 @@ Read full [**Contributor Covenant Code of Conduct**](https://github.com/gradsflo
 
 ## Acknowledgement
 
-**Gradsflow** is built with help of Optuna and PyTorch Lightning 💜
+**GradsFlow** is built with help of Ray and PyTorch Lightning 💜

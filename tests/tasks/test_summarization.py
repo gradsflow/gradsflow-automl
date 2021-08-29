@@ -31,4 +31,4 @@ def test_build_model():
         "optimizer": "adam",
         "lr": 1e-3,
     }
-    model.build_model(**model_confs)
+    model.build_model(model_confs)

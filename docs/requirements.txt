@@ -7,3 +7,4 @@ mkdocs-autorefs==0.2.1
 mkdocstrings==0.15.2
 tags-macros-plugin @ git+https://github.com/jldiaz/mkdocs-plugin-tags.git@d26e2f124e4f3471639d426459e281080988fe7a
 gradsflow
+ray[tune]

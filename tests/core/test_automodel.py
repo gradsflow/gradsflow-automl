@@ -12,14 +12,17 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from pathlib import Path
+
 import pytest
 from flash.image import ImageClassificationData
 
 from gradsflow.core.automodel import AutoModel
 
+cwd = Path.cwd()
 datamodule = ImageClassificationData.from_folders(
-    train_folder="data/hymenoptera_data/train/",
-    val_folder="data/hymenoptera_data/val/",
+    train_folder=f"{cwd}/data/hymenoptera_data/train/",
+    val_folder=f"{cwd}/data/hymenoptera_data/val/",
 )
 
 
@@ -30,10 +33,4 @@ def test_auto_model():
 def test_build_model():
     model = AutoModel(datamodule)
     with pytest.raises(NotImplementedError):
-        model.build_model(**{"lr": 1})
-
-
-def test_objective():
-    model = AutoModel(datamodule)
-    with pytest.raises(NotImplementedError):
-        model._objective(None)
+        model.build_model({"lr": 1})

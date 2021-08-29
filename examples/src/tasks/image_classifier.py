@@ -12,21 +12,26 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from flash.core.data.utils import download_data
+import os
+
 from flash.image import ImageClassificationData
 
 from gradsflow import AutoImageClassifier
 
 # 1. Create the DataModule
-download_data("https://pl-flash-data.s3.amazonaws.com/hymenoptera_data.zip", "./data")
+data_dir = os.getcwd() + "/data"
+# download_data("https://pl-flash-data.s3.amazonaws.com/hymenoptera_data.zip", data_dir)
 
 datamodule = ImageClassificationData.from_folders(
-    train_folder="data/hymenoptera_data/train/",
-    val_folder="data/hymenoptera_data/val/",
+    train_folder=f"{data_dir}/hymenoptera_data/train/",
+    val_folder=f"{data_dir}/hymenoptera_data/val/",
 )
 
 model = AutoImageClassifier(
-    datamodule, max_epochs=2, optimization_metric="val_accuracy"
+    datamodule,
+    max_epochs=2,
+    optimization_metric="train_accuracy",
+    max_steps=2,
 )
 print("AutoImageClassifier initialised!")
 

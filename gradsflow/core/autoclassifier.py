@@ -15,9 +15,9 @@
 from abc import abstractmethod
 from typing import Dict, List, Optional, Union
 
-import optuna
 import torch
 from flash.core.data.data_module import DataModule
+from ray import tune
 
 from gradsflow.core.automodel import AutoModel
 
@@ -39,10 +39,9 @@ class AutoClassifier(AutoModel):
         optimization_metric: Optional[str] = None,
         suggested_backbones: Union[List, str, None] = None,
         suggested_conf: Optional[dict] = None,
+        tune_confs: Optional[Dict] = None,
         timeout: int = 600,
         prune: bool = True,
-        trainer_confs: Optional[Dict] = None,
-        optuna_confs: Optional[Dict] = None,
     ):
         super().__init__(
             datamodule,
@@ -53,8 +52,7 @@ class AutoClassifier(AutoModel):
             suggested_conf=suggested_conf,
             timeout=timeout,
             prune=prune,
-            trainer_confs=trainer_confs,
-            optuna_confs=optuna_confs,
+            tune_confs=tune_confs,
         )
 
         if isinstance(suggested_backbones, (str, list, tuple)):
@@ -73,15 +71,15 @@ class AutoClassifier(AutoModel):
         return self.model(x)
 
     # noinspection PyTypeChecker
-    def _get_trial_hparams(self, trial: optuna.Trial) -> Dict[str, str]:
-        """Fetch hyperparameters from current optuna.Trial and returns
-        key-value pair of hparams"""
+    def _create_hparam_config(self) -> Dict[str, str]:
+        """Create hyperparameter config from `ray.tune`
 
-        trial_backbone = trial.suggest_categorical("backbone", self.suggested_backbones)
-        trial_lr = trial.suggest_float("lr", *self.suggested_lr, log=True)
-        trial_optimizer = trial.suggest_categorical(
-            "optimizer", self.suggested_optimizers
-        )
+        Returns:
+             key-value pair of `ray.tune` hparams
+        """
+        trial_backbone = tune.choice(self.suggested_backbones)
+        trial_lr = tune.loguniform(*self.suggested_lr)
+        trial_optimizer = tune.choice(self.suggested_optimizers)
         hparams = {
             "backbone": trial_backbone,
             "lr": trial_lr,
@@ -90,9 +88,9 @@ class AutoClassifier(AutoModel):
         return hparams
 
     @abstractmethod
-    def build_model(self, **kwargs) -> torch.nn.Module:
+    def build_model(self, config: dict) -> torch.nn.Module:
         """Every Task implementing AutoClassifier has to implement a
-        build model method that can build `torch.nn.Module` from keyword arguments
+        build model method that can build `torch.nn.Module` from dictionary config
         and return the model.
         """
         raise NotImplementedError
