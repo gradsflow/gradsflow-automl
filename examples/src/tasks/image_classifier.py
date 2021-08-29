@@ -13,12 +13,13 @@
 #  limitations under the License.
 
 import os
+
 from flash.image import ImageClassificationData
 
 from gradsflow import AutoImageClassifier
 
 # 1. Create the DataModule
-data_dir = os.getcwd() + '/data'
+data_dir = os.getcwd() + "/data"
 # download_data("https://pl-flash-data.s3.amazonaws.com/hymenoptera_data.zip", data_dir)
 
 datamodule = ImageClassificationData.from_folders(

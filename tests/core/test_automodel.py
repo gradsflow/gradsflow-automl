@@ -12,12 +12,12 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from pathlib import Path
+
 import pytest
 from flash.image import ImageClassificationData
 
 from gradsflow.core.automodel import AutoModel
-from pathlib import Path
-
 
 cwd = Path.cwd()
 datamodule = ImageClassificationData.from_folders(

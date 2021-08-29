@@ -59,6 +59,5 @@ def test_hp_tune():
         suggested_backbones="ssl_resnet18",
         optimization_metric="train_accuracy",
         n_trials=1,
-        optuna_confs={"direction": "maximize"},
     )
     model.hp_tune()
