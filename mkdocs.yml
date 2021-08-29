@@ -1,5 +1,6 @@
 site_name: GradsFlow
 site_description: "An open-source AutoML Library in PyTorch"
+copyright: 'Copyright &copy; 2021 GradsFlow'
 banner_url: https://ik.imagekit.io/gradsflow/logo/logo-small_g2MxLWesD.png?updatedAt=1627716948296
 repo_url: https://github.com/gradsflow/gradsflow/
 repo_name: gradsflow/gradsflow
@@ -39,11 +40,16 @@ markdown_extensions:
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji
       emoji_generator: !!python/name:materialx.emoji.to_svg
+  - toc:
+      permalink: "#"
 
 plugins:
   - git-revision-date-localized
   - search
   - autorefs
+  - mkdocs-jupyter
+  - monorepo
+  - meta-descriptions
   - mkdocstrings:
       default_handler: python
       handlers:
@@ -56,6 +62,9 @@ extra:
 
 nav:
   - Introduction: 'index.md'
+#  - Guide:
+#      - Examples:
+#          - Auto Image Classification: "https://github.com/gradsflow/gradsflow/blob/main/examples/nbs/01-ImageClassification.ipynb"
   - Reference:
       - Core: gradsflow/core.md
       - Auto Tasks: gradsflow/autotasks.md

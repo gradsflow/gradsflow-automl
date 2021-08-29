@@ -29,6 +29,14 @@
   <meta name="twitter:image" content="{{ config.banner_url }}" />
 {% endblock %}
 
+{% block outdated %}
+  You're not viewing the latest version.
+  <a href="{{ '../' ~ base_url }}">
+    <strong>Click here to go to latest.</strong>
+  </a>
+{% endblock %}
+
+
 {% set extracopyright %}
   Copyright (c) 2021 GradsFlow, <a href="https://github.com/aniketmaurya/chitra/blob/master/LICENSE">Apache License 2.0</a>
 {% endset %}

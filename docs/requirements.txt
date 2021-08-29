@@ -1,3 +1,4 @@
+git+https://github.com/gradsflow/gradsflow@main
 mkdocs==1.2.2
 mkdocs-material==7.2.4
 mkdocs-material-extensions==1.0.1
@@ -6,5 +7,5 @@ mkdocs-macros-plugin==0.6.0
 mkdocs-autorefs==0.2.1
 mkdocstrings==0.15.2
 tags-macros-plugin @ git+https://github.com/jldiaz/mkdocs-plugin-tags.git@d26e2f124e4f3471639d426459e281080988fe7a
-gradsflow
-ray[tune]
+mkdocs-jupyter
+mkdocs-meta-descriptions-plugin
