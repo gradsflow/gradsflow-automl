@@ -31,9 +31,3 @@ def test_build_model():
     model = AutoModel(datamodule)
     with pytest.raises(NotImplementedError):
         model.build_model(**{"lr": 1})
-
-
-def test_objective():
-    model = AutoModel(datamodule)
-    with pytest.raises(NotImplementedError):
-        model._objective(None)
