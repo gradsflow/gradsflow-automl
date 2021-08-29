@@ -48,8 +48,6 @@ class AutoModel:
     OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
     DEFAULT_OPTIMIZERS = ["adam", "sgd"]
     DEFAULT_LR = (1e-5, 1e-2)
-    _BEST_MODEL = "best_model"
-    _CURRENT_MODEL = "current_model"
 
     def __init__(
         self,

@@ -48,12 +48,7 @@ class AutoImageClassifier(AutoClassifier):
                 val_folder="data/hymenoptera_data/val/",
             )
 
-            suggested_conf = dict(
-                optimizers=["adam", "sgd"],
-                lr=(5e-4, 1e-3),
-            )
             model = AutoImageClassifier(datamodule,
-                                        suggested_conf=suggested_conf,
                                         max_epochs=10,
                                         optimization_metric="val_accuracy",
                                         timeout=300)

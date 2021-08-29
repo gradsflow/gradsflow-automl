@@ -51,12 +51,7 @@ class AutoSummarization(AutoClassifier):
                 test_file="data/xsum/test.csv",
             )
 
-            suggested_conf = dict(
-                optimizers=["adam", "sgd"],
-                lr=(5e-4, 1e-3),
-            )
             model = AutoSummarization(datamodule,
-                                    suggested_conf=suggested_conf,
                                     max_epochs=10,
                                     optimization_metric="val_accuracy",
                                     timeout=300)
