@@ -42,7 +42,7 @@ class AutoClassifier(AutoModel):
         timeout: int = 600,
         prune: bool = True,
         trainer_confs: Optional[Dict] = None,
-        optuna_confs: Optional[Dict] = None,
+        tune_confs: Optional[Dict] = None,
     ):
         super().__init__(
             datamodule,
@@ -54,7 +54,7 @@ class AutoClassifier(AutoModel):
             timeout=timeout,
             prune=prune,
             trainer_confs=trainer_confs,
-            optuna_confs=optuna_confs,
+            tune_confs=tune_confs,
         )
 
         if isinstance(suggested_backbones, (str, list, tuple)):
