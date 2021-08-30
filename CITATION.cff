@@ -8,7 +8,6 @@ authors:
   given-names: "Gagan"
   #orcid: "https://orcid.org/0000-0000-0000-0000"
 title: "gradsflow"
-#version: 1.0.0
-#doi: 10.5281/zenodo.1234
-#date-released: 2021-08-29
+doi: 10.5281/zenodo.5245150
+date-released: 2021-08-24
 url: "https://github.com/gradsflow/gradsflow"
