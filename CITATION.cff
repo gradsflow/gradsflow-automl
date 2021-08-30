@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use GradsFlow, please cite it as below."
+authors:
+- family-names: "Maurya"
+  given-names: "Aniket"
+  orcid: "https://orcid.org/0000-0002-0202-4810"
+title: "gradsflow"
+doi: 10.5281/zenodo.5245150
+date-released: 2021-08-24
+url: "https://github.com/gradsflow/gradsflow"
