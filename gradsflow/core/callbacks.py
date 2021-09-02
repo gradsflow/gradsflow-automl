@@ -15,7 +15,10 @@ from typing import Optional
 
 from ray.tune.integration.pytorch_lightning import TuneReportCheckpointCallback
 
-_METRICS = {"val_loss": "val_loss", "val_accuracy": "val_accuracy"}
+_METRICS = {
+    "val_accuracy": "val_accuracy",
+    "train_accuracy": "train_accuracy",
+}
 
 
 def report_checkpoint_callback(

@@ -108,7 +108,7 @@ class AutoModel(BaseAutoModel, ABC):
         datamodule = self.datamodule
 
         trainer = pl.Trainer(
-            logger=False,
+            logger=True,
             checkpoint_callback=False,
             gpus=math.ceil(gpu),
             max_epochs=self.max_epochs,
@@ -188,6 +188,12 @@ class AutoModel(BaseAutoModel, ABC):
             **ray_config,
         )
         self.analysis = analysis
+        self.model = self._get_best_model()
 
-        logger.info("🎉 Best hyperparameters found were: ", analysis.best_config)
+        logger.info("🎉 Best hyperparameters found were: {}".format(analysis.best_config))
         return analysis
+
+    def _get_best_model(self):
+        best_model = self.build_model(self.analysis.best_config)
+        best_model = best_model.load_from_checkpoint(self.analysis.best_checkpoint + '/filename')
+        return best_model
