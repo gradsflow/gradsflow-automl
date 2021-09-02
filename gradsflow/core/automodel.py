@@ -199,6 +199,6 @@ class AutoModel(BaseAutoModel, ABC):
         checkpoint_file = checkpoint_file or "filename"
         best_model = self.build_model(self.analysis.best_config)
         best_model = best_model.load_from_checkpoint(
-            analysis.best_checkpoint + checkpoint_file
+            analysis.best_checkpoint + "/" + checkpoint_file
         )
         return best_model
