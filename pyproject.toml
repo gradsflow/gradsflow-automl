@@ -5,7 +5,7 @@ build-backend = "flit_core.buildapi"
 [tool.flit.metadata]
 module = "gradsflow"
 author = "Aniket Maurya"
-author-email = "hello@gradsflow.com"
+author-email = "aniket@gradsflow.com"
 home-page = "https://github.com/gradsflow/gradsflow"
 description-file = "README.md"
 classifiers = [

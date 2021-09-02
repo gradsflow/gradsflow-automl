@@ -53,7 +53,7 @@ def test_objective(mock_pl):
     trainer = mock_pl.Trainer = MagicMock()
     trainer.callback_metrics = {optimization_metric: torch.as_tensor([1])}
 
-    model.objective({}, {})
+    model._objective({}, {})
 
 
 @patch("gradsflow.core.automodel.tune.run")

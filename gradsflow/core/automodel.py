@@ -11,6 +11,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+import math
 from abc import ABC
 from typing import Dict, Optional, Union
 
@@ -19,9 +20,9 @@ import torch
 from flash import DataModule
 from loguru import logger
 from ray import tune
-from ray.tune.integration.pytorch_lightning import TuneReportCallback
 
 from gradsflow.core.base import BaseAutoModel
+from gradsflow.core.callbacks import report_checkpoint_callback
 from gradsflow.utility.common import module_to_cls_index
 
 
@@ -50,17 +51,17 @@ class AutoModel(BaseAutoModel, ABC):
     DEFAULT_LR = (1e-5, 1e-2)
 
     def __init__(
-        self,
-        datamodule: DataModule,
-        max_epochs: int = 10,
-        max_steps: Optional[int] = None,
-        optimization_metric: Optional[str] = None,
-        n_trials: int = 20,
-        suggested_conf: Optional[dict] = None,
-        timeout: int = 600,
-        prune: bool = True,
-        tune_confs: Optional[Dict] = None,
-        best_trial: bool = True,
+            self,
+            datamodule: DataModule,
+            max_epochs: int = 10,
+            max_steps: Optional[int] = None,
+            optimization_metric: Optional[str] = None,
+            n_trials: int = 20,
+            suggested_conf: Optional[dict] = None,
+            timeout: int = 600,
+            prune: bool = True,
+            tune_confs: Optional[Dict] = None,
+            best_trial: bool = True,
     ):
         self.analysis = None
         self.prune = prune
@@ -80,18 +81,20 @@ class AutoModel(BaseAutoModel, ABC):
         )
         default_lr = self.DEFAULT_LR
         self.suggested_lr = (
-            self.suggested_conf.get("lr")
-            or self.suggested_conf.get("learning_rate")
-            or default_lr
+                self.suggested_conf.get("lr")
+                or self.suggested_conf.get("learning_rate")
+                or default_lr
         )
 
     # noinspection PyTypeChecker
-    def objective(self, config: Dict, trainer_config: Dict):
+    def _objective(self, config: Dict, trainer_config: Dict, gpu: Optional[float] = 0, ):
         """
-        Defines objective function which is used by tuner to minimize/maximize the metric.
+        Defines _objective function which is used by tuner to minimize/maximize the metric.
 
         Args:
             config dict: key value pair of hyperparameters.
+            trainer_config dict: configurations passed directly to Lightning Trainer.
+            gpu Optional[float]: GPU per trial
         """
         val_check_interval = 1.0
         if self.max_steps:
@@ -100,18 +103,13 @@ class AutoModel(BaseAutoModel, ABC):
         datamodule = self.datamodule
 
         trainer = pl.Trainer(
-            logger=True,
-            gpus=1 if torch.cuda.is_available() else None,
+            logger=False,
+            checkpoint_callback=False,
+            gpus=math.ceil(gpu),
             max_epochs=self.max_epochs,
             max_steps=self.max_steps,
             callbacks=[
-                TuneReportCallback(
-                    {
-                        "val_accuracy": "val_accuracy",
-                        "train_accuracy": "train_accuracy",
-                    },
-                    on="validation_end",
-                )
+                report_checkpoint_callback()
             ],
             val_check_interval=val_check_interval,
             **trainer_config,
@@ -126,14 +124,14 @@ class AutoModel(BaseAutoModel, ABC):
         return trainer.callback_metrics[self.optimization_metric].item()
 
     def hp_tune(
-        self,
-        name: Optional[str] = None,
-        ray_config: Optional[dict] = None,
-        trainer_config: Optional[dict] = None,
-        mode: Optional[str] = None,
-        gpu: Optional[float] = 0,
-        cpu: Optional[float] = None,
-        resume: bool = False,
+            self,
+            name: Optional[str] = None,
+            ray_config: Optional[dict] = None,
+            trainer_config: Optional[dict] = None,
+            mode: Optional[str] = None,
+            gpu: Optional[float] = 0,
+            cpu: Optional[float] = None,
+            resume: bool = False,
     ):
         """
         Search Hyperparameter and builds model with the best params
@@ -158,7 +156,7 @@ class AutoModel(BaseAutoModel, ABC):
         ray_config = ray_config or {}
 
         search_space = self._create_search_space()
-        trainable = self.objective
+        trainable = self._objective
 
         resources_per_trial = {}
         if gpu:
