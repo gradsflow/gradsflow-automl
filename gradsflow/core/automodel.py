@@ -190,10 +190,14 @@ class AutoModel(BaseAutoModel, ABC):
         self.analysis = analysis
         self.model = self._get_best_model()
 
-        logger.info("🎉 Best hyperparameters found were: {}".format(analysis.best_config))
+        logger.info(
+            "🎉 Best hyperparameters found were: {}".format(analysis.best_config)
+        )
         return analysis
 
     def _get_best_model(self):
         best_model = self.build_model(self.analysis.best_config)
-        best_model = best_model.load_from_checkpoint(self.analysis.best_checkpoint + '/filename')
+        best_model = best_model.load_from_checkpoint(
+            self.analysis.best_checkpoint + "/filename"
+        )
         return best_model
