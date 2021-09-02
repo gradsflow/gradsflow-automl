@@ -18,12 +18,13 @@ from ray.tune.integration.pytorch_lightning import TuneReportCheckpointCallback
 _METRICS = {"val_loss": "val_loss", "val_accuracy": "val_accuracy"}
 
 
-def report_checkpoint_callback(metrics: Optional[dict] = None, filename: Optional[str] = None):
+def report_checkpoint_callback(
+    metrics: Optional[dict] = None, filename: Optional[str] = None
+):
     metrics = metrics or _METRICS
-    filename = filename or 'filename'
+    filename = filename or "filename"
     callback = TuneReportCheckpointCallback(
-        metrics=metrics,
-        filename=filename,
-        on="validation_end")
+        metrics=metrics, filename=filename, on="validation_end"
+    )
 
     return callback
