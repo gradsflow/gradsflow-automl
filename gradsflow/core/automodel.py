@@ -11,6 +11,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+import math
 from abc import ABC
 from typing import Dict, Optional, Union
 
@@ -19,9 +20,9 @@ import torch
 from flash import DataModule
 from loguru import logger
 from ray import tune
-from ray.tune.integration.pytorch_lightning import TuneReportCallback
 
 from gradsflow.core.base import BaseAutoModel
+from gradsflow.core.callbacks import report_checkpoint_callback
 from gradsflow.utility.common import module_to_cls_index
 
 
@@ -46,7 +47,7 @@ class AutoModel(BaseAutoModel, ABC):
     """
 
     OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
-    DEFAULT_OPTIMIZERS = ["adam", "sgd"]
+    _DEFAULT_OPTIMIZERS = ["adam", "sgd"]
     DEFAULT_LR = (1e-5, 1e-2)
 
     def __init__(
@@ -76,7 +77,7 @@ class AutoModel(BaseAutoModel, ABC):
         self.suggested_conf = suggested_conf or {}
 
         self.suggested_optimizers = self.suggested_conf.get(
-            "optimizer", self.DEFAULT_OPTIMIZERS
+            "optimizer", self._DEFAULT_OPTIMIZERS
         )
         default_lr = self.DEFAULT_LR
         self.suggested_lr = (
@@ -86,12 +87,19 @@ class AutoModel(BaseAutoModel, ABC):
         )
 
     # noinspection PyTypeChecker
-    def objective(self, config: Dict, trainer_config: Dict):
+    def _objective(
+        self,
+        config: Dict,
+        trainer_config: Dict,
+        gpu: Optional[float] = 0,
+    ):
         """
-        Defines objective function which is used by tuner to minimize/maximize the metric.
+        Defines _objective function which is used by tuner to minimize/maximize the metric.
 
         Args:
             config dict: key value pair of hyperparameters.
+            trainer_config dict: configurations passed directly to Lightning Trainer.
+            gpu Optional[float]: GPU per trial
         """
         val_check_interval = 1.0
         if self.max_steps:
@@ -101,18 +109,11 @@ class AutoModel(BaseAutoModel, ABC):
 
         trainer = pl.Trainer(
             logger=True,
-            gpus=1 if torch.cuda.is_available() else None,
+            checkpoint_callback=False,
+            gpus=math.ceil(gpu),
             max_epochs=self.max_epochs,
             max_steps=self.max_steps,
-            callbacks=[
-                TuneReportCallback(
-                    {
-                        "val_accuracy": "val_accuracy",
-                        "train_accuracy": "train_accuracy",
-                    },
-                    on="validation_end",
-                )
-            ],
+            callbacks=[report_checkpoint_callback()],
             val_check_interval=val_check_interval,
             **trainer_config,
         )
@@ -158,7 +159,7 @@ class AutoModel(BaseAutoModel, ABC):
         ray_config = ray_config or {}
 
         search_space = self._create_search_space()
-        trainable = self.objective
+        trainable = self._objective
 
         resources_per_trial = {}
         if gpu:
@@ -168,6 +169,12 @@ class AutoModel(BaseAutoModel, ABC):
 
         mode = mode or "max"
         timeout_stopper = tune.stopper.TimeoutStopper(self.timeout)
+        logger.info(
+            "tuning hparams with metric = {} and model = {}".format(
+                self.optimization_metric,
+                mode,
+            )
+        )
         analysis = tune.run(
             tune.with_parameters(trainable, trainer_config=trainer_config),
             name=name,
@@ -181,6 +188,17 @@ class AutoModel(BaseAutoModel, ABC):
             **ray_config,
         )
         self.analysis = analysis
+        self.model = self._get_best_model(analysis)
 
-        logger.info("🎉 Best hyperparameters found were: ", analysis.best_config)
+        logger.info(
+            "🎉 Best hyperparameters found were: {}".format(analysis.best_config)
+        )
         return analysis
+
+    def _get_best_model(self, analysis, checkpoint_file: Optional[str] = None):
+        checkpoint_file = checkpoint_file or "filename"
+        best_model = self.build_model(self.analysis.best_config)
+        best_model = best_model.load_from_checkpoint(
+            analysis.best_checkpoint + "/" + checkpoint_file
+        )
+        return best_model

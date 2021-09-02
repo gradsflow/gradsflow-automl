@@ -55,9 +55,9 @@ def test_hp_tune():
         datamodule,
         max_epochs=1,
         max_steps=2,
-        timeout=10,
+        timeout=30,
         suggested_backbones="ssl_resnet18",
-        optimization_metric="train_accuracy",
+        optimization_metric="val_accuracy",
         n_trials=1,
     )
-    model.hp_tune({}, {})
+    model.hp_tune(name="my-experiment", mode="max", gpu=0, trainer_config={"fast_dev_run": True})
