@@ -1,4 +1,4 @@
-"""An AutoML Library made with Optuna and PyTorch Lightning"""
+"""An open-source AutoML Library in PyTorch"""
 
 #  Copyright (c) 2021 GradsFlow. All rights reserved.
 #
