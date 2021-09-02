@@ -12,13 +12,13 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 from typing import Dict
 
 import torch
 
 
-class BaseAutoModel:
+class BaseAutoModel(ABC):
     @abstractmethod
     def _create_search_space(self) -> Dict[str, str]:
         raise NotImplementedError
