@@ -28,8 +28,7 @@ classifiers = [
 requires-python = ">=3.7"
 requires = [
     "smart_open==5.1",
-    "lightning-flash[image,text]==0.4.0",
-    "pytorch-lightning==1.4.0",
+    "lightning-flash[image,text]==0.5.0",
     "ray[tune]==1.6",
     "loguru==0.5"
 ]
