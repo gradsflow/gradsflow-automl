@@ -27,10 +27,10 @@ classifiers = [
 ]
 requires-python = ">=3.7"
 requires = [
-    "smart_open==5.1",
+    "smart_open>=5.1",
     "lightning-flash[image,text]==0.5.0rc0",
-    "ray[tune]==1.6",
-    "loguru==0.5"
+    "ray[tune]>=1.6",
+    "loguru>=0.5.3"
 ]
 
 [tool.flit.metadata.urls]
