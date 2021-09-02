@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import math
-from abc import ABC
+from abc import ABC, ABCMeta
 from typing import Dict, Optional, Union
 
 import pytorch_lightning as pl
@@ -26,7 +26,7 @@ from gradsflow.core.callbacks import report_checkpoint_callback
 from gradsflow.utility.common import module_to_cls_index
 
 
-class AutoModel(BaseAutoModel, ABC):
+class AutoModel(BaseAutoModel):
     """
     Base model that defines hyperparameter search methods and initializes `Ray`.
     All other tasks are implementation of `AutoModel`.
@@ -47,8 +47,8 @@ class AutoModel(BaseAutoModel, ABC):
     """
 
     OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
-    DEFAULT_OPTIMIZERS = ["adam", "sgd"]
-    DEFAULT_LR = (1e-5, 1e-2)
+    _DEFAULT_OPTIMIZERS = ["adam", "sgd"]
+    _DEFAULT_LR = (1e-5, 1e-2)
 
     def __init__(
         self,
@@ -77,9 +77,9 @@ class AutoModel(BaseAutoModel, ABC):
         self.suggested_conf = suggested_conf or {}
 
         self.suggested_optimizers = self.suggested_conf.get(
-            "optimizer", self.DEFAULT_OPTIMIZERS
+            "optimizer", self._DEFAULT_OPTIMIZERS
         )
-        default_lr = self.DEFAULT_LR
+        default_lr = self._DEFAULT_LR
         self.suggested_lr = (
             self.suggested_conf.get("lr")
             or self.suggested_conf.get("learning_rate")

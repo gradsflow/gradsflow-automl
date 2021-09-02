@@ -28,22 +28,26 @@ datamodule = ImageClassificationData.from_folders(
 )
 
 
+@patch.multiple(AutoModel, __abstractmethods__=set())
 def test_auto_model():
     assert AutoModel(datamodule)
 
 
+@patch.multiple(AutoModel, __abstractmethods__=set())
 def test_build_model():
     model = AutoModel(datamodule)
     with pytest.raises(NotImplementedError):
         model.build_model({"lr": 1})
 
 
+@patch.multiple(AutoModel, __abstractmethods__=set())
 def test_create_search_space():
     model = AutoModel(datamodule)
     with pytest.raises(NotImplementedError):
         model._create_search_space()
 
 
+@patch.multiple(AutoModel, __abstractmethods__=set())
 @patch("gradsflow.core.automodel.pl")
 def test_objective(mock_pl):
     optimization_metric = "val_accuracy"
@@ -56,6 +60,7 @@ def test_objective(mock_pl):
     model._objective({}, {})
 
 
+@patch.multiple(AutoModel, __abstractmethods__=set())
 @patch("gradsflow.core.automodel.tune.run")
 def test_hp_tune(mock_tune):
     automodel = AutoModel(datamodule)
