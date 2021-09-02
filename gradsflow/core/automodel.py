@@ -11,8 +11,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-
-from abc import abstractmethod
+from abc import ABC
 from typing import Dict, Optional, Union
 
 import pytorch_lightning as pl
@@ -22,10 +21,11 @@ from loguru import logger
 from ray import tune
 from ray.tune.integration.pytorch_lightning import TuneReportCallback
 
+from gradsflow.core.base import BaseAutoModel
 from gradsflow.utility.common import module_to_cls_index
 
 
-class AutoModel:
+class AutoModel(BaseAutoModel, ABC):
     """
     Base model that defines hyperparameter search methods and initializes `Ray`.
     All other tasks are implementation of `AutoModel`.
@@ -50,17 +50,17 @@ class AutoModel:
     DEFAULT_LR = (1e-5, 1e-2)
 
     def __init__(
-        self,
-        datamodule: DataModule,
-        max_epochs: int = 10,
-        max_steps: Optional[int] = None,
-        optimization_metric: Optional[str] = None,
-        n_trials: int = 20,
-        suggested_conf: Optional[dict] = None,
-        timeout: int = 600,
-        prune: bool = True,
-        tune_confs: Optional[Dict] = None,
-        best_trial: bool = True,
+            self,
+            datamodule: DataModule,
+            max_epochs: int = 10,
+            max_steps: Optional[int] = None,
+            optimization_metric: Optional[str] = None,
+            n_trials: int = 20,
+            suggested_conf: Optional[dict] = None,
+            timeout: int = 600,
+            prune: bool = True,
+            tune_confs: Optional[Dict] = None,
+            best_trial: bool = True,
     ):
         self.analysis = None
         self.prune = prune
@@ -80,18 +80,11 @@ class AutoModel:
         )
         default_lr = self.DEFAULT_LR
         self.suggested_lr = (
-            self.suggested_conf.get("lr")
-            or self.suggested_conf.get("learning_rate")
-            or default_lr
+                self.suggested_conf.get("lr")
+                or self.suggested_conf.get("learning_rate")
+                or default_lr
         )
 
-    @abstractmethod
-    def _create_search_space(self) -> Dict[str, str]:
-        raise NotImplementedError
-
-    @abstractmethod
-    def build_model(self, config: dict) -> torch.nn.Module:
-        raise NotImplementedError
 
     # noinspection PyTypeChecker
     def objective(self, config: Dict, trainer_config: Dict):
@@ -134,17 +127,22 @@ class AutoModel:
         return trainer.callback_metrics[self.optimization_metric].item()
 
     def hp_tune(
-        self,
-        name: Optional[str] = None,
-        ray_config: Optional[dict] = None,
-        trainer_config: Optional[dict] = None,
-        mode: Optional[str] = None,
-        gpu: Optional[float] = 0,
-        cpu: Optional[float] = None,
-        resume: bool = False,
+            self,
+            name: Optional[str] = None,
+            ray_config: Optional[dict] = None,
+            trainer_config: Optional[dict] = None,
+            mode: Optional[str] = None,
+            gpu: Optional[float] = 0,
+            cpu: Optional[float] = None,
+            resume: bool = False,
     ):
         """
         Search Hyperparameter and builds model with the best params
+
+        ```python
+            automodel = AutoClassifier(data)  # implements `AutoModel`
+            automodel.hp_tune(name="gflow-example", gpu=1)
+        ```
 
         Args:
             name Optional[str]: name of the experiment.
@@ -155,12 +153,6 @@ class AutoModel:
             gpu Optional[float]: Amount of GPU resource per trial.
             cpu float: CPU cores per trial
             resume bool: Whether to resume the training or not.
-
-        !!! note
-            ```python
-                automodel = AutoClassifier(data)  # implements `AutoModel`
-                automodel.hp_tune(name="gflow-example", gpu=1)
-            ```
         """
 
         trainer_config = trainer_config or {}
