@@ -50,17 +50,17 @@ class AutoModel(BaseAutoModel, ABC):
     DEFAULT_LR = (1e-5, 1e-2)
 
     def __init__(
-            self,
-            datamodule: DataModule,
-            max_epochs: int = 10,
-            max_steps: Optional[int] = None,
-            optimization_metric: Optional[str] = None,
-            n_trials: int = 20,
-            suggested_conf: Optional[dict] = None,
-            timeout: int = 600,
-            prune: bool = True,
-            tune_confs: Optional[Dict] = None,
-            best_trial: bool = True,
+        self,
+        datamodule: DataModule,
+        max_epochs: int = 10,
+        max_steps: Optional[int] = None,
+        optimization_metric: Optional[str] = None,
+        n_trials: int = 20,
+        suggested_conf: Optional[dict] = None,
+        timeout: int = 600,
+        prune: bool = True,
+        tune_confs: Optional[Dict] = None,
+        best_trial: bool = True,
     ):
         self.analysis = None
         self.prune = prune
@@ -80,11 +80,10 @@ class AutoModel(BaseAutoModel, ABC):
         )
         default_lr = self.DEFAULT_LR
         self.suggested_lr = (
-                self.suggested_conf.get("lr")
-                or self.suggested_conf.get("learning_rate")
-                or default_lr
+            self.suggested_conf.get("lr")
+            or self.suggested_conf.get("learning_rate")
+            or default_lr
         )
-
 
     # noinspection PyTypeChecker
     def objective(self, config: Dict, trainer_config: Dict):
@@ -127,14 +126,14 @@ class AutoModel(BaseAutoModel, ABC):
         return trainer.callback_metrics[self.optimization_metric].item()
 
     def hp_tune(
-            self,
-            name: Optional[str] = None,
-            ray_config: Optional[dict] = None,
-            trainer_config: Optional[dict] = None,
-            mode: Optional[str] = None,
-            gpu: Optional[float] = 0,
-            cpu: Optional[float] = None,
-            resume: bool = False,
+        self,
+        name: Optional[str] = None,
+        ray_config: Optional[dict] = None,
+        trainer_config: Optional[dict] = None,
+        mode: Optional[str] = None,
+        gpu: Optional[float] = 0,
+        cpu: Optional[float] = None,
+        resume: bool = False,
     ):
         """
         Search Hyperparameter and builds model with the best params
