@@ -188,12 +188,17 @@ class AutoModel(BaseAutoModel, ABC):
             **ray_config,
         )
         self.analysis = analysis
-        self.model = self._get_best_model()
+        self.model = self._get_best_model(analysis)
 
-        logger.info("🎉 Best hyperparameters found were: {}".format(analysis.best_config))
+        logger.info(
+            "🎉 Best hyperparameters found were: {}".format(analysis.best_config)
+        )
         return analysis
 
-    def _get_best_model(self):
+    def _get_best_model(self, analysis, checkpoint_file: Optional[str] = None):
+        checkpoint_file = checkpoint_file or "filename"
         best_model = self.build_model(self.analysis.best_config)
-        best_model = best_model.load_from_checkpoint(self.analysis.best_checkpoint + '/filename')
+        best_model = best_model.load_from_checkpoint(
+            analysis.best_checkpoint + checkpoint_file
+        )
         return best_model
