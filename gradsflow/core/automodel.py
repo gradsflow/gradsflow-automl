@@ -11,8 +11,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-
-from abc import abstractmethod
+from abc import ABC
 from typing import Dict, Optional, Union
 
 import pytorch_lightning as pl
@@ -22,10 +21,11 @@ from loguru import logger
 from ray import tune
 from ray.tune.integration.pytorch_lightning import TuneReportCallback
 
+from gradsflow.core.base import BaseAutoModel
 from gradsflow.utility.common import module_to_cls_index
 
 
-class AutoModel:
+class AutoModel(BaseAutoModel, ABC):
     """
     Base model that defines hyperparameter search methods and initializes `Ray`.
     All other tasks are implementation of `AutoModel`.
@@ -85,14 +85,6 @@ class AutoModel:
             or default_lr
         )
 
-    @abstractmethod
-    def _create_search_space(self) -> Dict[str, str]:
-        raise NotImplementedError
-
-    @abstractmethod
-    def build_model(self, config: dict) -> torch.nn.Module:
-        raise NotImplementedError
-
     # noinspection PyTypeChecker
     def objective(self, config: Dict, trainer_config: Dict):
         """
@@ -146,6 +138,11 @@ class AutoModel:
         """
         Search Hyperparameter and builds model with the best params
 
+        ```python
+            automodel = AutoClassifier(data)  # implements `AutoModel`
+            automodel.hp_tune(name="gflow-example", gpu=1)
+        ```
+
         Args:
             name Optional[str]: name of the experiment.
             ray_config dict: configuration passed to `ray.tune.run(...)`
@@ -155,12 +152,6 @@ class AutoModel:
             gpu Optional[float]: Amount of GPU resource per trial.
             cpu float: CPU cores per trial
             resume bool: Whether to resume the training or not.
-
-        !!! note
-            ```python
-                automodel = AutoClassifier(data)  # implements `AutoModel`
-                automodel.hp_tune(name="gflow-example", gpu=1)
-            ```
         """
 
         trainer_config = trainer_config or {}
