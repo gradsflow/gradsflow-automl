@@ -13,7 +13,7 @@
 #  limitations under the License.
 
 from abc import ABC, abstractmethod
-from typing import Dict
+from typing import Dict, Optional
 
 import torch
 
@@ -27,3 +27,10 @@ class BaseAutoML(ABC):
     @abstractmethod
     def build_model(cls, config: dict) -> torch.nn.Module:
         "Build model from dictionary config"
+        raise NotImplementedError
+
+    @abstractmethod
+    def optimization_objective(
+        self, config: dict, trainer_config: dict, gpu: Optional[float] = 0.0
+    ):
+        raise NotImplementedError

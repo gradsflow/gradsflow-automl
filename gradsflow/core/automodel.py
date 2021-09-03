@@ -11,7 +11,6 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-import math
 from abc import ABC
 from typing import Dict, Optional, Union
 
@@ -21,11 +20,9 @@ from flash import DataModule
 from loguru import logger
 from ray import tune
 
+from gradsflow.core.autotrainer import AutoTrainer
 from gradsflow.core.base import BaseAutoML
-from gradsflow.core.callbacks import report_checkpoint_callback
 from gradsflow.utility.common import module_to_cls_index
-
-from .autotrainer import AutoTrainer
 
 
 class AutoModel(BaseAutoML, AutoTrainer, ABC):
@@ -46,6 +43,7 @@ class AutoModel(BaseAutoML, AutoTrainer, ABC):
         tune_confs Dict: raytune configurations. See more at Ray docs.
         best_trial bool: If true model will be loaded with best weights from HPO otherwise
         a best trial model without trained weights will be created.
+        backend Optional[str]: Training backend - PL / torch / fastai
     """
 
     OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
@@ -64,8 +62,9 @@ class AutoModel(BaseAutoML, AutoTrainer, ABC):
         prune: bool = True,
         tune_confs: Optional[Dict] = None,
         best_trial: bool = True,
+        backend: Optional[str] = None,
     ):
-        super(AutoTrainer, self).__init__()
+
         self.analysis = None
         self.prune = prune
         self.datamodule = datamodule
@@ -79,6 +78,14 @@ class AutoModel(BaseAutoML, AutoTrainer, ABC):
         self.optuna_confs = tune_confs or {}
         self.suggested_conf = suggested_conf or {}
 
+        super(AutoTrainer, self).__init__(
+            datamodule,
+            optimization_metric,
+            max_epochs,
+            max_steps=max_steps,
+            backend=backend,
+        )
+
         self.suggested_optimizers = self.suggested_conf.get(
             "optimizer", self._DEFAULT_OPTIMIZERS
         )
@@ -88,46 +95,6 @@ class AutoModel(BaseAutoML, AutoTrainer, ABC):
             or self.suggested_conf.get("learning_rate")
             or default_lr
         )
-
-    # noinspection PyTypeChecker
-    def lightning_objective(
-        self,
-        config: Dict,
-        trainer_config: Dict,
-        gpu: Optional[float] = 0,
-    ):
-        """
-        Defines lightning_objective function which is used by tuner to minimize/maximize the metric.
-
-        Args:
-            config dict: key value pair of hyperparameters.
-            trainer_config dict: configurations passed directly to Lightning Trainer.
-            gpu Optional[float]: GPU per trial
-        """
-        val_check_interval = 1.0
-        if self.max_steps:
-            val_check_interval = max(self.max_steps - 1, 1.0)
-
-        datamodule = self.datamodule
-
-        trainer = pl.Trainer(
-            logger=True,
-            checkpoint_callback=False,
-            gpus=math.ceil(gpu),
-            max_epochs=self.max_epochs,
-            max_steps=self.max_steps,
-            callbacks=[report_checkpoint_callback()],
-            val_check_interval=val_check_interval,
-            **trainer_config,
-        )
-
-        model = self.build_model(config)
-        hparams = dict(model=model.hparams)
-        trainer.logger.log_hyperparams(hparams)
-        trainer.fit(model, datamodule=datamodule)
-
-        logger.debug(trainer.callback_metrics)
-        return trainer.callback_metrics[self.optimization_metric].item()
 
     def hp_tune(
         self,

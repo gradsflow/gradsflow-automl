@@ -13,6 +13,7 @@
 #  limitations under the License.
 
 import math
+from abc import ABC
 from enum import Enum
 from typing import Dict, Optional
 
@@ -31,12 +32,12 @@ class Backend(Enum):
 
 class AutoTrainer(BaseAutoML):
     def __init__(
-            self,
-            datamodule,
-            optimization_metric: Optional[str],
-            max_epochs: int = 10,
-            max_steps: Optional[int] = None,
-            backend: Optional[str] = None,
+        self,
+        datamodule,
+        optimization_metric: Optional[str],
+        max_epochs: int = 10,
+        max_steps: Optional[int] = None,
+        backend: Optional[str] = None,
     ):
         self.backend = (backend or Backend.default).lower()
         self.datamodule = datamodule
@@ -45,11 +46,11 @@ class AutoTrainer(BaseAutoML):
         self.max_steps = max_steps
 
     # noinspection PyTypeChecker
-    def lightning_objective(
-            self,
-            config: Dict,
-            trainer_config: Dict,
-            gpu: Optional[float] = 0,
+    def _lightning_objective(
+        self,
+        config: Dict,
+        trainer_config: Dict,
+        gpu: Optional[float] = 0,
     ):
         """
         Defines lightning_objective function which is used by tuner to minimize/maximize the metric.
@@ -83,3 +84,13 @@ class AutoTrainer(BaseAutoML):
 
         logger.debug(trainer.callback_metrics)
         return trainer.callback_metrics[self.optimization_metric].item()
+
+    def optimization_objective(
+        self, config: dict, trainer_config: dict, gpu: Optional[float] = 0.0
+    ):
+        if self.backend == Backend.pl:
+            return self._lightning_objective(config, trainer_config, gpu)
+        else:
+            raise NotImplementedError(
+                "Trainer not implemented for backend: {}".format(self.backend)
+            )
