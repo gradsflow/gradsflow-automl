@@ -62,7 +62,8 @@ class AutoTextClassifier(AutoClassifier):
         "sgugger/tiny-distilbert-classification",
     ]
 
-    def build_model(self, config: dict) -> torch.nn.Module:
+    @classmethod
+    def build_model(cls, config: dict) -> torch.nn.Module:
         """Build TextClassifier model from `ray.tune` hyperparameter configs
         or via config dictionary arguments
 
@@ -78,8 +79,8 @@ class AutoTextClassifier(AutoClassifier):
         learning_rate = config["lr"]
 
         return TextClassifier(
-            self.num_classes,
+            cls.num_classes,
             backbone=backbone,
-            optimizer=self.OPTIMIZER_INDEX[optimizer],
+            optimizer=cls.OPTIMIZER_INDEX[optimizer],
             learning_rate=learning_rate,
         )

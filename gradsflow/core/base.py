@@ -18,11 +18,12 @@ from typing import Dict
 import torch
 
 
-class BaseAutoModel(ABC):
+class BaseAutoML(ABC):
     @abstractmethod
     def _create_search_space(self) -> Dict[str, str]:
-        raise NotImplementedError
+        "creates search space"
 
+    @classmethod
     @abstractmethod
-    def build_model(self, config: dict) -> torch.nn.Module:
-        raise NotImplementedError
+    def build_model(cls, config: dict) -> torch.nn.Module:
+        "Build model from dictionary config"

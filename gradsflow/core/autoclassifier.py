@@ -93,4 +93,3 @@ class AutoClassifier(AutoModel):
         build model method that can build `torch.nn.Module` from dictionary config
         and return the model.
         """
-        raise NotImplementedError

@@ -21,14 +21,14 @@ from flash import DataModule
 from loguru import logger
 from ray import tune
 
-from gradsflow.core.base import BaseAutoModel
+from gradsflow.core.base import BaseAutoML
 from gradsflow.core.callbacks import report_checkpoint_callback
 from gradsflow.utility.common import module_to_cls_index
 
 from .autotrainer import AutoTrainer
 
 
-class AutoModel(BaseAutoModel, AutoTrainer, ABC):
+class AutoModel(BaseAutoML, AutoTrainer, ABC):
     """
     Base model that defines hyperparameter search methods and initializes `Ray`.
     All other tasks are implementation of `AutoModel`.

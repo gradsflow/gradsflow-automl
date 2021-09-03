@@ -11,42 +11,45 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+
 import math
 from enum import Enum
 from typing import Dict, Optional
 
 import pytorch_lightning as pl
 from loguru import logger
-from PIL.PyAccess import logger
 
+from gradsflow.core.base import BaseAutoML
 from gradsflow.core.callbacks import report_checkpoint_callback
 
 
 class Backend(Enum):
     pl = "pl"
     torch = "torch"
-    default = torch
+    default = pl
 
 
-class AutoTrainer:
+class AutoTrainer(BaseAutoML):
     def __init__(
-        self,
-        datamodule,
-        max_epochs: int = 10,
-        max_steps: Optional[int] = None,
-        backend: Optional[str] = None,
+            self,
+            datamodule,
+            optimization_metric: Optional[str],
+            max_epochs: int = 10,
+            max_steps: Optional[int] = None,
+            backend: Optional[str] = None,
     ):
-        self.backend = (backend or Backend.pl).lower()
+        self.backend = (backend or Backend.default).lower()
         self.datamodule = datamodule
+        self.optimization_metric = optimization_metric
         self.max_epochs = max_epochs
         self.max_steps = max_steps
 
     # noinspection PyTypeChecker
     def lightning_objective(
-        self,
-        config: Dict,
-        trainer_config: Dict,
-        gpu: Optional[float] = 0,
+            self,
+            config: Dict,
+            trainer_config: Dict,
+            gpu: Optional[float] = 0,
     ):
         """
         Defines lightning_objective function which is used by tuner to minimize/maximize the metric.
