@@ -26,3 +26,6 @@
 * render jupyter notebooks in documentation. PR [#38](https://github.com/gradsflow/gradsflow/pull/38) by [@aniketmaurya](https://github.com/aniketmaurya).
 
 ## 0.0.4
+* fix best checkpoints model loading. PR [#52](https://github.com/gradsflow/gradsflow/pull/52)
+* 🚀 feature/fix train arguments docs PR [#44](https://github.com/gradsflow/gradsflow/pull/44)
+* Publish Python 🐍 distributions 📦 to PyPI [#42](https://github.com/gradsflow/gradsflow/pull/42)

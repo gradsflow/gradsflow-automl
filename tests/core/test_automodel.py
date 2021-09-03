@@ -57,7 +57,7 @@ def test_objective(mock_pl):
     trainer = mock_pl.Trainer = MagicMock()
     trainer.callback_metrics = {optimization_metric: torch.as_tensor([1])}
 
-    model._objective({}, {})
+    model.lightning_objective({}, {})
 
 
 @patch.multiple(AutoModel, __abstractmethods__=set())

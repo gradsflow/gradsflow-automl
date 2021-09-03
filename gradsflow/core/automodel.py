@@ -25,8 +25,10 @@ from gradsflow.core.base import BaseAutoModel
 from gradsflow.core.callbacks import report_checkpoint_callback
 from gradsflow.utility.common import module_to_cls_index
 
+from .autotrainer import AutoTrainer
 
-class AutoModel(BaseAutoModel, ABC):
+
+class AutoModel(BaseAutoModel, AutoTrainer, ABC):
     """
     Base model that defines hyperparameter search methods and initializes `Ray`.
     All other tasks are implementation of `AutoModel`.
@@ -63,6 +65,7 @@ class AutoModel(BaseAutoModel, ABC):
         tune_confs: Optional[Dict] = None,
         best_trial: bool = True,
     ):
+        super(AutoTrainer, self).__init__()
         self.analysis = None
         self.prune = prune
         self.datamodule = datamodule
@@ -87,14 +90,14 @@ class AutoModel(BaseAutoModel, ABC):
         )
 
     # noinspection PyTypeChecker
-    def _objective(
+    def lightning_objective(
         self,
         config: Dict,
         trainer_config: Dict,
         gpu: Optional[float] = 0,
     ):
         """
-        Defines _objective function which is used by tuner to minimize/maximize the metric.
+        Defines lightning_objective function which is used by tuner to minimize/maximize the metric.
 
         Args:
             config dict: key value pair of hyperparameters.
@@ -159,7 +162,7 @@ class AutoModel(BaseAutoModel, ABC):
         ray_config = ray_config or {}
 
         search_space = self._create_search_space()
-        trainable = self._objective
+        trainable = self.lightning_objective
 
         resources_per_trial = {}
         if gpu:
