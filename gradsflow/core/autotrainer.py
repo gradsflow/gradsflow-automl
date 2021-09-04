@@ -13,14 +13,12 @@
 #  limitations under the License.
 
 import math
-from abc import ABC
 from enum import Enum
-from typing import Dict, Optional
+from typing import Callable, Dict, Optional
 
 import pytorch_lightning as pl
 from loguru import logger
 
-from gradsflow.core.base import BaseAutoML
 from gradsflow.core.callbacks import report_checkpoint_callback
 
 
@@ -30,15 +28,17 @@ class Backend(Enum):
     default = pl
 
 
-class AutoTrainer(BaseAutoML):
+class AutoTrainer:
     def __init__(
         self,
         datamodule,
+        model_builder: Callable,
         optimization_metric: Optional[str],
         max_epochs: int = 10,
         max_steps: Optional[int] = None,
         backend: Optional[str] = None,
     ):
+        self.model_builder = model_builder
         self.backend = (backend or Backend.default).lower()
         self.datamodule = datamodule
         self.optimization_metric = optimization_metric
@@ -52,14 +52,6 @@ class AutoTrainer(BaseAutoML):
         trainer_config: Dict,
         gpu: Optional[float] = 0,
     ):
-        """
-        Defines lightning_objective function which is used by tuner to minimize/maximize the metric.
-
-        Args:
-            config dict: key value pair of hyperparameters.
-            trainer_config dict: configurations passed directly to Lightning Trainer.
-            gpu Optional[float]: GPU per trial
-        """
         val_check_interval = 1.0
         if self.max_steps:
             val_check_interval = max(self.max_steps - 1, 1.0)
@@ -77,7 +69,7 @@ class AutoTrainer(BaseAutoML):
             **trainer_config,
         )
 
-        model = self.build_model(config)
+        model = self.model_builder(config)
         hparams = dict(model=model.hparams)
         trainer.logger.log_hyperparams(hparams)
         trainer.fit(model, datamodule=datamodule)
@@ -88,6 +80,14 @@ class AutoTrainer(BaseAutoML):
     def optimization_objective(
         self, config: dict, trainer_config: dict, gpu: Optional[float] = 0.0
     ):
+        """
+        Defines lightning_objective function which is used by tuner to minimize/maximize the metric.
+
+        Args:
+            config dict: key value pair of hyperparameters.
+            trainer_config dict: configurations passed directly to Lightning Trainer.
+            gpu Optional[float]: GPU per trial
+        """
         if self.backend == Backend.pl:
             return self._lightning_objective(config, trainer_config, gpu)
         else:

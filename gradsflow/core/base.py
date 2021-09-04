@@ -11,26 +11,25 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-
 from abc import ABC, abstractmethod
-from typing import Dict, Optional
+from typing import Dict
 
 import torch
 
 
-class BaseAutoML(ABC):
+class BaseAutoModel(ABC):
+    """
+    The main class for AutoML which consists everything required for tranining a model -
+    data, model and trainer.
+    """
+
     @abstractmethod
     def _create_search_space(self) -> Dict[str, str]:
-        "creates search space"
+        """creates search space"""
+        raise NotImplementedError
 
     @classmethod
     @abstractmethod
     def build_model(cls, config: dict) -> torch.nn.Module:
-        "Build model from dictionary config"
-        raise NotImplementedError
-
-    @abstractmethod
-    def optimization_objective(
-        self, config: dict, trainer_config: dict, gpu: Optional[float] = 0.0
-    ):
+        """Build model from dictionary config"""
         raise NotImplementedError

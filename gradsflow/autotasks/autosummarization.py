@@ -74,7 +74,7 @@ class AutoSummarization(AutoClassifier):
             sshleifer/distilbart-cnn-12-6, sshleifer/distilbart-xsum-12-3,...
             (Check Lightning-Flash for full model list)
 
-            optimizer [str]: PyTorch Optimizers. Check `AutoImageClassification.OPTIMIZER_INDEX`
+            optimizer [str]: PyTorch Optimizers. Check `AutoImageClassification._OPTIMIZER_INDEX`
             learning_rate [float]: Learning rate for the model.
         """
         backbone = config["backbone"]
@@ -83,6 +83,6 @@ class AutoSummarization(AutoClassifier):
 
         return SummarizationTask(
             backbone=backbone,
-            optimizer=cls.OPTIMIZER_INDEX[optimizer],
+            optimizer=cls._OPTIMIZER_INDEX[optimizer],
             learning_rate=learning_rate,
         )

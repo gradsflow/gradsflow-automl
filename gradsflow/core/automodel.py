@@ -11,6 +11,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+
 from abc import ABC
 from typing import Dict, Optional, Union
 
@@ -21,11 +22,11 @@ from loguru import logger
 from ray import tune
 
 from gradsflow.core.autotrainer import AutoTrainer
-from gradsflow.core.base import BaseAutoML
+from gradsflow.core.base import BaseAutoModel
 from gradsflow.utility.common import module_to_cls_index
 
 
-class AutoModel(BaseAutoML, AutoTrainer, ABC):
+class AutoModel(BaseAutoModel, ABC):
     """
     Base model that defines hyperparameter search methods and initializes `Ray`.
     All other tasks are implementation of `AutoModel`.
@@ -41,14 +42,12 @@ class AutoModel(BaseAutoML, AutoTrainer, ABC):
         timeout int: HPO will stop after timeout
         prune bool: Whether to stop unpromising training.
         tune_confs Dict: raytune configurations. See more at Ray docs.
-        best_trial bool: If true model will be loaded with best weights from HPO otherwise
-        a best trial model without trained weights will be created.
-        backend Optional[str]: Training backend - PL / torch / fastai
+        backend Optional[str]: Training backend - PL / torch / fastai. Default is PL
     """
 
-    OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
+    _OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
     _DEFAULT_OPTIMIZERS = ["adam", "sgd"]
-    DEFAULT_LR = (1e-5, 1e-2)
+    _DEFAULT_LR = (1e-5, 1e-2)
 
     def __init__(
         self,
@@ -61,7 +60,6 @@ class AutoModel(BaseAutoML, AutoTrainer, ABC):
         timeout: int = 600,
         prune: bool = True,
         tune_confs: Optional[Dict] = None,
-        best_trial: bool = True,
         backend: Optional[str] = None,
     ):
 
@@ -69,7 +67,6 @@ class AutoModel(BaseAutoML, AutoTrainer, ABC):
         self.prune = prune
         self.datamodule = datamodule
         self.n_trials = n_trials
-        self.best_trial = best_trial
         self.model: Union[torch.nn.Module, pl.LightningModule, None] = None
         self.max_epochs = max_epochs
         self.max_steps = max_steps
@@ -78,10 +75,10 @@ class AutoModel(BaseAutoML, AutoTrainer, ABC):
         self.optuna_confs = tune_confs or {}
         self.suggested_conf = suggested_conf or {}
 
-        super(AutoTrainer, self).__init__(
+        self.autotrainer = AutoTrainer(
             datamodule,
-            optimization_metric,
-            max_epochs,
+            optimization_metric=optimization_metric,
+            max_epochs=max_epochs,
             max_steps=max_steps,
             backend=backend,
         )
@@ -89,7 +86,7 @@ class AutoModel(BaseAutoML, AutoTrainer, ABC):
         self.suggested_optimizers = self.suggested_conf.get(
             "optimizer", self._DEFAULT_OPTIMIZERS
         )
-        default_lr = self.DEFAULT_LR
+        default_lr = self._DEFAULT_LR
         self.suggested_lr = (
             self.suggested_conf.get("lr")
             or self.suggested_conf.get("learning_rate")
@@ -129,7 +126,7 @@ class AutoModel(BaseAutoML, AutoTrainer, ABC):
         ray_config = ray_config or {}
 
         search_space = self._create_search_space()
-        trainable = self.lightning_objective
+        trainable = self.autotrainer.optimization_objective
 
         resources_per_trial = {}
         if gpu:
