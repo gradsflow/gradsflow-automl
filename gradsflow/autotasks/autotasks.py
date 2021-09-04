@@ -11,7 +11,8 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-from typing import Optional, Union, List, Dict
+from typing import Dict, List, Optional, Union
+
 from flash.core.data.data_module import DataModule
 
 from .autoclassification.image import AutoImageClassifier
@@ -21,22 +22,22 @@ from .autosummarization import AutoSummarization
 SUPPORTED_TASKS = {
     "image": AutoImageClassifier,
     "text": AutoTextClassifier,
-    "summarsization": AutoSummarization
+    "summarsization": AutoSummarization,
 }
 
 
 def autotasks(
-        task,
-        datamodule: DataModule,
-        max_epochs: int = 10,
-        max_steps: int = 10,
-        n_trials: int = 100,
-        optimization_metric: Optional[str] = None,
-        suggested_backbones: Union[List, str, None] = None,
-        suggested_conf: Optional[dict] = None,
-        tune_confs: Optional[Dict] = None,
-        timeout: int = 600,
-        prune: bool = True,
+    task,
+    datamodule: DataModule,
+    max_epochs: int = 10,
+    max_steps: int = 10,
+    n_trials: int = 100,
+    optimization_metric: Optional[str] = None,
+    suggested_backbones: Union[List, str, None] = None,
+    suggested_conf: Optional[dict] = None,
+    tune_confs: Optional[Dict] = None,
+    timeout: int = 600,
+    prune: bool = True,
 ):
     """
 
@@ -73,5 +74,5 @@ def autotasks(
         suggested_conf=suggested_conf,
         tune_confs=tune_confs,
         timeout=timeout,
-        prune=prune
+        prune=prune,
     )
