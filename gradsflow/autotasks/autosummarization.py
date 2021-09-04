@@ -64,7 +64,6 @@ class AutoSummarization(AutoClassifier):
         "sshleifer/distilbart-xsum-12-3",
     ]
 
-
     def build_model(self, config: dict) -> torch.nn.Module:
         """Build SummarizationModel from `ray.tune` hyperparameter configs
         or via config dictionary arguments
