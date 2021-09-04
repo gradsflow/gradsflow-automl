@@ -25,7 +25,7 @@ from gradsflow.core.callbacks import report_checkpoint_callback
 class Backend(Enum):
     pl = "pl"
     torch = "torch"
-    default = pl
+    default = "pl"
 
 
 class AutoTrainer:
@@ -39,7 +39,7 @@ class AutoTrainer:
         backend: Optional[str] = None,
     ):
         self.model_builder = model_builder
-        self.backend = (backend or Backend.default).lower()
+        self.backend = (backend or Backend.default.value).lower()
         self.datamodule = datamodule
         self.optimization_metric = optimization_metric
         self.max_epochs = max_epochs
@@ -88,7 +88,7 @@ class AutoTrainer:
             trainer_config dict: configurations passed directly to Lightning Trainer.
             gpu Optional[float]: GPU per trial
         """
-        if self.backend == Backend.pl:
+        if self.backend == Backend.pl.value:
             return self._lightning_objective(config, trainer_config, gpu)
 
         raise NotImplementedError(

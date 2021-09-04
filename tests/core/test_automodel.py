@@ -57,7 +57,7 @@ def test_objective(mock_pl):
     trainer = mock_pl.Trainer = MagicMock()
     trainer.callback_metrics = {optimization_metric: torch.as_tensor([1])}
 
-    model.lightning_objective({}, {})
+    model.autotrainer.optimization_objective({}, {})
 
 
 @patch.multiple(AutoModel, __abstractmethods__=set())
@@ -66,6 +66,6 @@ def test_hp_tune(mock_tune):
     automodel = AutoModel(datamodule)
     automodel._create_search_space = MagicMock()
     automodel.build_model = MagicMock()
-    automodel.hp_tune(gpu=1, cpu=2)
+    automodel.hp_tune(gpu=0, cpu=2)
 
     mock_tune.assert_called()
