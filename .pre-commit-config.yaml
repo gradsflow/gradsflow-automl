@@ -1,5 +1,14 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
+default_language_version:
+  python: python3.8
+
+ci:
+  autofix_prs: true
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit suggestions'
+  autoupdate_schedule: quarterly
+  # submodules: true
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.0.1
@@ -13,7 +22,6 @@ repos:
     hooks:
       - id: black
         name: "Black: The uncompromising Python code formatter"
-        files: gradsflow examples tests
 
   - repo: https://github.com/PyCQA/isort
     rev: 5.9.3
@@ -21,7 +29,6 @@ repos:
       - id: isort
         name: "Sort Imports"
         args: [ "--profile black" ]
-        files: gradsflow examples tests
 
   - repo: local
     hooks:
