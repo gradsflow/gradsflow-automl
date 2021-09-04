@@ -20,15 +20,13 @@ from flash.core.data.data_module import DataModule
 from ray import tune
 
 from gradsflow.core.automodel import AutoModel
-
-# noinspection PyTypeChecker
 from gradsflow.utility.common import listify
 
 
 class AutoClassifier(AutoModel):
     """Implements `AutoModel` for classification tasks."""
 
-    DEFAULT_BACKBONES = []
+    _DEFAULT_BACKBONES = []
 
     def __init__(
         self,
@@ -39,7 +37,6 @@ class AutoClassifier(AutoModel):
         optimization_metric: Optional[str] = None,
         suggested_backbones: Union[List, str, None] = None,
         suggested_conf: Optional[dict] = None,
-        tune_confs: Optional[Dict] = None,
         timeout: int = 600,
         prune: bool = True,
     ):
@@ -52,13 +49,12 @@ class AutoClassifier(AutoModel):
             suggested_conf=suggested_conf,
             timeout=timeout,
             prune=prune,
-            tune_confs=tune_confs,
         )
 
         if isinstance(suggested_backbones, (str, list, tuple)):
             self.suggested_backbones = listify(suggested_backbones)
         elif suggested_backbones is None:
-            self.suggested_backbones = self.DEFAULT_BACKBONES
+            self.suggested_backbones = self._DEFAULT_BACKBONES
         else:
             raise UserWarning("Invalid suggested_backbone type!")
 
@@ -93,4 +89,3 @@ class AutoClassifier(AutoModel):
         build model method that can build `torch.nn.Module` from dictionary config
         and return the model.
         """
-        raise NotImplementedError

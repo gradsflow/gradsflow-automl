@@ -60,4 +60,6 @@ def test_hp_tune():
         optimization_metric="val_accuracy",
         n_trials=1,
     )
-    model.hp_tune(name="my-experiment", mode="max", gpu=0, trainer_config={"fast_dev_run": True})
+    model.hp_tune(
+        name="my-experiment", mode="max", gpu=0, trainer_config={"fast_dev_run": True}
+    )

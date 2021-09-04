@@ -48,16 +48,16 @@ def test_create_search_space():
 
 
 @patch.multiple(AutoModel, __abstractmethods__=set())
-@patch("gradsflow.core.automodel.pl")
+@patch("gradsflow.core.autotrainer.pl")
 def test_objective(mock_pl):
     optimization_metric = "val_accuracy"
     model = AutoModel(datamodule, optimization_metric=optimization_metric)
 
-    model.build_model = MagicMock()
+    model.autotrainer.model_builder = MagicMock()
     trainer = mock_pl.Trainer = MagicMock()
     trainer.callback_metrics = {optimization_metric: torch.as_tensor([1])}
 
-    model._objective({}, {})
+    model.autotrainer.optimization_objective({}, {})
 
 
 @patch.multiple(AutoModel, __abstractmethods__=set())
@@ -66,6 +66,6 @@ def test_hp_tune(mock_tune):
     automodel = AutoModel(datamodule)
     automodel._create_search_space = MagicMock()
     automodel.build_model = MagicMock()
-    automodel.hp_tune(gpu=1, cpu=2)
+    automodel.hp_tune(gpu=0, cpu=2)
 
     mock_tune.assert_called()
