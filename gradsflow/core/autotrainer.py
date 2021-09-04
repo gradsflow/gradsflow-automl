@@ -90,7 +90,7 @@ class AutoTrainer:
         """
         if self.backend == Backend.pl:
             return self._lightning_objective(config, trainer_config, gpu)
-        else:
-            raise NotImplementedError(
-                "Trainer not implemented for backend: {}".format(self.backend)
-            )
+
+        raise NotImplementedError(
+            "Trainer not implemented for backend: {}".format(self.backend)
+        )

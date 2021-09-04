@@ -41,7 +41,6 @@ class AutoModel(BaseAutoModel, ABC):
         suggested_conf Dict: Any extra suggested configuration
         timeout int: HPO will stop after timeout
         prune bool: Whether to stop unpromising training.
-        tune_confs Dict: raytune configurations. See more at Ray docs.
         backend Optional[str]: Training backend - PL / torch / fastai. Default is PL
     """
 
@@ -59,7 +58,6 @@ class AutoModel(BaseAutoModel, ABC):
         suggested_conf: Optional[dict] = None,
         timeout: int = 600,
         prune: bool = True,
-        tune_confs: Optional[Dict] = None,
         backend: Optional[str] = None,
     ):
 
@@ -73,11 +71,11 @@ class AutoModel(BaseAutoModel, ABC):
         self.max_steps = max_steps
         self.timeout = timeout
         self.optimization_metric = optimization_metric or "val_accuracy"
-        self.optuna_confs = tune_confs or {}
         self.suggested_conf = suggested_conf or {}
 
         self.autotrainer = AutoTrainer(
             datamodule,
+            model_builder=self.build_model,
             optimization_metric=optimization_metric,
             max_epochs=max_epochs,
             max_steps=max_steps,
