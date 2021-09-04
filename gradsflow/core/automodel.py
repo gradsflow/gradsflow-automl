@@ -49,16 +49,16 @@ class AutoModel(BaseAutoModel, ABC):
     _DEFAULT_LR = (1e-5, 1e-2)
 
     def __init__(
-            self,
-            datamodule: DataModule,
-            max_epochs: int = 10,
-            max_steps: Optional[int] = None,
-            optimization_metric: Optional[str] = None,
-            n_trials: int = 20,
-            suggested_conf: Optional[dict] = None,
-            timeout: int = 600,
-            prune: bool = True,
-            backend: Optional[str] = None,
+        self,
+        datamodule: DataModule,
+        max_epochs: int = 10,
+        max_steps: Optional[int] = None,
+        optimization_metric: Optional[str] = None,
+        n_trials: int = 20,
+        suggested_conf: Optional[dict] = None,
+        timeout: int = 600,
+        prune: bool = True,
+        backend: Optional[str] = None,
     ):
 
         self.analysis = None
@@ -87,20 +87,20 @@ class AutoModel(BaseAutoModel, ABC):
         )
         default_lr = self._DEFAULT_LR
         self.suggested_lr = (
-                self.suggested_conf.get("lr")
-                or self.suggested_conf.get("learning_rate")
-                or default_lr
+            self.suggested_conf.get("lr")
+            or self.suggested_conf.get("learning_rate")
+            or default_lr
         )
 
     def hp_tune(
-            self,
-            name: Optional[str] = None,
-            ray_config: Optional[dict] = None,
-            trainer_config: Optional[dict] = None,
-            mode: Optional[str] = None,
-            gpu: Optional[float] = 0,
-            cpu: Optional[float] = None,
-            resume: bool = False,
+        self,
+        name: Optional[str] = None,
+        ray_config: Optional[dict] = None,
+        trainer_config: Optional[dict] = None,
+        mode: Optional[str] = None,
+        gpu: Optional[float] = 0,
+        cpu: Optional[float] = None,
+        resume: bool = False,
     ):
         """
         Search Hyperparameter and builds model with the best params
