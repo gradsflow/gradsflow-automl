@@ -16,7 +16,7 @@ from flash.core.data.data_module import DataModule
 
 from .autoclassification.image import AutoImageClassifier
 from .autoclassification.text import AutoTextClassifier
-from .autosummarization.autosummarization import AutoSummarization
+from .autosummarization import AutoSummarization
 
 SUPPORTED_TASKS = {
     "image": AutoImageClassifier,
