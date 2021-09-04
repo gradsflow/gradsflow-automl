@@ -57,13 +57,12 @@ class AutoTextClassifier(AutoClassifier):
         ```
     """
 
-    DEFAULT_BACKBONES = [
+    _DEFAULT_BACKBONES = [
         "distilbert-base-uncased-finetuned-sst-2-english",
         "sgugger/tiny-distilbert-classification",
     ]
 
-    @classmethod
-    def build_model(cls, config: dict) -> torch.nn.Module:
+    def build_model(self, config: dict) -> torch.nn.Module:
         """Build TextClassifier model from `ray.tune` hyperparameter configs
         or via config dictionary arguments
 
@@ -79,8 +78,8 @@ class AutoTextClassifier(AutoClassifier):
         learning_rate = config["lr"]
 
         return TextClassifier(
-            cls.num_classes,
+            self.num_classes,
             backbone=backbone,
-            optimizer=cls._OPTIMIZER_INDEX[optimizer],
+            optimizer=self._OPTIMIZER_INDEX[optimizer],
             learning_rate=learning_rate,
         )

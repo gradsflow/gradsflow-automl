@@ -58,8 +58,7 @@ class AutoImageClassifier(AutoClassifier):
 
     DEFAULT_BACKBONES = ["ssl_resnet18", "ssl_resnet50"]
 
-    @classmethod
-    def build_model(cls, config: dict) -> torch.nn.Module:
+    def build_model(self, config: dict) -> torch.nn.Module:
         """Build ImageClassifier model from `ray.tune` hyperparameter configs
         or via config dictionary arguments.
 
@@ -75,8 +74,8 @@ class AutoImageClassifier(AutoClassifier):
         learning_rate = config["lr"]
 
         return ImageClassifier(
-            cls.num_classes,
+            self.num_classes,
             backbone=backbone,
-            optimizer=cls._OPTIMIZER_INDEX[optimizer],
+            optimizer=self._OPTIMIZER_INDEX[optimizer],
             learning_rate=learning_rate,
         )

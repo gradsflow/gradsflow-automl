@@ -66,6 +66,7 @@ class AutoModel(BaseAutoModel, ABC):
         self.analysis = None
         self.prune = prune
         self.datamodule = datamodule
+        self.num_classes = datamodule.num_classes
         self.n_trials = n_trials
         self.model: Union[torch.nn.Module, pl.LightningModule, None] = None
         self.max_epochs = max_epochs

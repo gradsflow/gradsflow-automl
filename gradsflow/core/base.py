@@ -28,8 +28,7 @@ class BaseAutoModel(ABC):
         """creates search space"""
         raise NotImplementedError
 
-    @classmethod
     @abstractmethod
-    def build_model(cls, config: dict) -> torch.nn.Module:
+    def build_model(self, config: dict) -> torch.nn.Module:
         """Build model from dictionary config"""
         raise NotImplementedError

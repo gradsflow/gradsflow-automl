@@ -35,7 +35,7 @@ def test_build_model():
     )
 
     model_confs = {
-        "backbone": model.DEFAULT_BACKBONES[-1],
+        "backbone": model._DEFAULT_BACKBONES[-1],
         "optimizer": "adam",
         "lr": 1e-3,
     }
