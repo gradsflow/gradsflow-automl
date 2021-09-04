@@ -65,7 +65,7 @@ def autotask(
         raise UserWarning("either task or data_type must be set!")
 
     if task not in SUPPORTED_TASKS:
-        raise KeyError(
+        raise UserWarning(
             "Unknown task {}, available tasks are {}".format(
                 task, list(SUPPORTED_TASKS.keys())
             )

@@ -1,11 +1,14 @@
 import warnings
 from pathlib import Path
 
+import ray
 from flash.image import ImageClassificationData, ImageClassifier
 
 from gradsflow.autotasks import autotask
 
 warnings.filterwarnings("ignore")
+
+ray.init(local_mode=True)
 
 data_dir = Path.cwd()
 datamodule = ImageClassificationData.from_folders(
@@ -16,9 +19,8 @@ datamodule = ImageClassificationData.from_folders(
 
 def test_build_model():
     model = autotask(
-        task="image",
+        task="image-classification",
         datamodule=datamodule,
-        max_epochs=1,
         timeout=5,
         suggested_backbones="ssl_resnet18",
         n_trials=1,
@@ -30,7 +32,7 @@ def test_build_model():
 
 def test_hp_tune():
     model = autotask(
-        task="image",
+        task="image-classification",
         datamodule=datamodule,
         max_epochs=1,
         max_steps=2,
