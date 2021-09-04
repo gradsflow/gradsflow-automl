@@ -38,6 +38,22 @@ def Autotasks(
         timeout: int = 600,
         prune: bool = True,
 ):
+    """
+
+    Args:
+        task:
+        datamodule [DataModule]: PL Lightning DataModule with `num_classes` property.
+        max_epochs [int]: default=10.
+        n_trials [int]: default=100.
+        optimization_metric [Optional[str]]: defaults None
+        suggested_backbones Union[List, str, None]: defaults None
+        suggested_conf [Optional[dict] = None]: This sets Trial suggestions for optimizer,
+            learning rate, and all the hyperparameters.
+        timeout [int]: Hyperparameter search will stop after timeout.
+
+    Returns:
+
+    """
     if task not in SUPPORTED_TASKS:
         raise KeyError(
             "Unknown task {}, available tasks are {}".format(
