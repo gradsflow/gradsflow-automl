@@ -29,3 +29,7 @@
 * fix best checkpoints model loading. PR [#52](https://github.com/gradsflow/gradsflow/pull/52)
 * 🚀 feature/fix train arguments docs PR [#44](https://github.com/gradsflow/gradsflow/pull/44)
 * Publish Python 🐍 distributions 📦 to PyPI [#42](https://github.com/gradsflow/gradsflow/pull/42)
+
+## 0.0.5
+* Add Autotask feature. PR [#54](https://github.com/gradsflow/gradsflow/pull/54)
+* Add AutoTrainer to support plain torch and other torch frameworks. PR [#53](https://github.com/gradsflow/gradsflow/pull/53)

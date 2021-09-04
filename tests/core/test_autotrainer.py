@@ -11,14 +11,15 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
 from gradsflow.core.autotrainer import AutoTrainer
 
 
-def test_optimization_objective():
+@patch("gradsflow.core.autotrainer.pl")
+def test_optimization_objective(mock_pl: Mock):
     dm = MagicMock()
     model_builder = MagicMock()
 
@@ -27,6 +28,7 @@ def test_optimization_objective():
         dm, model_builder, optimization_metric="val_accuracy", backend="pl"
     )
     autotrainer.optimization_objective({}, {})
+    mock_pl.Trainer.assert_called()
 
     # wrong backend is passed
     with pytest.raises(NotImplementedError):
