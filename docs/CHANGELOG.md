@@ -32,4 +32,4 @@
 
 ## 0.0.5
 * Add Autotask feature. PR [#54](https://github.com/gradsflow/gradsflow/pull/54)
-* Add AutoTrainer to support plain torch and other torch frameworks. PR [#53](https://github.com/gradsflow/gradsflow/pull/53)
+* ✨add AutoTrainer to support plain torch training loop and other torch frameworks. PR [#53](https://github.com/gradsflow/gradsflow/pull/53)

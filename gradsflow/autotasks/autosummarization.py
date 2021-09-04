@@ -59,7 +59,7 @@ class AutoSummarization(AutoClassifier):
         ```
     """
 
-    DEFAULT_BACKBONES = [
+    _DEFAULT_BACKBONES = [
         "sshleifer/distilbart-cnn-12-6",
         "sshleifer/distilbart-xsum-12-3",
     ]

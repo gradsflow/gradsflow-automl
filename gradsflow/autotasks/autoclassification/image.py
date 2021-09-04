@@ -56,7 +56,7 @@ class AutoImageClassifier(AutoClassifier):
         ```
     """
 
-    DEFAULT_BACKBONES = ["ssl_resnet18", "ssl_resnet50"]
+    _DEFAULT_BACKBONES = ["ssl_resnet18", "ssl_resnet50"]
 
     def build_model(self, config: dict) -> torch.nn.Module:
         """Build ImageClassifier model from `ray.tune` hyperparameter configs
