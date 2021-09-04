@@ -12,4 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from .autoclassification.image import AutoImageClassifier
+from .autoclassification.text import AutoTextClassifier
+from .autosummarization.autosummarization import AutoSummarization
 from .autotasks import Autotasks
