@@ -25,7 +25,7 @@ SUPPORTED_TASKS = {
 }
 
 
-def Autotasks(
+def autotasks(
         task,
         datamodule: DataModule,
         max_epochs: int = 10,
