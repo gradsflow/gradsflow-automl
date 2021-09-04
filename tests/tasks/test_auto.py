@@ -5,7 +5,7 @@ import pytest
 import torch
 from flash.image import ImageClassificationData, ImageClassifier
 
-from gradsflow.autotasks import Autotasks
+from gradsflow.autotasks import autotasks
 
 warnings.filterwarnings("ignore")
 
@@ -17,7 +17,7 @@ datamodule = ImageClassificationData.from_folders(
 
 
 def test_build_model():
-    model = Autotasks(
+    model = autotasks(
         task="image",
         datamodule=datamodule,
         max_epochs=1,
@@ -31,7 +31,7 @@ def test_build_model():
 
 
 def test_hp_tune():
-    model = Autotasks(
+    model = autotasks(
         task="image",
         datamodule=datamodule,
         max_epochs=1,
