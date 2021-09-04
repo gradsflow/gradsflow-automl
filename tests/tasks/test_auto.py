@@ -1,11 +1,9 @@
 import warnings
 from pathlib import Path
 
-import pytest
-import torch
 from flash.image import ImageClassificationData, ImageClassifier
 
-from gradsflow.autotasks import autotasks
+from gradsflow.autotasks import autotask
 
 warnings.filterwarnings("ignore")
 
@@ -17,7 +15,7 @@ datamodule = ImageClassificationData.from_folders(
 
 
 def test_build_model():
-    model = autotasks(
+    model = autotask(
         task="image",
         datamodule=datamodule,
         max_epochs=1,
@@ -31,7 +29,7 @@ def test_build_model():
 
 
 def test_hp_tune():
-    model = autotasks(
+    model = autotask(
         task="image",
         datamodule=datamodule,
         max_epochs=1,

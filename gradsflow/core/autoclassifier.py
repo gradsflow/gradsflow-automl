@@ -37,7 +37,6 @@ class AutoClassifier(AutoModel):
         optimization_metric: Optional[str] = None,
         suggested_backbones: Union[List, str, None] = None,
         suggested_conf: Optional[dict] = None,
-        tune_confs: Optional[Dict] = None,
         timeout: int = 600,
         prune: bool = True,
     ):
@@ -50,7 +49,6 @@ class AutoClassifier(AutoModel):
             suggested_conf=suggested_conf,
             timeout=timeout,
             prune=prune,
-            tune_confs=tune_confs,
         )
 
         if isinstance(suggested_backbones, (str, list, tuple)):
