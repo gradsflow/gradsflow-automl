@@ -70,8 +70,11 @@ nav:
           - Auto Image Classification: 'examples/nbs/01-ImageClassification.ipynb'
           - Auto Text Classification: 'examples/nbs/02-TextClassification.ipynb'
           - Auto Summarization: 'examples/nbs/03-TextSummarization.ipynb'
-  - References:
-      - Core: gradsflow/core.md
-      - Auto Tasks: gradsflow/autotasks.md
+  - API References:
+      - Core: gradsflow/core
+      - AutoTasks:
+          - AutoClassification: gradsflow/autotasks/classification.md
+          - AutoSummarization: gradsflow/autotasks/autosummarization
+          - AutoTask: gradsflow/autotasks/autotasks
       - utility: gradsflow/utility.md
   - Release Notes: 'CHANGELOG.md'
