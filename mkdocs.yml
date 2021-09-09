@@ -72,9 +72,6 @@ nav:
           - Auto Summarization: 'examples/nbs/03-TextSummarization.ipynb'
   - API References:
       - Core: gradsflow/core
-      - AutoTasks:
-          - AutoClassification: gradsflow/autotasks/classification.md
-          - AutoSummarization: gradsflow/autotasks/autosummarization
-          - AutoTask: gradsflow/autotasks/autotasks
+      - AutoTasks: gradsflow/autotasks
       - utility: gradsflow/utility.md
   - Release Notes: 'CHANGELOG.md'
