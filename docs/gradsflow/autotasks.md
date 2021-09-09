@@ -1,8 +1,8 @@
-::: gradsflow.autotasks.autoclassification.image
+::: gradsflow.autotasks.autotasks
 
 ---
 
-::: gradsflow.autotasks.autoclassification.text
+::: gradsflow.autotasks.autoclassification
 
 ---
 
