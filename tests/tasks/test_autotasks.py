@@ -4,7 +4,7 @@ from pathlib import Path
 import ray
 from flash.image import ImageClassificationData, ImageClassifier
 
-from gradsflow.autotasks import autotask
+from gradsflow.tasks import autotask
 
 warnings.filterwarnings("ignore")
 

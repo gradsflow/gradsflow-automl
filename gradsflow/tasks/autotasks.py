@@ -29,6 +29,7 @@ SUPPORTED_TASKS = {
 
 
 def available_tasks() -> List[str]:
+    """Get a list of all available tasks."""
     return list(SUPPORTED_TASKS.keys())
 
 

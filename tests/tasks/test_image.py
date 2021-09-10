@@ -19,7 +19,7 @@ import pytest
 import torch
 from flash.image import ImageClassificationData, ImageClassifier
 
-from gradsflow.autotasks import AutoImageClassifier
+from gradsflow.tasks import AutoImageClassifier
 
 warnings.filterwarnings("ignore")
 
