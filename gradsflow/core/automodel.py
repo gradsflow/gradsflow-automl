@@ -17,10 +17,11 @@ from typing import Optional, Union
 
 import pytorch_lightning as pl
 import torch
-from flash import DataModule
 from loguru import logger
 from ray import tune
+from torch.utils.data import DataLoader
 
+from gradsflow.core.autodata import AutoDataset
 from gradsflow.core.autotrainer import AutoTrainer
 from gradsflow.core.base import BaseAutoModel
 from gradsflow.utility.common import module_to_cls_index
@@ -50,7 +51,10 @@ class AutoModel(BaseAutoModel, ABC):
 
     def __init__(
         self,
-        datamodule: DataModule,
+        datamodule: Optional[pl.LightningDataModule] = None,
+        train_dataloader: Optional[DataLoader] = None,
+        val_dataloader: Optional[DataLoader] = None,
+        num_classes: Optional[int] = None,
         max_epochs: int = 10,
         max_steps: Optional[int] = None,
         optimization_metric: Optional[str] = None,
@@ -63,7 +67,6 @@ class AutoModel(BaseAutoModel, ABC):
 
         self.analysis = None
         self.prune = prune
-        self.datamodule = datamodule
         self.num_classes = datamodule.num_classes
         self.n_trials = n_trials
         self.model: Union[torch.nn.Module, pl.LightningModule, None] = None
@@ -72,6 +75,15 @@ class AutoModel(BaseAutoModel, ABC):
         self.timeout = timeout
         self.optimization_metric = optimization_metric or "val_accuracy"
         self.suggested_conf = suggested_conf or {}
+
+        self.auto_dataset = AutoDataset(
+            train_dataloader=train_dataloader,
+            val_dataloader=val_dataloader,
+            datamodule=datamodule,
+            num_classes=num_classes,
+        )
+
+        self.datamodule = self.auto_dataset.datamodule
 
         self.autotrainer = AutoTrainer(
             datamodule,
