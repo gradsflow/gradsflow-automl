@@ -15,9 +15,11 @@
 from abc import abstractmethod
 from typing import Dict, List, Optional, Union
 
+import pytorch_lightning as pl
 import torch
 from flash.core.data.data_module import DataModule
 from ray import tune
+from torch.utils.data import DataLoader
 
 from gradsflow.core.automodel import AutoModel
 from gradsflow.utility.common import listify
@@ -30,7 +32,10 @@ class AutoClassifier(AutoModel):
 
     def __init__(
         self,
-        datamodule: DataModule,
+        datamodule: Optional[pl.LightningDataModule] = None,
+        train_dataloader: Optional[DataLoader] = None,
+        val_dataloader: Optional[DataLoader] = None,
+        num_classes: Optional[int] = None,
         max_epochs: int = 10,
         max_steps: int = 10,
         n_trials: int = 100,
@@ -41,7 +46,10 @@ class AutoClassifier(AutoModel):
         prune: bool = True,
     ):
         super().__init__(
-            datamodule,
+            datamodule=datamodule,
+            train_dataloader=train_dataloader,
+            val_dataloader=val_dataloader,
+            num_classes=num_classes,
             max_epochs=max_epochs,
             max_steps=max_steps,
             optimization_metric=optimization_metric,

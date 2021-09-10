@@ -14,7 +14,8 @@
 
 from typing import List, Optional, Union
 
-from flash.core.data.data_module import DataModule
+import pytorch_lightning as pl
+from torch.utils.data import DataLoader
 
 from .autoclassification.image import AutoImageClassifier
 from .autoclassification.text import AutoTextClassifier
@@ -32,7 +33,10 @@ def available_tasks() -> List[str]:
 
 
 def autotask(
-    datamodule: DataModule,
+    datamodule: Optional[pl.LightningDataModule] = None,
+    train_dataloader: Optional[DataLoader] = None,
+    val_dataloader: Optional[DataLoader] = None,
+    num_classes: Optional[int] = None,
     task: Optional[str] = None,
     data_type: Optional[str] = None,
     max_epochs: int = 10,
@@ -47,7 +51,10 @@ def autotask(
     """
 
     Args:
-        datamodule [DataModule]: PL Lightning DataModule with `num_classes` property.
+        datamodule Optional[DataModule]: PL Lightning DataModule with `num_classes` property.
+        train_dataloader Optional[DataLoader]: torch dataloader
+        val_dataloader Optional[DataLoader]: torch dataloader
+        num_classes Optional[int]: number of classes
         task Optional[str]: type of task. Check available tasks `availalbe_tasks()
         data_type Optional[str]: default=None. type of data - image, text or infer.
         max_epochs [int]: default=10.
@@ -75,6 +82,9 @@ def autotask(
 
     return targeted_task(
         datamodule=datamodule,
+        train_dataloader=train_dataloader,
+        val_dataloader=val_dataloader,
+        num_classes=num_classes,
         max_epochs=max_epochs,
         max_steps=max_steps,
         n_trials=n_trials,
