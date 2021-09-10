@@ -24,7 +24,10 @@ class AutoImageClassifier(AutoClassifier):
     Automatically find Image Classification Model
 
     Args:
-        datamodule [DataModule]: PL Lightning DataModule with `num_classes` property.
+        datamodule Optional[DataModule]: PL Lightning DataModule with `num_classes` property.
+        train_dataloader Optional[DataLoader]: torch dataloader
+        val_dataloader Optional[DataLoader]: torch dataloader
+        num_classes Optional[int]: number of classes
         max_epochs [int]: default=10.
         n_trials [int]: default=100.
         optimization_metric [Optional[str]]: defaults None
