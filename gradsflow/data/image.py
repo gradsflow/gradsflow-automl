@@ -16,7 +16,7 @@ from typing import Callable, List, Union
 
 from PIL import Image
 
-from gradsflow.core.autodata import RayDataset
+from gradsflow.data.ray_dataset import RayDataset
 
 
 class ImageFolder(RayDataset):
