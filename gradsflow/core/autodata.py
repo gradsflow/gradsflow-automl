@@ -11,10 +11,12 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-from typing import Optional
+from typing import List, Optional
 
 import pytorch_lightning as pl
+import ray
 from loguru import logger
+from torch.utils.data import IterableDataset
 
 
 class AutoDataset:
@@ -53,3 +55,34 @@ class AutoDataset:
 
         self.datamodule = datamodule
         self.num_classes = num_classes
+
+
+class RayDataset(IterableDataset):
+    def __init__(self, path: List[str], extensions: List[str] = None):
+        self.path = path
+        self.extensions = extensions
+        self.ds = ray.data.read_binary_files(path, include_paths=True)
+
+    def __iter__(self):
+        return self.ds.iter_rows()
+
+    def __len__(self):
+        return len(self.input_files)
+
+    def map_(self, func, *args, **kwargs) -> None:
+        """Inplace Map for ray.data
+        Time complexity: O(dataset size / parallelism)
+
+        See https://docs.ray.io/en/latest/data/dataset.html#transforming-datasets"""
+        self.ds = self.ds.map(func, *args, **kwargs)
+
+    def map_batch_(self, func, batch_size: int = 2, *args, **kwargs) -> None:
+        """Inplace Map for ray.data
+        Time complexity: O(dataset size / parallelism)
+
+        See https://docs.ray.io/en/latest/data/dataset.html#transforming-datasets"""
+        self.ds = self.ds.map_batches(func, batch_size=batch_size, *args, **kwargs)
+
+    @property
+    def input_files(self):
+        return self.ds.input_files()
