@@ -58,9 +58,8 @@ class AutoDataset:
 
 
 class RayDataset(IterableDataset):
-    def __init__(self, path: List[str], extensions: List[str] = None):
+    def __init__(self, path: List[str]):
         self.path = path
-        self.extensions = extensions
         self.ds = ray.data.read_binary_files(path, include_paths=True)
 
     def __iter__(self):
@@ -76,12 +75,11 @@ class RayDataset(IterableDataset):
         See https://docs.ray.io/en/latest/data/dataset.html#transforming-datasets"""
         self.ds = self.ds.map(func, *args, **kwargs)
 
-    def map_batch_(self, func, batch_size: int = 2, *args, **kwargs) -> None:
+    def map_batch_(self, func, batch_size: int = 2, **kwargs) -> None:
         """Inplace Map for ray.data
         Time complexity: O(dataset size / parallelism)
-
         See https://docs.ray.io/en/latest/data/dataset.html#transforming-datasets"""
-        self.ds = self.ds.map_batches(func, batch_size=batch_size, *args, **kwargs)
+        self.ds = self.ds.map_batches(func, batch_size=batch_size, **kwargs)
 
     @property
     def input_files(self):

@@ -35,7 +35,6 @@ class ImageFolder(RayDataset):
     def __init__(self, path, transforms: Union[Callable, None] = None):
         super().__init__(path)
         self.transforms = transforms
-        # self.map_(lambda x: (self.file_to_class(x[0]), *x))
 
     @staticmethod
     def file_to_class(files: Union[str, List]):
