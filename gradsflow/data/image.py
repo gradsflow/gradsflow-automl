@@ -12,9 +12,14 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import io
-from typing import Callable, List, Union
+import os
+from pathlib import Path
+from typing import Callable, List, Optional, Union
 
+from loguru import logger
 from PIL import Image
+from torch.utils.data import DataLoader
+from torchvision import transforms as T
 
 from gradsflow.data.ray_dataset import RayDataset
 
@@ -55,5 +60,36 @@ class ImageFolder(RayDataset):
             target = self.file_to_class(data[0])
             if self.transforms:
                 x = self.transforms(x)
-
             yield x, target
+
+
+def get_augmentations(image_size: tuple = (224, 224), auto_augment_policy: bool = True):
+    if auto_augment_policy:
+        augmentations = [T.Resize(image_size), T.AutoAugment(), T.ToTensor()]
+    else:
+        augmentations = [T.Resize(image_size), T.ToTensor()]
+    return T.Compose(augmentations)
+
+
+def image_dataset_from_directory(
+    directory: Union[List[str], Path, str],
+    transforms=None,
+    image_size=(224, 224),
+    batch_size: int = 1,
+    shuffle: bool = False,
+    pin_memory: bool = True,
+    num_workers: Optional[int] = None,
+):
+    num_workers = num_workers or os.cpu_count()
+    if not transforms:
+        transforms = get_augmentations(image_size)
+    ds = ImageFolder(directory, transforms=transforms)
+    logger.info("ds created")
+    dl = DataLoader(
+        ds,
+        batch_size=batch_size,
+        pin_memory=pin_memory,
+        shuffle=shuffle,
+        num_workers=num_workers,
+    )
+    return dl
