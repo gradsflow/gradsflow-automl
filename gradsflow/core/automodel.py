@@ -168,9 +168,7 @@ class AutoModel(BaseAutoModel, ABC):
         self.analysis = analysis
         self.model = self._get_best_model(analysis)
 
-        logger.info(
-            f"🎉 Best hyperparameters found were: {analysis.best_config}"
-        )
+        logger.info(f"🎉 Best hyperparameters found were: {analysis.best_config}")
         return analysis
 
     def _get_best_model(self, analysis, checkpoint_file: Optional[str] = None):
