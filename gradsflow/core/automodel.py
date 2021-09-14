@@ -169,7 +169,7 @@ class AutoModel(BaseAutoModel, ABC):
         self.model = self._get_best_model(analysis)
 
         logger.info(
-            "🎉 Best hyperparameters found were: {}".format(analysis.best_config)
+            f"🎉 Best hyperparameters found were: {analysis.best_config}"
         )
         return analysis
 
