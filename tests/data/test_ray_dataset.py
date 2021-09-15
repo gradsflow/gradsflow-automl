@@ -11,8 +11,14 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+from pathlib import Path
+
 from gradsflow.data.ray_dataset import RayDataset
+
+data_dir = Path.cwd()
 
 
 def test_ray_dataset():
-    RayDataset("s3://gflow-public-dataset/cat-dog/")
+    folder = f"{data_dir}/data/test-data-cat-dog-v0/cat-dog/"
+
+    RayDataset(folder)

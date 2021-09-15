@@ -11,18 +11,14 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-
 from pathlib import Path
 
-from flash.core.data.utils import download_data
+from gradsflow.data.image import image_dataset_from_directory
 
-cwd = str(Path.cwd())
+data_dir = Path.cwd()
 
-download_data(
-    "https://pl-flash-data.s3.amazonaws.com/hymenoptera_data.zip", f"{cwd}/data"
-)
 
-download_data(
-    "https://github.com/gradsflow/test-data/archive/refs/tags/cat-dog-v0.zip",
-    f"{cwd}/data",
-)
+def test_image_dataset_from_directory():
+    folder = f"{data_dir}/data/test-data-cat-dog-v0/cat-dog/"
+    res = image_dataset_from_directory(folder)
+    assert isinstance(res, dict)
