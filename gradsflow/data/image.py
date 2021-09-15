@@ -14,7 +14,7 @@
 import io
 import os
 from pathlib import Path
-from typing import Callable, List, Optional, Union
+from typing import Callable, Dict, List, Optional, Union
 
 from loguru import logger
 from PIL import Image
@@ -79,9 +79,24 @@ def image_dataset_from_directory(
     shuffle: bool = False,
     pin_memory: bool = True,
     num_workers: Optional[int] = None,
-):
+) -> Dict[str, Union[RayDataset, DataLoader]]:
+    """
+    Create Dataset and Dataloader for image folder dataset.
+    Args:
+        directory:
+        transforms:
+        image_size:
+        batch_size:
+        shuffle:
+        pin_memory:
+        num_workers:
+
+    Returns:
+        A dictionary containing dataset and dataloader.
+    """
+
     num_workers = num_workers or os.cpu_count()
-    if not transforms:
+    if transforms is True:
         transforms = get_augmentations(image_size)
     ds = ImageFolder(directory, transforms=transforms)
     logger.info("ds created")
@@ -92,4 +107,4 @@ def image_dataset_from_directory(
         shuffle=shuffle,
         num_workers=num_workers,
     )
-    return dl
+    return {"ds": ds, "dl": dl}
