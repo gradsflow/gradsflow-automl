@@ -18,6 +18,7 @@ from gradsflow.data.image import image_dataset_from_directory
 data_dir = Path.cwd()
 
 
+# todo: remote dataset test
 def test_image_dataset_from_directory():
     folder = f"{data_dir}/data/test-data-cat-dog-v0/cat-dog/"
     res = image_dataset_from_directory(folder)

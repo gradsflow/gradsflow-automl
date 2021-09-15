@@ -18,6 +18,7 @@ from gradsflow.data.ray_dataset import RayDataset
 data_dir = Path.cwd()
 
 
+# TODO: remote dataset test
 def test_ray_dataset():
     folder = f"{data_dir}/data/test-data-cat-dog-v0/cat-dog/"
 
