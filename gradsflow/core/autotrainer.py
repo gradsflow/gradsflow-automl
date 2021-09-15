@@ -92,5 +92,5 @@ class AutoTrainer:
             return self._lightning_objective(config, trainer_config, gpu)
 
         raise NotImplementedError(
-            "Trainer not implemented for backend: {}".format(self.backend)
+            f"Trainer not implemented for backend: {self.backend}"
         )
