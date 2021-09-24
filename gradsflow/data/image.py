@@ -20,11 +20,12 @@ from loguru import logger
 from PIL import Image
 from torch.utils.data import DataLoader
 from torchvision import transforms as T
+from torchvision.datasets import ImageFolder
 
 from gradsflow.data.ray_dataset import RayDataset
 
 
-class ImageFolder(RayDataset):
+class RayImageFolder(RayDataset):
     """Read image datasets
     ```
         root/dog/xxx.png
@@ -37,9 +38,9 @@ class ImageFolder(RayDataset):
     ```
     """
 
-    def __init__(self, path, transforms: Union[Callable, None] = None):
+    def __init__(self, path, transform: Union[Callable, None] = None):
         super().__init__(path)
-        self.transforms = transforms
+        self.transform = transform
 
     @staticmethod
     def file_to_class(files: Union[str, List]):
@@ -58,8 +59,8 @@ class ImageFolder(RayDataset):
         for data in self.ds.iter_rows():
             x = Image.open(io.BytesIO(data[1]))
             target = self.file_to_class(data[0])
-            if self.transforms:
-                x = self.transforms(x)
+            if self.transform:
+                x = self.transform(x)
             yield x, target
 
 
@@ -73,18 +74,19 @@ def get_augmentations(image_size: tuple = (224, 224), auto_augment_policy: bool 
 
 def image_dataset_from_directory(
     directory: Union[List[str], Path, str],
-    transforms=None,
+    transform=None,
     image_size=(224, 224),
     batch_size: int = 1,
     shuffle: bool = False,
     pin_memory: bool = True,
     num_workers: Optional[int] = None,
+    ray_data: bool = False,
 ) -> Dict[str, Union[RayDataset, DataLoader]]:
     """
     Create Dataset and Dataloader for image folder dataset.
     Args:
         directory:
-        transforms:
+        transform:
         image_size:
         batch_size:
         shuffle:
@@ -96,9 +98,12 @@ def image_dataset_from_directory(
     """
 
     num_workers = num_workers or os.cpu_count()
-    if transforms is True:
-        transforms = get_augmentations(image_size)
-    ds = ImageFolder(directory, transforms=transforms)
+    if transform is True:
+        transform = get_augmentations(image_size)
+    if ray_data:
+        ds = RayImageFolder(directory, transform=transform)
+    else:
+        ds = ImageFolder(directory, transform=transform)
     logger.info("ds created")
     dl = DataLoader(
         ds,
