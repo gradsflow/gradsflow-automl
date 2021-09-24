@@ -18,7 +18,7 @@ import torch
 from torch import nn
 
 from gradsflow.core.autodata import AutoDataset
-from gradsflow.core.callbacks import Callbacks
+from gradsflow.core.callbacks import Callback, ComposeCallback, Tracker
 from gradsflow.utility.common import module_to_cls_index
 
 
@@ -29,12 +29,6 @@ class BaseAutoModel(ABC):
     """
 
     _OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
-    _CALLBACKS_EVENTS = (
-        "on_epoch_start",
-        "on_epoch_end",
-        "on_training_start",
-        "on_training_end",
-    )
 
     @abstractmethod
     def _create_search_space(self) -> Dict[str, str]:
@@ -68,12 +62,15 @@ class BaseAutoModel(ABC):
         criterion = nn.CrossEntropyLoss()
 
         tracker = Tracker()
-        callbacks = Callbacks(tracker)
+        tracker.model = model
+        tracker.optimizer = optimizer
+        callbacks = ComposeCallback(tracker, "tune_report", "checkpoint")
 
         # ----- EVENT: ON_TRAINING_START
         callbacks.on_training_start()
 
         for epoch in range(epochs):  # loop over the dataset multiple times
+            tracker.epoch = epoch
             tracker.running_loss = 0.0
             tracker.epoch_steps = 0
 
@@ -132,11 +129,3 @@ class BaseAutoModel(ABC):
         callbacks.on_epoch_end()
 
         print("Finished Training")
-
-
-class Tracker:
-    def __init__(self):
-        self.train_loss = None
-        self.train_accuracy = None
-        self.val_loss = None
-        self.val_accuracy = None
