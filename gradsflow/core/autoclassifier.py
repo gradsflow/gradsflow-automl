@@ -44,6 +44,7 @@ class AutoClassifier(AutoModel):
         suggested_conf: Optional[dict] = None,
         timeout: int = 600,
         prune: bool = True,
+        backend: Optional[str] = None,
     ):
         super().__init__(
             datamodule=datamodule,
@@ -57,6 +58,7 @@ class AutoClassifier(AutoModel):
             suggested_conf=suggested_conf,
             timeout=timeout,
             prune=prune,
+            backend=backend,
         )
 
         if isinstance(suggested_backbones, (str, list, tuple)):

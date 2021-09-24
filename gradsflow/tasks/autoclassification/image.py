@@ -14,7 +14,6 @@
 
 import timm
 import torch.nn
-from flash.image.classification import ImageClassifier
 
 from gradsflow.core.autoclassifier import AutoClassifier
 
@@ -61,6 +60,9 @@ class AutoImageClassifier(AutoClassifier):
     """
 
     _DEFAULT_BACKBONES = ["ssl_resnet18", "ssl_resnet50"]
+
+    def __init__(self):
+        super().__init__(backend=None)
 
     def build_model(self, config: dict) -> torch.nn.Module:
         """Build ImageClassifier model from `ray.tune` hyperparameter configs
