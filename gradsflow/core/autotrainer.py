@@ -17,9 +17,11 @@ from enum import Enum
 from typing import Callable, Dict, Optional
 
 import pytorch_lightning as pl
+import torch
 from loguru import logger
 
 from gradsflow.core.callbacks import report_checkpoint_callback
+from gradsflow.utility.common import module_to_cls_index
 
 
 class Backend(Enum):
@@ -29,6 +31,8 @@ class Backend(Enum):
 
 
 class AutoTrainer:
+    _OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
+
     def __init__(
         self,
         datamodule,
@@ -44,6 +48,40 @@ class AutoTrainer:
         self.optimization_metric = optimization_metric
         self.max_epochs = max_epochs
         self.max_steps = max_steps
+
+    # def _torch_objective(self,
+    #                      hparams: Dict,
+    #                      trainer_config: Dict,
+    #                      gpu: Optional[float] = 0, ):
+    #
+    #     datamodule = self.datamodule
+    #     optimizer = self._OPTIMIZER_INDEX[hparams]
+    #     model = self.model_builder(hparams)
+    #
+    #     for epoch in range(50):  # loop over the dataset multiple times
+    #
+    #         running_loss = 0.0
+    #         for i, data in enumerate(datamodule.train_dataloader, 0):
+    #             # get the inputs; data is a list of [inputs, labels]
+    #             inputs, labels = data
+    #
+    #             # zero the parameter gradients
+    #             optimizer.zero_grad()
+    #
+    #             # forward + backward + optimize
+    #             outputs = model(inputs)
+    #             loss = criterion(outputs, labels)
+    #             loss.backward()
+    #             optimizer.step()
+    #
+    #             # print statistics
+    #             running_loss += loss.item()
+    #             if i % 2000 == 1999:  # print every 2000 mini-batches
+    #                 print('[%d, %5d] loss: %.3f' %
+    #                       (epoch + 1, i + 1, running_loss / 2000))
+    #                 running_loss = 0.0
+    #
+    #     print('Finished Training')
 
     # noinspection PyTypeChecker
     def _lightning_objective(

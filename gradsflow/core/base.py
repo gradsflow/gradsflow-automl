@@ -15,6 +15,11 @@ from abc import ABC, abstractmethod
 from typing import Dict
 
 import torch
+from torch import nn
+
+from gradsflow.core.autodata import AutoDataset
+from gradsflow.core.callbacks import Callbacks
+from gradsflow.utility.common import module_to_cls_index
 
 
 class BaseAutoModel(ABC):
@@ -23,12 +28,115 @@ class BaseAutoModel(ABC):
     data, model and trainer.
     """
 
+    _OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
+    _CALLBACKS_EVENTS = (
+        "on_epoch_start",
+        "on_epoch_end",
+        "on_training_start",
+        "on_training_end",
+    )
+
     @abstractmethod
     def _create_search_space(self) -> Dict[str, str]:
         """creates search space"""
         raise NotImplementedError
 
     @abstractmethod
-    def build_model(self, config: dict) -> torch.nn.Module:
-        """Build model from dictionary config"""
+    def build_model(self, search_space: dict) -> torch.nn.Module:
+        """Build model from dictionary hparams"""
         raise NotImplementedError
+
+    def fit(
+        self,
+        auto_data: AutoDataset,
+        search_space: dict,
+        epochs=1,
+        callbacks: dict = None,
+    ):
+        callbacks = callbacks or {}
+        device = "cpu"
+        if torch.cuda.is_available():
+            device = "cuda"
+
+        train_dataloader = auto_data.train_dataloader
+        val_dataloader = auto_data.val_dataloader
+
+        model = self.build_model(search_space)
+        optimizer_fn = self._OPTIMIZER_INDEX[search_space["optimizer"]]
+        optimizer = optimizer_fn(model.parameters(), lr=search_space["learning_rate"])
+
+        criterion = nn.CrossEntropyLoss()
+
+        tracker = Tracker()
+        callbacks = Callbacks(tracker)
+
+        # ----- EVENT: ON_TRAINING_START
+        callbacks.on_training_start()
+
+        for epoch in range(epochs):  # loop over the dataset multiple times
+            tracker.running_loss = 0.0
+            tracker.epoch_steps = 0
+
+            # ----- EVENT: ON_EPOCH_START
+            callbacks.on_epoch_start()
+
+            for i, data in enumerate(train_dataloader, 0):
+                # get the inputs; data is a list of [inputs, labels]
+                inputs, labels = data
+                inputs, labels = inputs.to(device), labels.to(device)
+
+                # zero the parameter gradients
+                optimizer.zero_grad()
+
+                # forward + backward + optimize
+                outputs = model(inputs)
+                loss = criterion(outputs, labels)
+                loss.backward()
+                optimizer.step()
+
+                # print statistics
+                tracker.running_loss += loss.item()
+                tracker.epoch_steps += 1
+                if i % 100 == 0:  # print every 100 mini-batches
+                    print(
+                        "[%d, %5d] loss: %.3f"
+                        % (epoch + 1, i + 1, tracker.running_loss / tracker.epoch_steps)
+                    )
+                    tracker.running_loss = 0.0
+
+            # Validation loss
+            tracker.val_loss = 0.0
+            tracker.val_steps = 0
+            tracker.total = 0
+            tracker.correct = 0
+            for i, data in enumerate(val_dataloader, 0):
+                with torch.no_grad():
+                    inputs, labels = data
+                    inputs, labels = inputs.to(device), labels.to(device)
+
+                    outputs = model(inputs)
+                    _, predicted = torch.max(outputs.data, 1)
+                    tracker.total += labels.size(0)
+                    tracker.correct += (predicted == labels).sum().item()
+
+                    loss = criterion(outputs, labels)
+                    tracker.val_loss += loss.cpu().numpy()
+                    tracker.val_steps += 1
+
+            print("validation loss=", tracker.val_loss / tracker.val_steps)
+
+            # ----- EVENT: ON_EPOCH_END
+            callbacks.on_epoch_end()
+
+        # ----- EVENT: ON_TRAINING_END
+        callbacks.on_epoch_end()
+
+        print("Finished Training")
+
+
+class Tracker:
+    def __init__(self):
+        self.train_loss = None
+        self.train_accuracy = None
+        self.val_loss = None
+        self.val_accuracy = None

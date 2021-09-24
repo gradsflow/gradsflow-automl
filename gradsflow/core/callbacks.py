@@ -31,3 +31,24 @@ def report_checkpoint_callback(
     )
 
     return callback
+
+
+class Callbacks:
+    def __init__(self, tracker):
+        self.tracker = tracker
+
+    def on_training_start(self):
+        ...
+
+    def on_epoch_start(
+        self,
+    ):
+        ...
+
+    def on_training_end(
+        self,
+    ):
+        ...
+
+    def on_epoch_end(self):
+        ...

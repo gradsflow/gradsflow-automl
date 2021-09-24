@@ -27,6 +27,8 @@ class AutoDataset:
     ):
 
         self.datamodule = None
+        self.train_dataloader = train_dataloader
+        self.val_dataloader = val_dataloader
         self.num_classes = num_classes
 
         if not (datamodule or train_dataloader):
@@ -52,4 +54,6 @@ class AutoDataset:
                 raise UserWarning("num_classes is None!")
 
         self.datamodule = datamodule
+        self.train_dataloader = datamodule.train_dataloader
+        self.val_dataloader = datamodule.val_dataloader
         self.num_classes = num_classes

@@ -12,6 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import timm
 import torch.nn
 from flash.image.classification import ImageClassifier
 
@@ -63,7 +64,7 @@ class AutoImageClassifier(AutoClassifier):
 
     def build_model(self, config: dict) -> torch.nn.Module:
         """Build ImageClassifier model from `ray.tune` hyperparameter configs
-        or via config dictionary arguments.
+        or via hparams dictionary arguments.
 
         Arguments:
             backbone [str]: Image classification backbone name - resnet18, resnet50,...
@@ -76,9 +77,7 @@ class AutoImageClassifier(AutoClassifier):
         optimizer = config["optimizer"]
         learning_rate = config["lr"]
 
-        return ImageClassifier(
-            self.num_classes,
-            backbone=backbone,
-            optimizer=self._OPTIMIZER_INDEX[optimizer],
-            learning_rate=learning_rate,
+        model = timm.create_model(
+            backbone, pretrained=True, num_classes=self.num_classes
         )
+        return model
