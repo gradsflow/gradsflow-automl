@@ -126,7 +126,7 @@ class AutoModel(BaseAutoModel, ABC):
             name Optional[str]: name of the experiment.
             ray_config dict: configuration passed to `ray.tune.run(...)`
             trainer_config dict: configuration passed to `pl.trainer.fit(...)`
-            mode Optional[str]: Whether to maximize or mimimize the `optimization_metric`.
+            mode Optional[str]: Whether to maximize or minimize the `optimization_metric`.
             Values are `max` or `min`
             gpu Optional[float]: Amount of GPU resource per trial.
             cpu float: CPU cores per trial
@@ -168,9 +168,7 @@ class AutoModel(BaseAutoModel, ABC):
         self.analysis = analysis
         self.model = self._get_best_model(analysis)
 
-        logger.info(
-            "🎉 Best hyperparameters found were: {}".format(analysis.best_config)
-        )
+        logger.info(f"🎉 Best hyperparameters found were: {analysis.best_config}")
         return analysis
 
     def _get_best_model(self, analysis, checkpoint_file: Optional[str] = None):

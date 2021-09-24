@@ -73,5 +73,6 @@ nav:
   - API References:
       - Core: gradsflow/core
       - AutoTasks: gradsflow/tasks
+      - Data: gradsflow/data
       - utility: gradsflow/utility.md
   - Release Notes: 'CHANGELOG.md'
