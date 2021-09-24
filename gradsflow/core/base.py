@@ -12,14 +12,14 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 from abc import ABC, abstractmethod
-from typing import Dict
+from typing import Dict, List, Union
 
 import torch
 from torch import nn
 
 from gradsflow.core.autodata import AutoDataset
 from gradsflow.core.callbacks import Callback, ComposeCallback, Tracker
-from gradsflow.utility.common import module_to_cls_index
+from gradsflow.utility.common import listify, module_to_cls_index
 
 
 class BaseAutoModel(ABC):
@@ -37,7 +37,7 @@ class BaseAutoModel(ABC):
 
     @abstractmethod
     def build_model(self, search_space: dict) -> torch.nn.Module:
-        """Build model from dictionary hparams"""
+        """Build model from dictionary search_space"""
         raise NotImplementedError
 
     def fit(
@@ -45,9 +45,9 @@ class BaseAutoModel(ABC):
         auto_data: AutoDataset,
         search_space: dict,
         epochs=1,
-        callbacks: dict = None,
+        callbacks: Union[List, None] = None,
     ):
-        callbacks = callbacks or {}
+        callbacks = listify(callbacks)
         device = "cpu"
         if torch.cuda.is_available():
             device = "cuda"
@@ -64,7 +64,7 @@ class BaseAutoModel(ABC):
         tracker = Tracker()
         tracker.model = model
         tracker.optimizer = optimizer
-        callbacks = ComposeCallback(tracker, "tune_report", "checkpoint")
+        callbacks = ComposeCallback(tracker, *callbacks)
 
         # ----- EVENT: ON_TRAINING_START
         callbacks.on_training_start()
@@ -129,3 +129,4 @@ class BaseAutoModel(ABC):
         callbacks.on_epoch_end()
 
         print("Finished Training")
+        return tracker

@@ -148,7 +148,7 @@ class AutoModel(BaseAutoModel, ABC):
         mode = mode or "max"
         timeout_stopper = tune.stopper.TimeoutStopper(self.timeout)
         logger.info(
-            "tuning hparams with metric = {} and model = {}".format(
+            "tuning search_space with metric = {} and model = {}".format(
                 self.optimization_metric,
                 mode,
             )

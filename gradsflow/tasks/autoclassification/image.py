@@ -35,6 +35,7 @@ class AutoImageClassifier(AutoClassifier):
         suggested_conf [Optional[dict] = None]: This sets Trial suggestions for optimizer,
             learning rate, and all the hyperparameters.
         timeout [int]: Hyperparameter search will stop after timeout.
+        backend Optional[str]: Training loop code. Defaults to None.
 
     Examples:
         ```python
@@ -66,7 +67,7 @@ class AutoImageClassifier(AutoClassifier):
 
     def build_model(self, config: dict) -> torch.nn.Module:
         """Build ImageClassifier model from `ray.tune` hyperparameter configs
-        or via hparams dictionary arguments.
+        or via search_space dictionary arguments.
 
         Arguments:
             backbone [str]: Image classification backbone name - resnet18, resnet50,...

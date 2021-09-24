@@ -67,7 +67,7 @@ class AutoTextClassifier(AutoClassifier):
 
     def build_model(self, config: dict) -> torch.nn.Module:
         """Build TextClassifier model from `ray.tune` hyperparameter configs
-        or via hparams dictionary arguments
+        or via search_space dictionary arguments
 
         Arguments:
             backbone [str]: Image classification backbone name - resnet18, resnet50,...
