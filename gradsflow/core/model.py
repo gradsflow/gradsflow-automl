@@ -37,6 +37,7 @@ class Model:
         autodataset: AutoDataset,
         epochs=1,
         callbacks: Union[List, None] = None,
+        sanity_test: bool = False,
     ):
         """
         Similar to Keras model.fit() it trains the model for specified epochs and returns Tracker object
@@ -103,7 +104,8 @@ class Model:
                         f"epoch: {epoch}, loss: {tracker.running_loss / tracker.epoch_steps :.3f}"
                     )
                     tracker.running_loss = 0.0
-
+                if sanity_test:
+                    break
             # END OF TRAIN EPOCH
             tracker.train_loss /= tracker.train_steps + 1e-9
 
@@ -125,6 +127,8 @@ class Model:
                     loss = criterion(outputs, labels)
                     tracker.val_loss += loss.cpu().numpy()
                     tracker.val_steps += 1
+                if sanity_test:
+                    break
             tracker.val_loss /= tracker.val_steps + 1e-9
             tracker.val_accuracy = tracker.correct / tracker.val_steps
 
