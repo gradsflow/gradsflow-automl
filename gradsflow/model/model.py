@@ -91,22 +91,22 @@ class Model:
     def train_epoch(self, autodataset):
         train_dataloader = autodataset.train_dataloader
         tracker = self.tracker
-        tracker.running_train_loss = 0.0
+        running_train_loss = 0.0
         tracker.running_loss = 0.0
         tracker.train_steps = 0
 
-        for i, data in enumerate(train_dataloader):
+        for step, data in enumerate(train_dataloader):
             inputs, target = data
             outputs = self.train_step(inputs, target)
             loss = outputs["loss"]
 
             loss = loss.item()
             tracker.running_loss += loss
-            tracker.running_train_loss += loss
-            tracker.epoch_steps += 1
+            running_train_loss += loss
             tracker.train_steps += 1
+            steps_per_epoch = tracker.steps_per_epoch
 
-            if i % 100 == 0:  # print every 100 mini-batches
+            if step % 100 == 0:  # print every 100 mini-batches
                 print(
                     f"epoch: {tracker.epoch}, "
                     f"loss: {tracker.running_loss / tracker.train_steps :.3f}"
@@ -114,12 +114,9 @@ class Model:
                 tracker.running_loss = 0.0
             if self.TEST:
                 break
-            if (
-                tracker.steps_per_epoch
-                and tracker.train_steps >= tracker.steps_per_epoch
-            ):
+            if steps_per_epoch and step >= steps_per_epoch:
                 break
-        tracker.train_loss = tracker.running_train_loss / (tracker.train_steps + 1e-9)
+        tracker.train_loss = running_train_loss / (tracker.train_steps + 1e-9)
         print(f"epoch: {tracker.epoch}: train/loss={tracker.train_loss: .3f}")
 
     def val_epoch(self, autodataset):
@@ -129,14 +126,14 @@ class Model:
         tracker = self.tracker
         tracker.total = 0
         tracker.correct = 0
-        tracker.running_val_loss = 0.0
+        running_val_loss = 0.0
         tracker.val_steps = 0
 
         val_prog = tracker.progress.add_task(
             "[green]Validation...", total=len(val_dataloader)
         )
 
-        for i, data in enumerate(val_dataloader):
+        for _, data in enumerate(val_dataloader):
             with torch.no_grad():
                 inputs, labels = data
                 outputs = self.val_step(inputs, labels)
@@ -146,12 +143,12 @@ class Model:
                 tracker.total += labels.size(0)
                 tracker.correct += (predicted == labels).sum().item()
 
-                tracker.running_val_loss += loss.cpu().numpy()
+                running_val_loss += loss.cpu().numpy()
                 tracker.val_steps += 1
                 tracker.progress.update(val_prog, advance=1)
             if self.TEST:
                 break
-        tracker.val_loss = tracker.running_val_loss / (tracker.val_steps + 1e-9)
+        tracker.val_loss = running_val_loss / (tracker.val_steps + 1e-9)
         tracker.val_accuracy = tracker.correct / tracker.val_steps
         print(
             f"val/loss={tracker.val_loss: .3f},"
@@ -174,6 +171,7 @@ class Model:
             epochs: number of epochs to train
             steps_per_epoch: Number of steps trained in a single epoch
             callbacks: Callback object or string
+            progress_kwargs: Arguments for rich.progress
 
         Returns:
             Tracker object
