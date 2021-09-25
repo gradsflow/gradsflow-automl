@@ -70,5 +70,5 @@ repos:
     hooks:
       - id: nbstripout
         args:
-          - --max-size=100k
+          - --max-size=300k
           - --strip-empty-cells
