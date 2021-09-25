@@ -12,7 +12,8 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import os
-from typing import List, Optional
+from dataclasses import dataclass
+from typing import Optional
 
 import torch
 from ray import tune
@@ -36,17 +37,19 @@ def report_checkpoint_callback(
     return callback
 
 
+@dataclass(init=False)
 class Tracker:
+    epoch: int
+    train_loss: float
+    train_accuracy: float
+    val_loss: float
+    val_accuracy: float
+    val_steps: int
+    train_steps: int
+
     def __init__(self):
         self.model = None
         self.optimizer = None
-        self.epoch = None
-        self.train_loss = None
-        self.train_accuracy = None
-        self.val_loss = None
-        self.val_accuracy = None
-        self.val_steps = None
-        self.train_steps = None
 
 
 class Callback:
