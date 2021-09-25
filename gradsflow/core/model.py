@@ -25,7 +25,7 @@ from gradsflow.utility.common import listify, module_to_cls_index
 
 
 class Model:
-    TEST = os.environ.get("GF_CI").lower() in ("true",)
+    TEST = os.environ.get("GF_CI", "false").lower() == "true"
     _OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
 
     def __init__(self, model: nn.Module, optimizer: str, lr: float = 3e-4):
