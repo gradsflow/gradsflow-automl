@@ -20,6 +20,7 @@ import torch
 from flash.image import ImageClassificationData
 
 from gradsflow.core.automodel import AutoModel
+from gradsflow.core.backend import Backend
 
 cwd = Path.cwd()
 datamodule = ImageClassificationData.from_folders(
@@ -51,7 +52,9 @@ def test_create_search_space():
 @patch("gradsflow.core.backend.pl")
 def test_objective(mock_pl):
     optimization_metric = "val_accuracy"
-    model = AutoModel(datamodule, optimization_metric=optimization_metric)
+    model = AutoModel(
+        datamodule, optimization_metric=optimization_metric, backend=Backend.pl.value
+    )
 
     model.backend.model_builder = MagicMock()
     trainer = mock_pl.Trainer = MagicMock()
@@ -62,7 +65,9 @@ def test_objective(mock_pl):
 
 @patch.multiple(AutoModel, __abstractmethods__=set())
 @patch("gradsflow.core.automodel.tune.run")
-def test_hp_tune(mock_tune):
+def test_hp_tune(
+    mock_tune,
+):
     automodel = AutoModel(datamodule)
     automodel._create_search_space = MagicMock()
     automodel.build_model = MagicMock()
