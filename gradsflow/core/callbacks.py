@@ -114,6 +114,8 @@ class ComposeCallback(Callback):
             if isinstance(callback, str):
                 callback = self._CALLBACK_INDEX[callback](tracker)
                 self.callbacks.append(callback)
+            elif isinstance(callback, Callback):
+                self.callbacks.append(callback)
             else:
                 raise NotImplementedError
 

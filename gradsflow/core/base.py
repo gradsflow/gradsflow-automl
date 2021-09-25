@@ -84,6 +84,8 @@ class BaseAutoModel(ABC):
             tracker.epoch = epoch
             tracker.running_loss = 0.0
             tracker.epoch_steps = 0
+            tracker.train_loss = 0.0
+            tracker.train_steps = 0
 
             # ----- EVENT: ON_EPOCH_START
             callbacks.on_epoch_start()
@@ -104,13 +106,17 @@ class BaseAutoModel(ABC):
 
                 # print statistics
                 tracker.running_loss += loss.item()
+                tracker.train_loss += loss.item()
                 tracker.epoch_steps += 1
+                tracker.train_steps += 1
                 if i % 100 == 0:  # print every 100 mini-batches
                     print(
-                        "[%d, %5d] loss: %.3f"
-                        % (epoch + 1, i + 1, tracker.running_loss / tracker.epoch_steps)
+                        f"epoch: {epoch}, loss: {tracker.running_loss / tracker.epoch_steps :.3f}"
                     )
                     tracker.running_loss = 0.0
+
+            # END OF TRAIN EPOCH
+            tracker.train_loss /= tracker.train_steps + 1e-9
 
             # Validation loss
             tracker.val_loss = 0.0
@@ -130,8 +136,13 @@ class BaseAutoModel(ABC):
                     loss = criterion(outputs, labels)
                     tracker.val_loss += loss.cpu().numpy()
                     tracker.val_steps += 1
+            tracker.val_loss /= tracker.val_steps + 1e-9
+            tracker.val_accuracy = tracker.correct / tracker.val_steps
 
-            print("validation loss=", tracker.val_loss / tracker.val_steps)
+            print(
+                f"epoch {tracker.epoch}: train/loss={tracker.train_loss}, "
+                f"val/loss={tracker.val_loss}, val/accuracy={tracker.val_accuracy}"
+            )
 
             # ----- EVENT: ON_EPOCH_END
             callbacks.on_epoch_end()
