@@ -75,6 +75,59 @@ class Model:
 
         return {"loss": loss, "logits": logits, "predictions": predictions}
 
+    def train_epoch(self, autodataset):
+        train_dataloader = autodataset.train_dataloader
+        tracker = self.tracker
+
+        for i, data in enumerate(train_dataloader, 0):
+            # get the inputs; data is a list of [inputs, labels]
+            inputs, target = data
+            outputs = self.train_step(inputs, target)
+            loss = outputs["loss"]
+
+            loss = loss.item()
+            tracker.running_loss += loss
+            tracker.train_loss += loss
+            tracker.epoch_steps += 1
+            tracker.train_steps += 1
+
+            if i % 100 == 0:  # print every 100 mini-batches
+                print(
+                    f"epoch: {tracker.epoch}, loss: {tracker.running_loss / tracker.epoch_steps :.3f}"
+                )
+                tracker.running_loss = 0.0
+            if self.TEST:
+                break
+            if (
+                tracker.steps_per_epoch
+                and tracker.steps_per_epoch >= tracker.epoch_steps
+            ):
+                break
+
+    def val_epoch(self, autodataset):
+        val_dataloader = autodataset.val_dataloader
+        tracker = self.tracker
+
+        tracker.total = 0
+        tracker.correct = 0
+
+        for i, data in enumerate(val_dataloader, 0):
+            with torch.no_grad():
+                inputs, labels = data
+                outputs = self.val_step(inputs, labels)
+                loss = outputs["loss"]
+                predicted = outputs["predictions"]
+
+                tracker.total += labels.size(0)
+                tracker.correct += (predicted == labels).sum().item()
+
+                tracker.val_loss += loss.cpu().numpy()
+                tracker.val_steps += 1
+            if self.TEST:
+                break
+        tracker.val_loss /= tracker.val_steps + 1e-9
+        tracker.val_accuracy = tracker.correct / tracker.val_steps
+
     def fit(
         self,
         autodataset: AutoDataset,
@@ -102,6 +155,7 @@ class Model:
 
         tracker = self.tracker
         tracker.model = model
+        tracker.max_epochs = epochs
         tracker.optimizer = optimizer
         tracker.steps_per_epoch = steps_per_epoch
         callbacks = ComposeCallback(tracker, *callbacks)
@@ -121,57 +175,16 @@ class Model:
             # ----- EVENT: ON_EPOCH_START
             callbacks.on_epoch_start()
 
-            for i, data in enumerate(train_dataloader, 0):
-                # get the inputs; data is a list of [inputs, labels]
-                inputs, target = data
-                outputs = self.train_step(inputs, target)
-                loss = outputs["loss"]
-
-                # print statistics
-                loss = loss.item()
-                tracker.running_loss += loss
-                tracker.train_loss += loss
-                tracker.epoch_steps += 1
-                tracker.train_steps += 1
-
-                if i % 100 == 0:  # print every 100 mini-batches
-                    print(
-                        f"epoch: {epoch}, loss: {tracker.running_loss / tracker.epoch_steps :.3f}"
-                    )
-                    tracker.running_loss = 0.0
-                if self.TEST:
-                    break
-                if (
-                    tracker.steps_per_epoch
-                    and tracker.steps_per_epoch >= tracker.epoch_steps
-                ):
-                    break
+            self.train_epoch(autodataset)
             # END OF TRAIN EPOCH
             tracker.train_loss /= tracker.train_steps + 1e-9
             print(f"epoch {tracker.epoch: .3f}: train/loss={tracker.train_loss: .3f}")
 
-            # Validation loss
-            tracker.val_loss = 0.0
-            tracker.val_steps = 0
-            tracker.total = 0
-            tracker.correct = 0
             if val_dataloader:
-                for i, data in enumerate(val_dataloader, 0):
-                    with torch.no_grad():
-                        inputs, labels = data
-                        outputs = self.val_step(inputs, labels)
-                        loss = outputs["loss"]
-                        predicted = outputs["predictions"]
-
-                        tracker.total += labels.size(0)
-                        tracker.correct += (predicted == labels).sum().item()
-
-                        tracker.val_loss += loss.cpu().numpy()
-                        tracker.val_steps += 1
-                    if self.TEST:
-                        break
-                tracker.val_loss /= tracker.val_steps + 1e-9
-                tracker.val_accuracy = tracker.correct / tracker.val_steps
+                # Validation loss
+                tracker.val_loss = 0.0
+                tracker.val_steps = 0
+                self.val_epoch(autodataset)
                 print(
                     f"val/loss={tracker.val_loss: .3f}, val/accuracy={tracker.val_accuracy: .3f}"
                 )
