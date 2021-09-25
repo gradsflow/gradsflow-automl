@@ -4,7 +4,7 @@ Core Building blocks for AutoML Tasks
 
 ---
 
-::: gradsflow.core.autotrainer
+::: gradsflow.core.backend
 
 ---
 
@@ -15,6 +15,5 @@ Core Building blocks for AutoML Tasks
 ::: gradsflow.core.autoclassifier
 
 ---
-
 
 ::: gradsflow.core.callbacks
