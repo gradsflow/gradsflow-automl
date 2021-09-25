@@ -17,7 +17,6 @@ from pathlib import Path
 
 import pytest
 import torch
-from flash.image import ImageClassifier
 
 from gradsflow.core.model import Model
 from gradsflow.data.image import image_dataset_from_directory
