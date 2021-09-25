@@ -20,14 +20,29 @@ from flash.image import ImageClassificationData
 from gradsflow.core.callbacks import Tracker
 from gradsflow.core.data import AutoDataset
 from gradsflow.core.model import Model
+from gradsflow.data.image import image_dataset_from_directory
 
-cwd = Path.cwd()
-datamodule = ImageClassificationData.from_folders(
-    train_folder=f"{cwd}/data/hymenoptera_data/train/",
-    val_folder=f"{cwd}/data/hymenoptera_data/val/",
+data_dir = Path.cwd() / "data"
+train_data = image_dataset_from_directory(
+    f"{data_dir}/hymenoptera_data/train/",
+    image_size=(96, 96),
+    num_workers=None,
+    transform=True,
 )
 
-autodataset = AutoDataset(datamodule=datamodule)
+val_data = image_dataset_from_directory(
+    f"{data_dir}/hymenoptera_data/val/",
+    image_size=(96, 96),
+    num_workers=None,
+    transform=True,
+)
+
+train_dataset = train_data["ds"]
+train_dl = train_data["dl"]
+val_dl = val_data["dl"]
+num_classes = len(train_dataset.classes)
+autodataset = AutoDataset(train_dl, num_classes=num_classes)
+
 cnn = timm.create_model("ssl_resnet18", pretrained=False, num_classes=2)
 model = Model(cnn, "adam")
 model.TEST = True
