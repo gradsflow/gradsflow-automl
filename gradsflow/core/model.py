@@ -37,17 +37,18 @@ class Model:
         autodataset: AutoDataset,
         epochs=1,
         callbacks: Union[List, None] = None,
-        sanity_test: bool = False,
-    ):
+        fast_dev_run: bool = False,
+    ) -> Tracker:
         """
         Similar to Keras model.fit() it trains the model for specified epochs and returns Tracker object
         Args:
             autodataset: AutoDataset object encapsulate dataloader and datamodule
             epochs:
             callbacks:
+            fast_dev_run: will run one step on train and val data (Inspired from Lightning)
 
         Returns:
-
+            Tracker object
         """
         callbacks = listify(callbacks)
         device = "cpu"
@@ -104,7 +105,7 @@ class Model:
                         f"epoch: {epoch}, loss: {tracker.running_loss / tracker.epoch_steps :.3f}"
                     )
                     tracker.running_loss = 0.0
-                if sanity_test:
+                if fast_dev_run:
                     break
             # END OF TRAIN EPOCH
             tracker.train_loss /= tracker.train_steps + 1e-9
@@ -127,7 +128,7 @@ class Model:
                     loss = criterion(outputs, labels)
                     tracker.val_loss += loss.cpu().numpy()
                     tracker.val_steps += 1
-                if sanity_test:
+                if fast_dev_run:
                     break
             tracker.val_loss /= tracker.val_steps + 1e-9
             tracker.val_accuracy = tracker.correct / tracker.val_steps
@@ -145,3 +146,6 @@ class Model:
 
         print("Finished Training")
         return tracker
+
+    def load_from_checkpoint(self, checkpoint):
+        self.model = torch.load(checkpoint)

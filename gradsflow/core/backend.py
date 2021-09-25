@@ -30,8 +30,8 @@ logger = logging.getLogger("core.backend")
 class Backend(Enum):
     # Remove torch
     pl = "pl"
-    gf = "torch"
-    torch = "torch"
+    gf = "gf"
+    torch = "gf"
     default = "pl"
 
 
@@ -70,6 +70,7 @@ class AutoBackend:
             callbacks=trainer_config.get(
                 "callbacks", ("tune_checkpoint", "tune_report")
             ),
+            fast_dev_run=trainer_config.get("fast_dev_run"),
         )
         return tracker.__dict__[self.optimization_metric]
 

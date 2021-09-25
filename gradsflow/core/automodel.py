@@ -14,6 +14,7 @@
 
 import logging
 from abc import ABC
+from pathlib import Path
 from typing import Optional, Union
 
 import pytorch_lightning as pl
@@ -21,7 +22,7 @@ import torch
 from ray import tune
 from torch.utils.data import DataLoader
 
-from gradsflow.core.backend import AutoBackend
+from gradsflow.core.backend import AutoBackend, Backend
 from gradsflow.core.base import BaseAutoModel
 from gradsflow.core.data import AutoDataset
 from gradsflow.utility.common import module_to_cls_index
@@ -172,10 +173,13 @@ class AutoModel(BaseAutoModel, ABC):
         logger.info(f"🎉 Best hyperparameters found were: {analysis.best_config}")
         return analysis
 
-    def _get_best_model(self, analysis, checkpoint_file: Optional[str] = None):
-        checkpoint_file = checkpoint_file or "filename"
+    def _get_best_model(self, analysis):
+
         best_model = self.build_model(self.analysis.best_config)
-        best_model = best_model.load_from_checkpoint(
-            analysis.best_checkpoint + "/" + checkpoint_file
-        )
+        best_ckpt_path = Path(analysis.best_checkpoint)
+        if self.backend.backend != Backend.gf.value:
+            best_ckpt_path = str(best_ckpt_path / "filename")
+        elif self.backend.backend == Backend.gf.value:
+            best_ckpt_path = str(best_ckpt_path / "checkpoint")
+        best_model = best_model.load_from_checkpoint(best_ckpt_path)
         return best_model
