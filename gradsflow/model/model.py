@@ -16,7 +16,7 @@ import os
 from typing import Dict, List, Optional, Union
 
 import torch
-from rich.progress import Progress
+from rich.progress import BarColumn, Progress, RenderableColumn, TimeRemainingColumn
 from torch import nn
 
 from gradsflow.core.callbacks import ComposeCallback
@@ -179,8 +179,19 @@ class Model:
         # ----- EVENT: ON_TRAINING_START
         callbacks.on_training_start()
 
-        with Progress(**progress_kwargs) as progress:
-            tracker.progress = progress
+        bar_column = BarColumn()
+        table_column = RenderableColumn("{Tracker}")
+
+        progress = Progress(
+            "[progress.description]{task.description}",
+            bar_column,
+            "[progress.percentage]{task.percentage:>3.0f}%",
+            TimeRemainingColumn(),
+            table_column,
+            expand=True,
+        )
+        tracker.progress = progress
+        with progress:
             train_prog = progress.add_task("[blue]Training...", total=epochs)
 
             for epoch in range(tracker.epoch, epochs):
@@ -190,7 +201,7 @@ class Model:
                 callbacks.on_epoch_start()
                 self.train_epoch(autodataset)
                 progress.update(train_prog, advance=1)
-                progress.console.print(tracker.create_table())
+                table_column.renderable = tracker.create_table()
 
                 # END OF TRAIN EPOCH
                 self.val_epoch(autodataset)
