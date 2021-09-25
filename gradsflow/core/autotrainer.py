@@ -116,6 +116,9 @@ class AutoTrainer:
         if self.backend == Backend.pl.value:
             return self._lightning_objective(config, trainer_config, gpu)
 
+        elif self.backend == Backend.torch.value:
+            return self._gf_objective(config, trainer_config, gpu)
+
         raise NotImplementedError(
             f"Trainer not implemented for backend: {self.backend}"
         )
