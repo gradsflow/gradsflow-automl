@@ -15,7 +15,7 @@
 import torch
 from flash.text.classification import TextClassifier
 
-from gradsflow.core.autoclassifier import AutoClassifier
+from gradsflow.core.classifier import AutoClassifier
 
 
 # noinspection PyTypeChecker

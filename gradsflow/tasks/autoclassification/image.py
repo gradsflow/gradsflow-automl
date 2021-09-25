@@ -15,7 +15,8 @@
 import timm
 import torch.nn
 
-from gradsflow.core.autoclassifier import AutoClassifier
+from gradsflow.core.backend import Backend
+from gradsflow.core.classifier import AutoClassifier
 
 
 # noinspection PyTypeChecker
@@ -63,7 +64,7 @@ class AutoImageClassifier(AutoClassifier):
     _DEFAULT_BACKBONES = ["ssl_resnet18", "ssl_resnet50"]
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs, backend=None)
+        super().__init__(*args, **kwargs, backend=Backend.gf.value)
 
     def build_model(self, config: dict) -> torch.nn.Module:
         """Build ImageClassifier model from `ray.tune` hyperparameter configs
@@ -77,8 +78,6 @@ class AutoImageClassifier(AutoClassifier):
             learning_rate [float]: Learning rate for the model.
         """
         backbone = config["backbone"]
-        optimizer = config["optimizer"]
-        learning_rate = config["lr"]
 
         model = timm.create_model(
             backbone, pretrained=True, num_classes=self.num_classes

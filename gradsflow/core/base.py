@@ -17,8 +17,8 @@ from typing import Dict, List, Union
 import torch
 from torch import nn
 
-from gradsflow.core.autodata import AutoDataset
 from gradsflow.core.callbacks import ComposeCallback, Tracker
+from gradsflow.core.data import AutoDataset
 from gradsflow.utility.common import listify, module_to_cls_index
 
 

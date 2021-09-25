@@ -16,7 +16,7 @@ from typing import Optional
 
 import pytorch_lightning as pl
 
-logger = logging.getLogger("autodata")
+logger = logging.getLogger("core.data")
 
 
 class AutoDataset:

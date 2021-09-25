@@ -21,12 +21,12 @@ import torch
 from ray import tune
 from torch.utils.data import DataLoader
 
-from gradsflow.core.autodata import AutoDataset
-from gradsflow.core.autotrainer import AutoTrainer
+from gradsflow.core.backend import AutoBackend
 from gradsflow.core.base import BaseAutoModel
+from gradsflow.core.data import AutoDataset
 from gradsflow.utility.common import module_to_cls_index
 
-logger = logging.getLogger("automodel")
+logger = logging.getLogger("core.model")
 
 
 class AutoModel(BaseAutoModel, ABC):
@@ -87,7 +87,7 @@ class AutoModel(BaseAutoModel, ABC):
 
         self.datamodule = self.auto_dataset.datamodule
 
-        self.autotrainer = AutoTrainer(
+        self.autotrainer = AutoBackend(
             datamodule,
             model_builder=self.build_model,
             optimization_metric=optimization_metric,

@@ -15,7 +15,7 @@
 import torch
 from flash.text.seq2seq import SummarizationTask
 
-from gradsflow.core.autoclassifier import AutoClassifier
+from gradsflow.core.classifier import AutoClassifier
 
 
 # noinspection PyTypeChecker

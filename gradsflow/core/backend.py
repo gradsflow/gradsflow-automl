@@ -20,20 +20,22 @@ from typing import Callable, Dict, Optional
 import pytorch_lightning as pl
 import torch
 
-from gradsflow.core.autodata import AutoDataset
 from gradsflow.core.callbacks import report_checkpoint_callback
+from gradsflow.core.data import AutoDataset
 from gradsflow.utility.common import module_to_cls_index
 
-logger = logging.getLogger("autotrainer")
+logger = logging.getLogger("core.backend")
 
 
 class Backend(Enum):
+    # Remove torch
     pl = "pl"
+    gf = "torch"
     torch = "torch"
     default = "pl"
 
 
-class AutoTrainer:
+class AutoBackend:
     _OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
 
     def __init__(
@@ -118,7 +120,7 @@ class AutoTrainer:
         if self.backend == Backend.pl.value:
             return self._lightning_objective(config, trainer_config, gpu)
 
-        elif self.backend == Backend.torch.value:
+        elif self.backend in (Backend.gf.value,):
             return self._gf_objective(config, trainer_config, gpu)
 
         raise NotImplementedError(
