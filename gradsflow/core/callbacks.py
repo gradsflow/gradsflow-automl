@@ -12,15 +12,13 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import os
-from dataclasses import dataclass
 from typing import Optional
 
 import torch
 from ray import tune
 from ray.tune.integration.pytorch_lightning import TuneReportCheckpointCallback
-from rich import box
-from rich.progress import Progress
-from rich.table import Table
+
+from gradsflow.core.base import BaseTracker
 
 _METRICS = {
     "val_accuracy": "val_accuracy",
@@ -40,41 +38,8 @@ def report_checkpoint_callback(
     return callback
 
 
-@dataclass(init=False)
-class Tracker:
-    max_epochs: int = 0
-    epoch: int = 0  # current train epoch
-    steps_per_epoch: Optional[int] = None
-
-    train_loss: Optional[float] = None
-    train_accuracy: Optional[float] = None
-    val_loss: Optional[float] = None
-    val_accuracy: Optional[float] = None
-    val_steps: Optional[int] = None
-    train_steps: Optional[int] = None
-
-    def __init__(self):
-        self.model = None
-        self.optimizer = None
-        self.progress: Optional[Progress] = None
-
-    def create_table(self) -> Table:
-        headings = ["epoch", "train/loss"]
-        if self.val_loss:
-            headings.append("val/loss")
-        table = Table(*headings)
-
-        row = [self.epoch, self.train_loss]
-        if self.val_loss:
-            row.append(self.val_loss)
-
-        row = list(map(lambda x: f"{x: .3f}" if isinstance(x, float) else str(x), row))
-        table.add_row(*row)
-        return table
-
-
 class Callback:
-    def __init__(self, tracker: Tracker = None):
+    def __init__(self, tracker: BaseTracker = None):
         self.tracker = tracker
 
     def on_training_start(self):

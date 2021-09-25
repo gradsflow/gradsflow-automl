@@ -12,7 +12,8 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 from abc import ABC, abstractmethod
-from typing import Dict
+from dataclasses import dataclass
+from typing import Dict, Optional
 
 import torch
 
@@ -36,3 +37,17 @@ class BaseAutoModel(ABC):
     def build_model(self, search_space: dict):
         """Build model from dictionary search_space"""
         raise NotImplementedError
+
+
+@dataclass(init=False)
+class BaseTracker:
+    max_epochs: int = 0
+    epoch: int = 0  # current train epoch
+    steps_per_epoch: Optional[int] = None
+
+    train_loss: Optional[float] = None
+    train_accuracy: Optional[float] = None
+    val_loss: Optional[float] = None
+    val_accuracy: Optional[float] = None
+    val_steps: Optional[int] = None
+    train_steps: Optional[int] = None
