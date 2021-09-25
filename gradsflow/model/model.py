@@ -11,18 +11,6 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-#
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
 
 import os
 from typing import Dict, List, Optional, Union
@@ -31,8 +19,9 @@ import torch
 from rich.progress import Progress
 from torch import nn
 
-from gradsflow.core.callbacks import ComposeCallback, Tracker
+from gradsflow.core.callbacks import ComposeCallback
 from gradsflow.core.data import AutoDataset
+from gradsflow.model.tracker import Tracker
 from gradsflow.utility.common import listify, module_to_cls_index
 
 
