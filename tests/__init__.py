@@ -15,6 +15,6 @@
 import os
 import warnings
 
-os.environ["GF_CI"] = True
+os.environ["GF_CI"] = "true"
 
 warnings.filterwarnings("ignore")
