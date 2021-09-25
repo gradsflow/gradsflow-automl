@@ -17,7 +17,6 @@ from typing import Dict, List, Optional, Union
 
 import pytorch_lightning as pl
 import torch
-from flash.core.data.data_module import DataModule
 from ray import tune
 from torch.utils.data import DataLoader
 

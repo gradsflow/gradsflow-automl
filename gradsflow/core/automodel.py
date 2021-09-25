@@ -12,12 +12,12 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import logging
 from abc import ABC
 from typing import Optional, Union
 
 import pytorch_lightning as pl
 import torch
-from loguru import logger
 from ray import tune
 from torch.utils.data import DataLoader
 
@@ -25,6 +25,8 @@ from gradsflow.core.autodata import AutoDataset
 from gradsflow.core.autotrainer import AutoTrainer
 from gradsflow.core.base import BaseAutoModel
 from gradsflow.utility.common import module_to_cls_index
+
+logger = logging.getLogger("automodel")
 
 
 class AutoModel(BaseAutoModel, ABC):

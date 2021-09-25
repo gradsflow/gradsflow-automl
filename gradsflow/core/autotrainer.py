@@ -12,17 +12,19 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import logging
 import math
 from enum import Enum
 from typing import Callable, Dict, Optional
 
 import pytorch_lightning as pl
 import torch
-from loguru import logger
 
 from gradsflow.core.autodata import AutoDataset
 from gradsflow.core.callbacks import report_checkpoint_callback
 from gradsflow.utility.common import module_to_cls_index
+
+logger = logging.getLogger("autotrainer")
 
 
 class Backend(Enum):

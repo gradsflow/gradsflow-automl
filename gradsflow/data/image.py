@@ -13,17 +13,19 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import io
+import logging
 import os
 from pathlib import Path
 from typing import Callable, Dict, List, Optional, Union
 
-from loguru import logger
 from PIL import Image
 from torch.utils.data import DataLoader
 from torchvision import transforms as T
 from torchvision.datasets import ImageFolder
 
 from gradsflow.data.ray_dataset import RayDataset
+
+logger = logging.getLogger("data.image")
 
 
 class RayImageFolder(RayDataset):
