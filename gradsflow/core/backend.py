@@ -65,7 +65,7 @@ class AutoBackend:
         model = self.model_builder(search_space)
         epochs = trainer_config.get("epochs", 1)
         tracker = model.fit(
-            autodata=autodataset,
+            autodataset=autodataset,
             epochs=epochs,
             callbacks=trainer_config.get(
                 "callbacks", ("tune_checkpoint", "tune_report")
@@ -119,7 +119,7 @@ class AutoBackend:
         if self.backend == Backend.pl.value:
             return self._lightning_objective(config, trainer_config, gpu)
 
-        elif self.backend in (Backend.gf.value,):
+        if self.backend in (Backend.gf.value,):
             return self._gf_objective(config, trainer_config, gpu)
 
         raise NotImplementedError(

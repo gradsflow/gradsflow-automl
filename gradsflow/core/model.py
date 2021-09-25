@@ -79,7 +79,7 @@ class Model:
             # ----- EVENT: ON_EPOCH_START
             callbacks.on_epoch_start()
 
-            for i, data in enumerate(train_dataloader, 0):
+            for i, data in enumerate(train_dataloader(), 0):
                 # get the inputs; data is a list of [inputs, labels]
                 inputs, labels = data
                 inputs, labels = inputs.to(device), labels.to(device)
@@ -112,7 +112,7 @@ class Model:
             tracker.val_steps = 0
             tracker.total = 0
             tracker.correct = 0
-            for i, data in enumerate(val_dataloader, 0):
+            for i, data in enumerate(val_dataloader(), 0):
                 with torch.no_grad():
                     inputs, labels = data
                     inputs, labels = inputs.to(device), labels.to(device)
