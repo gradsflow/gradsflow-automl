@@ -11,12 +11,24 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
 
 import os
 from typing import Dict, List, Optional, Union
 
 import torch
-from rich.progress import track
+from rich.progress import Progress
 from torch import nn
 
 from gradsflow.core.callbacks import ComposeCallback, Tracker
@@ -108,7 +120,7 @@ class Model:
             ):
                 break
         tracker.train_loss = tracker.running_train_loss / (tracker.train_steps + 1e-9)
-        print(f"epoch {tracker.epoch: .3f}: train/loss={tracker.train_loss: .3f}")
+        print(f"epoch: {tracker.epoch}: train/loss={tracker.train_loss: .3f}")
 
     def val_epoch(self, autodataset):
         if not autodataset.val_dataloader:
@@ -119,6 +131,10 @@ class Model:
         tracker.correct = 0
         tracker.running_val_loss = 0.0
         tracker.val_steps = 0
+
+        val_prog = tracker.progress.add_task(
+            "[green]Validation...", total=len(val_dataloader)
+        )
 
         for i, data in enumerate(val_dataloader):
             with torch.no_grad():
@@ -132,6 +148,7 @@ class Model:
 
                 tracker.running_val_loss += loss.cpu().numpy()
                 tracker.val_steps += 1
+                tracker.progress.update(val_prog, advance=1)
             if self.TEST:
                 break
         tracker.val_loss = tracker.running_val_loss / (tracker.val_steps + 1e-9)
@@ -140,6 +157,7 @@ class Model:
             f"val/loss={tracker.val_loss: .3f},"
             f" val/accuracy={tracker.val_accuracy: .3f}"
         )
+        tracker.progress.remove_task(val_prog)
 
     def fit(
         self,
@@ -147,6 +165,7 @@ class Model:
         epochs: int = 1,
         steps_per_epoch: Optional[int] = None,
         callbacks: Union[List, None] = None,
+        progress_kwargs: Optional[Dict] = None,
     ) -> Tracker:
         """
         Similar to Keras model.fit() it trains the model for specified epochs and returns Tracker object
@@ -160,6 +179,7 @@ class Model:
             Tracker object
         """
         optimizer = self.optimizer
+        progress_kwargs = progress_kwargs or {}
 
         callbacks = listify(callbacks)
 
@@ -172,23 +192,26 @@ class Model:
         # ----- EVENT: ON_TRAINING_START
         callbacks.on_training_start()
 
-        for epoch in track(
-            range(tracker.epoch, epochs), description="Training...", auto_refresh=True
-        ):
-            tracker.epoch = epoch
+        with Progress(**progress_kwargs) as progress:
+            tracker.progress = progress
+            train_prog = progress.add_task("[blue]Training...", total=epochs)
 
-            # ----- EVENT: ON_EPOCH_START
-            callbacks.on_epoch_start()
-            self.train_epoch(autodataset)
+            for epoch in range(tracker.epoch, epochs):
+                tracker.epoch = epoch
 
-            # END OF TRAIN EPOCH
-            self.val_epoch(autodataset)
+                # ----- EVENT: ON_EPOCH_START
+                callbacks.on_epoch_start()
+                self.train_epoch(autodataset)
+                progress.update(train_prog, advance=1)
 
-            # ----- EVENT: ON_EPOCH_END
-            callbacks.on_epoch_end()
+                # END OF TRAIN EPOCH
+                self.val_epoch(autodataset)
 
-            if self.TEST:
-                break
+                # ----- EVENT: ON_EPOCH_END
+                callbacks.on_epoch_end()
+
+                if self.TEST:
+                    break
 
         # ----- EVENT: ON_TRAINING_END
         callbacks.on_epoch_end()

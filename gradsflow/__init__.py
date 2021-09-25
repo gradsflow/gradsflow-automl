@@ -15,6 +15,7 @@
 #  limitations under the License.
 
 from gradsflow.core.automodel import AutoModel
+from gradsflow.model.model import Model
 from gradsflow.tasks.autoclassification.image import AutoImageClassifier
 from gradsflow.tasks.autoclassification.text import AutoTextClassifier
 from gradsflow.tasks.autosummarization import AutoSummarization

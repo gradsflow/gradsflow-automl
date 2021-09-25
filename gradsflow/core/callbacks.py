@@ -18,6 +18,8 @@ from typing import Optional
 import torch
 from ray import tune
 from ray.tune.integration.pytorch_lightning import TuneReportCheckpointCallback
+from rich.progress import Progress
+from rich.table import Table
 
 _METRICS = {
     "val_accuracy": "val_accuracy",
@@ -57,6 +59,19 @@ class Tracker:
     def __init__(self):
         self.model = None
         self.optimizer = None
+        self.progress: Optional[Progress] = None
+
+    def create_table(self) -> Table:
+        headings = ["epoch", "train_loss"]
+        if self.val_loss:
+            headings.append("val_loss")
+        table = Table(*headings, title="Tracker")
+
+        row = [self.epoch, self.train_loss]
+        if self.val_loss:
+            row.append(self.val_loss)
+        table.add_row(*row)
+        return table
 
 
 class Callback:
