@@ -20,6 +20,10 @@ from gradsflow.core.base import BaseTracker
 
 
 class Tracker(BaseTracker):
+    """
+    Tracks loss, accuracy and model weights during model.fit()
+    """
+
     def __init__(self):
         self.model = None
         self.optimizer = None
