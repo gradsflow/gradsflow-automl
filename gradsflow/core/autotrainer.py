@@ -50,7 +50,7 @@ class AutoTrainer:
         self.max_epochs = max_epochs
         self.max_steps = max_steps
 
-    def _torch_objective(
+    def _gf_objective(
         self,
         search_space: Dict,
         trainer_config: Dict,
@@ -64,9 +64,11 @@ class AutoTrainer:
             auto_data=autodataset,
             search_space=search_space,
             epochs=epochs,
-            callbacks=trainer_config.get("callbacks", ("checkpoint", "tune_report")),
+            callbacks=trainer_config.get(
+                "callbacks", ("tune_checkpoint", "tune_report")
+            ),
         )
-        return tracker
+        return tracker.__dict__[self.optimization_metric]
 
     # noinspection PyTypeChecker
     def _lightning_objective(
