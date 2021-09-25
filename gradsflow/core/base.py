@@ -33,6 +33,6 @@ class BaseAutoModel(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def build_model(self, search_space: dict) -> torch.nn.Module:
+    def build_model(self, search_space: dict):
         """Build model from dictionary search_space"""
         raise NotImplementedError

@@ -14,7 +14,6 @@
 
 import logging
 from abc import ABC
-from pathlib import Path
 from typing import Optional, Union
 
 import pytorch_lightning as pl
