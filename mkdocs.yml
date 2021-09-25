@@ -72,7 +72,7 @@ nav:
           - Auto Summarization: 'examples/nbs/03-TextSummarization.ipynb'
   - API References:
       - Core: gradsflow/core
-        - model: gradsflow/model
+      - model: gradsflow/model
       - AutoTasks: gradsflow/tasks
       - Data: gradsflow/data
       - utility: gradsflow/utility.md
