@@ -19,6 +19,7 @@ import pytest
 import torch
 from flash.image import ImageClassifier
 
+from gradsflow.core.model import Model
 from gradsflow.data.image import image_dataset_from_directory
 from gradsflow.tasks import AutoImageClassifier
 
@@ -49,7 +50,7 @@ def test_forward():
 
 
 def test_build_model():
-    model = AutoImageClassifier(
+    automodel = AutoImageClassifier(
         train_dataloader=train_dl,
         val_dataloader=val_dl,
         num_classes=2,
@@ -59,8 +60,8 @@ def test_build_model():
         n_trials=1,
     )
     kwargs = {"backbone": "ssl_resnet18", "optimizer": "adam", "lr": 1e-1}
-    model.model = model.build_model(kwargs)
-    assert isinstance(model.model, ImageClassifier)
+    automodel.model = automodel.build_model(kwargs)
+    assert isinstance(automodel.model, Model)
 
 
 def test_hp_tune():
