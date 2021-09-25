@@ -68,7 +68,7 @@ class BaseAutoModel(ABC):
 
         model = self.build_model(search_space).to(device)
         optimizer_fn = self._OPTIMIZER_INDEX[search_space["optimizer"]]
-        optimizer = optimizer_fn(model.parameters(), lr=search_space["learning_rate"])
+        optimizer = optimizer_fn(model.parameters(), lr=search_space["lr"])
 
         criterion = nn.CrossEntropyLoss()
 
