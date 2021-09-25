@@ -148,7 +148,7 @@ class Model:
                     break
             # END OF TRAIN EPOCH
             tracker.train_loss /= tracker.train_steps + 1e-9
-            print(f"epoch {tracker.epoch}: train/loss={tracker.train_loss}")
+            print(f"epoch {tracker.epoch: .3f}: train/loss={tracker.train_loss: .3f}")
 
             # Validation loss
             tracker.val_loss = 0.0
@@ -173,7 +173,7 @@ class Model:
                 tracker.val_loss /= tracker.val_steps + 1e-9
                 tracker.val_accuracy = tracker.correct / tracker.val_steps
                 print(
-                    f"val/loss={tracker.val_loss}, val/accuracy={tracker.val_accuracy}"
+                    f"val/loss={tracker.val_loss: .3f}, val/accuracy={tracker.val_accuracy: .3f}"
                 )
 
             # ----- EVENT: ON_EPOCH_END
