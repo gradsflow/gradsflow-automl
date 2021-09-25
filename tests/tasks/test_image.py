@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import warnings
 from pathlib import Path
 
@@ -21,6 +22,8 @@ import torch
 from gradsflow.core.model import Model
 from gradsflow.data.image import image_dataset_from_directory
 from gradsflow.tasks import AutoImageClassifier
+
+os.environ["GF_CI"] = "true"
 
 warnings.filterwarnings("ignore")
 
@@ -75,6 +78,4 @@ def test_hp_tune():
         optimization_metric="val_accuracy",
         n_trials=1,
     )
-    model.hp_tune(
-        name="my-experiment", mode="max", gpu=0, trainer_config={"fast_dev_run": True}
-    )
+    model.hp_tune(name="pytest-experiment", mode="max", gpu=0)

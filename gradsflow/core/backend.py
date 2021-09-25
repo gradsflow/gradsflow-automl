@@ -70,7 +70,6 @@ class AutoBackend:
             callbacks=trainer_config.get(
                 "callbacks", ("tune_checkpoint", "tune_report")
             ),
-            fast_dev_run=trainer_config.get("fast_dev_run"),
         )
         return tracker.__dict__[self.optimization_metric]
 

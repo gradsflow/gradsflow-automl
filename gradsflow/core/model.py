@@ -192,6 +192,9 @@ class Model:
             # ----- EVENT: ON_EPOCH_END
             callbacks.on_epoch_end()
 
+            if self.TEST:
+                break
+
         # ----- EVENT: ON_TRAINING_END
         callbacks.on_epoch_end()
 
