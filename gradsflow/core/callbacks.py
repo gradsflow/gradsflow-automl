@@ -94,8 +94,9 @@ class TorchTuneCheckpointCallback(Callback):
 class TorchTuneReport(Callback):
     def on_epoch_end(self):
         val_loss = self.tracker.val_loss
-        val_steps = self.tracker.val_steps
-        tune.report(loss=(val_loss / val_steps))
+        val_accuracy = self.tracker.val_accuracy
+        train_loss = self.tracker.train_loss
+        tune.report(loss=val_loss, val_accuracy=val_accuracy, train_loss=train_loss)
 
 
 class ComposeCallback(Callback):
