@@ -47,6 +47,17 @@ class BaseAutoModel(ABC):
         epochs=1,
         callbacks: Union[List, None] = None,
     ):
+        """
+        Similar to Keras model.fit() it trains the model for specified epochs and returns Tracker object
+        Args:
+            auto_data: AutoDataset object encapsulate dataloader and datamodule
+            search_space:
+            epochs:
+            callbacks:
+
+        Returns:
+
+        """
         callbacks = listify(callbacks)
         device = "cpu"
         if torch.cuda.is_available():
@@ -55,7 +66,7 @@ class BaseAutoModel(ABC):
         train_dataloader = auto_data.train_dataloader
         val_dataloader = auto_data.val_dataloader
 
-        model = self.build_model(search_space)
+        model = self.build_model(search_space).to(device)
         optimizer_fn = self._OPTIMIZER_INDEX[search_space["optimizer"]]
         optimizer = optimizer_fn(model.parameters(), lr=search_space["learning_rate"])
 
