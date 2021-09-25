@@ -39,17 +39,24 @@ def report_checkpoint_callback(
 
 @dataclass(init=False)
 class Tracker:
-    epoch: int
-    train_loss: float
-    train_accuracy: float
-    val_loss: float
-    val_accuracy: float
-    val_steps: int
-    train_steps: int
+    epoch: Optional[int]
+    train_loss: Optional[float]
+    train_accuracy: Optional[float]
+    val_loss: Optional[float]
+    val_accuracy: Optional[float]
+    val_steps: Optional[int]
+    train_steps: Optional[int]
 
     def __init__(self):
         self.model = None
         self.optimizer = None
+        self.epoch = None
+        self.train_loss = None
+        self.train_accuracy = None
+        self.val_loss = None
+        self.val_accuracy = None
+        self.val_steps = None
+        self.train_steps = None
 
 
 class Callback:
