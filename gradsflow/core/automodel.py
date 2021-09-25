@@ -176,9 +176,6 @@ class AutoModel(BaseAutoModel, ABC):
 
         best_model = self.build_model(self.analysis.best_config)
         best_ckpt_path = analysis.best_checkpoint
-        if self.backend.backend != Backend.gf.value:
-            best_ckpt_path = best_ckpt_path + "/filename"
-        elif self.backend.backend == Backend.gf.value:
-            best_ckpt_path = best_ckpt_path + "/checkpoint"
+        best_ckpt_path = best_ckpt_path + "/filename"
         best_model = best_model.load_from_checkpoint(best_ckpt_path)
         return best_model

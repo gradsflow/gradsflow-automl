@@ -70,6 +70,8 @@ nav:
           - Auto Image Classification: 'examples/nbs/01-ImageClassification.ipynb'
           - Auto Text Classification: 'examples/nbs/02-TextClassification.ipynb'
           - Auto Summarization: 'examples/nbs/03-TextSummarization.ipynb'
+          - Remote Dataset Loading: 'examples/nbs/04-RayDataset.ipynb'
+          - Model Training: 'examples/nbs/05-model_fit.ipynb'
   - API References:
       - Core: gradsflow/core
       - model: gradsflow/model

@@ -12,6 +12,9 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import os
 import warnings
+
+os.environ["GF_CI"] = "true"
 
 warnings.filterwarnings("ignore")

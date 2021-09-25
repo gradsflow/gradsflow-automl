@@ -39,24 +39,21 @@ def report_checkpoint_callback(
 
 @dataclass(init=False)
 class Tracker:
-    epoch: Optional[int]
-    train_loss: Optional[float]
-    train_accuracy: Optional[float]
-    val_loss: Optional[float]
-    val_accuracy: Optional[float]
-    val_steps: Optional[int]
-    train_steps: Optional[int]
+    train_loss: Optional[float] = None
+    train_accuracy: Optional[float] = None
+    val_loss: Optional[float] = None
+    val_accuracy: Optional[float] = None
+
+    max_epochs: int = 0
+    epoch_steps: int = 0
+    epoch: int = 0  # current train epoch
+    steps_per_epoch: Optional[int] = None
+    val_steps: Optional[int] = None
+    train_steps: Optional[int] = None
 
     def __init__(self):
         self.model = None
         self.optimizer = None
-        self.epoch = None
-        self.train_loss = None
-        self.train_accuracy = None
-        self.val_loss = None
-        self.val_accuracy = None
-        self.val_steps = None
-        self.train_steps = None
 
 
 class Callback:
@@ -88,7 +85,7 @@ class TorchTuneCheckpointCallback(Callback):
 
         with tune.checkpoint_dir(epoch) as checkpoint_dir:
             print("checkpoint_dir", checkpoint_dir)
-            path = os.path.join(checkpoint_dir, "checkpoint")
+            path = os.path.join(checkpoint_dir, "filename")
             torch.save((model.state_dict(), optimizer.state_dict()), path)
 
 
