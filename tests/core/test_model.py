@@ -15,12 +15,11 @@ from pathlib import Path
 
 import timm
 import torch
-from flash.image import ImageClassificationData
 
 from gradsflow.core.callbacks import Tracker
 from gradsflow.core.data import AutoDataset
-from gradsflow.core.model import Model
 from gradsflow.data.image import image_dataset_from_directory
+from gradsflow.model.model import Model
 
 data_dir = Path.cwd() / "data"
 train_data = image_dataset_from_directory(

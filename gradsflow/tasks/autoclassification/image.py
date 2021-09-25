@@ -16,7 +16,7 @@ import timm
 
 from gradsflow.core.autoclassifier import AutoClassifier
 from gradsflow.core.backend import Backend
-from gradsflow.core.model import Model
+from gradsflow.model.model import Model
 
 
 # noinspection PyTypeChecker

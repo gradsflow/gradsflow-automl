@@ -51,6 +51,9 @@ class Tracker:
     val_steps: Optional[int] = None
     train_steps: Optional[int] = None
 
+    running_train_loss: float = 0.0
+    running_val_loss: float = 0.0
+
     def __init__(self):
         self.model = None
         self.optimizer = None

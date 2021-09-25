@@ -22,8 +22,8 @@ from pathlib import Path
 import pytest
 import torch
 
-from gradsflow.core.model import Model
 from gradsflow.data.image import image_dataset_from_directory
+from gradsflow.model.model import Model
 from gradsflow.tasks import AutoImageClassifier
 
 warnings.filterwarnings("ignore")

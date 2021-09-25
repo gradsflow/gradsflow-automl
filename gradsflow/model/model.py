@@ -42,6 +42,7 @@ class Model:
         self.model.to(self.device)
         self.criterion = nn.CrossEntropyLoss()
         self.tracker = Tracker()
+        self.tracker.model = self.model
 
     def __call__(self, inputs):
         return self.model(inputs)
@@ -78,40 +79,48 @@ class Model:
     def train_epoch(self, autodataset):
         train_dataloader = autodataset.train_dataloader
         tracker = self.tracker
+        tracker.running_train_loss = 0.0
+        tracker.running_loss = 0.0
+        tracker.train_steps = 0
 
-        for i, data in enumerate(train_dataloader, 0):
-            # get the inputs; data is a list of [inputs, labels]
+        for i, data in enumerate(train_dataloader):
             inputs, target = data
             outputs = self.train_step(inputs, target)
             loss = outputs["loss"]
 
             loss = loss.item()
             tracker.running_loss += loss
-            tracker.train_loss += loss
+            tracker.running_train_loss += loss
             tracker.epoch_steps += 1
             tracker.train_steps += 1
 
             if i % 100 == 0:  # print every 100 mini-batches
                 print(
-                    f"epoch: {tracker.epoch}, loss: {tracker.running_loss / tracker.epoch_steps :.3f}"
+                    f"epoch: {tracker.epoch}, "
+                    f"loss: {tracker.running_loss / tracker.train_steps :.3f}"
                 )
                 tracker.running_loss = 0.0
             if self.TEST:
                 break
             if (
                 tracker.steps_per_epoch
-                and tracker.steps_per_epoch >= tracker.epoch_steps
+                and tracker.train_steps >= tracker.steps_per_epoch
             ):
                 break
+        tracker.train_loss = tracker.running_train_loss / (tracker.train_steps + 1e-9)
+        print(f"epoch {tracker.epoch: .3f}: train/loss={tracker.train_loss: .3f}")
 
     def val_epoch(self, autodataset):
+        if not autodataset.val_dataloader:
+            return
         val_dataloader = autodataset.val_dataloader
         tracker = self.tracker
-
         tracker.total = 0
         tracker.correct = 0
+        tracker.running_val_loss = 0.0
+        tracker.val_steps = 0
 
-        for i, data in enumerate(val_dataloader, 0):
+        for i, data in enumerate(val_dataloader):
             with torch.no_grad():
                 inputs, labels = data
                 outputs = self.val_step(inputs, labels)
@@ -121,12 +130,16 @@ class Model:
                 tracker.total += labels.size(0)
                 tracker.correct += (predicted == labels).sum().item()
 
-                tracker.val_loss += loss.cpu().numpy()
+                tracker.running_val_loss += loss.cpu().numpy()
                 tracker.val_steps += 1
             if self.TEST:
                 break
-        tracker.val_loss /= tracker.val_steps + 1e-9
+        tracker.val_loss = tracker.running_val_loss / (tracker.val_steps + 1e-9)
         tracker.val_accuracy = tracker.correct / tracker.val_steps
+        print(
+            f"val/loss={tracker.val_loss: .3f},"
+            f" val/accuracy={tracker.val_accuracy: .3f}"
+        )
 
     def fit(
         self,
@@ -146,15 +159,11 @@ class Model:
         Returns:
             Tracker object
         """
-        model = self.model
         optimizer = self.optimizer
 
         callbacks = listify(callbacks)
-        train_dataloader = autodataset.train_dataloader
-        val_dataloader = autodataset.val_dataloader
 
         tracker = self.tracker
-        tracker.model = model
         tracker.max_epochs = epochs
         tracker.optimizer = optimizer
         tracker.steps_per_epoch = steps_per_epoch
@@ -162,32 +171,18 @@ class Model:
 
         # ----- EVENT: ON_TRAINING_START
         callbacks.on_training_start()
+
         for epoch in track(
-            range(tracker.epoch, epochs), description="Training..."
-        ):  # loop over the dataset multiple times
-            # restarts from last epoch with tracker
+            range(tracker.epoch, epochs), description="Training...", auto_refresh=True
+        ):
             tracker.epoch = epoch
-            tracker.running_loss = 0.0
-            tracker.epoch_steps = 0
-            tracker.train_loss = 0.0
-            tracker.train_steps = 0
 
             # ----- EVENT: ON_EPOCH_START
             callbacks.on_epoch_start()
-
             self.train_epoch(autodataset)
-            # END OF TRAIN EPOCH
-            tracker.train_loss /= tracker.train_steps + 1e-9
-            print(f"epoch {tracker.epoch: .3f}: train/loss={tracker.train_loss: .3f}")
 
-            if val_dataloader:
-                # Validation loss
-                tracker.val_loss = 0.0
-                tracker.val_steps = 0
-                self.val_epoch(autodataset)
-                print(
-                    f"val/loss={tracker.val_loss: .3f}, val/accuracy={tracker.val_accuracy: .3f}"
-                )
+            # END OF TRAIN EPOCH
+            self.val_epoch(autodataset)
 
             # ----- EVENT: ON_EPOCH_END
             callbacks.on_epoch_end()
