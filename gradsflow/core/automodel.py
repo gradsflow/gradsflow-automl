@@ -12,19 +12,21 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import logging
 from abc import ABC
 from typing import Optional, Union
 
 import pytorch_lightning as pl
 import torch
-from loguru import logger
 from ray import tune
 from torch.utils.data import DataLoader
 
-from gradsflow.core.autodata import AutoDataset
-from gradsflow.core.autotrainer import AutoTrainer
+from gradsflow.core.backend import AutoBackend, Backend
 from gradsflow.core.base import BaseAutoModel
+from gradsflow.core.data import AutoDataset
 from gradsflow.utility.common import module_to_cls_index
+
+logger = logging.getLogger("core.model")
 
 
 class AutoModel(BaseAutoModel, ABC):
@@ -67,7 +69,6 @@ class AutoModel(BaseAutoModel, ABC):
 
         self.analysis = None
         self.prune = prune
-        self.num_classes = datamodule.num_classes
         self.n_trials = n_trials
         self.model: Union[torch.nn.Module, pl.LightningModule, None] = None
         self.max_epochs = max_epochs
@@ -85,8 +86,8 @@ class AutoModel(BaseAutoModel, ABC):
 
         self.datamodule = self.auto_dataset.datamodule
 
-        self.autotrainer = AutoTrainer(
-            datamodule,
+        self.backend = AutoBackend(
+            self.auto_dataset,
             model_builder=self.build_model,
             optimization_metric=optimization_metric,
             max_epochs=max_epochs,
@@ -137,7 +138,7 @@ class AutoModel(BaseAutoModel, ABC):
         ray_config = ray_config or {}
 
         search_space = self._create_search_space()
-        trainable = self.autotrainer.optimization_objective
+        trainable = self.backend.optimization_objective
 
         resources_per_trial = {}
         if gpu:
@@ -148,7 +149,7 @@ class AutoModel(BaseAutoModel, ABC):
         mode = mode or "max"
         timeout_stopper = tune.stopper.TimeoutStopper(self.timeout)
         logger.info(
-            "tuning hparams with metric = {} and model = {}".format(
+            "tuning search_space with metric = {} and model = {}".format(
                 self.optimization_metric,
                 mode,
             )
@@ -171,10 +172,13 @@ class AutoModel(BaseAutoModel, ABC):
         logger.info(f"🎉 Best hyperparameters found were: {analysis.best_config}")
         return analysis
 
-    def _get_best_model(self, analysis, checkpoint_file: Optional[str] = None):
-        checkpoint_file = checkpoint_file or "filename"
+    def _get_best_model(self, analysis):
+
         best_model = self.build_model(self.analysis.best_config)
-        best_model = best_model.load_from_checkpoint(
-            analysis.best_checkpoint + "/" + checkpoint_file
-        )
+        best_ckpt_path = analysis.best_checkpoint
+        if self.backend.backend != Backend.gf.value:
+            best_ckpt_path = best_ckpt_path + "/filename"
+        elif self.backend.backend == Backend.gf.value:
+            best_ckpt_path = best_ckpt_path + "/checkpoint"
+        best_model = best_model.load_from_checkpoint(best_ckpt_path)
         return best_model

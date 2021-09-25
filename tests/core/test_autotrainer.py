@@ -15,16 +15,16 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-from gradsflow.core.autotrainer import AutoTrainer
+from gradsflow.core.backend import AutoBackend
 
 
-@patch("gradsflow.core.autotrainer.pl")
+@patch("gradsflow.core.backend.pl")
 def test_optimization_objective(mock_pl: Mock):
     dm = MagicMock()
     model_builder = MagicMock()
 
     # backend is pl
-    autotrainer = AutoTrainer(
+    autotrainer = AutoBackend(
         dm, model_builder, optimization_metric="val_accuracy", backend="pl"
     )
     autotrainer.optimization_objective({}, {})
@@ -32,7 +32,7 @@ def test_optimization_objective(mock_pl: Mock):
 
     # wrong backend is passed
     with pytest.raises(NotImplementedError):
-        autotrainer = AutoTrainer(
+        autotrainer = AutoBackend(
             dm, model_builder, optimization_metric="val_accuracy", backend="error"
         )
         autotrainer.optimization_objective({}, {})

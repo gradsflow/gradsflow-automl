@@ -16,6 +16,8 @@ from typing import Dict
 
 import torch
 
+from gradsflow.utility.common import module_to_cls_index
+
 
 class BaseAutoModel(ABC):
     """
@@ -23,12 +25,14 @@ class BaseAutoModel(ABC):
     data, model and trainer.
     """
 
+    _OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
+
     @abstractmethod
     def _create_search_space(self) -> Dict[str, str]:
         """creates search space"""
         raise NotImplementedError
 
     @abstractmethod
-    def build_model(self, config: dict) -> torch.nn.Module:
-        """Build model from dictionary config"""
+    def build_model(self, search_space: dict):
+        """Build model from dictionary search_space"""
         raise NotImplementedError

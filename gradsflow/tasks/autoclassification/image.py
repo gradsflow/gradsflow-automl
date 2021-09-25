@@ -12,10 +12,11 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import torch.nn
-from flash.image.classification import ImageClassifier
+import timm
 
 from gradsflow.core.autoclassifier import AutoClassifier
+from gradsflow.core.backend import Backend
+from gradsflow.core.model import Model
 
 
 # noinspection PyTypeChecker
@@ -35,6 +36,7 @@ class AutoImageClassifier(AutoClassifier):
         suggested_conf [Optional[dict] = None]: This sets Trial suggestions for optimizer,
             learning rate, and all the hyperparameters.
         timeout [int]: Hyperparameter search will stop after timeout.
+        backend Optional[str]: Training loop code. Defaults to None.
 
     Examples:
         ```python
@@ -61,9 +63,12 @@ class AutoImageClassifier(AutoClassifier):
 
     _DEFAULT_BACKBONES = ["ssl_resnet18", "ssl_resnet50"]
 
-    def build_model(self, config: dict) -> torch.nn.Module:
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs, backend=Backend.gf.value)
+
+    def build_model(self, config: dict) -> Model:
         """Build ImageClassifier model from `ray.tune` hyperparameter configs
-        or via config dictionary arguments.
+        or via search_space dictionary arguments.
 
         Arguments:
             backbone [str]: Image classification backbone name - resnet18, resnet50,...
@@ -73,12 +78,7 @@ class AutoImageClassifier(AutoClassifier):
             learning_rate [float]: Learning rate for the model.
         """
         backbone = config["backbone"]
-        optimizer = config["optimizer"]
-        learning_rate = config["lr"]
 
-        return ImageClassifier(
-            self.num_classes,
-            backbone=backbone,
-            optimizer=self._OPTIMIZER_INDEX[optimizer],
-            learning_rate=learning_rate,
-        )
+        net = timm.create_model(backbone, pretrained=True, num_classes=self.num_classes)
+        model = Model(net, optimizer=config["optimizer"], lr=config["lr"])
+        return model

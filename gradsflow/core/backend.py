@@ -12,26 +12,35 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import logging
 import math
 from enum import Enum
 from typing import Callable, Dict, Optional
 
 import pytorch_lightning as pl
-from loguru import logger
+import torch
 
 from gradsflow.core.callbacks import report_checkpoint_callback
+from gradsflow.core.data import AutoDataset
+from gradsflow.utility.common import module_to_cls_index
+
+logger = logging.getLogger("core.backend")
 
 
 class Backend(Enum):
+    # Remove torch
     pl = "pl"
-    torch = "torch"
+    gf = "gf"
+    torch = "gf"
     default = "pl"
 
 
-class AutoTrainer:
+class AutoBackend:
+    _OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
+
     def __init__(
         self,
-        datamodule,
+        autodataset: AutoDataset,
         model_builder: Callable,
         optimization_metric: Optional[str],
         max_epochs: int = 10,
@@ -40,10 +49,30 @@ class AutoTrainer:
     ):
         self.model_builder = model_builder
         self.backend = (backend or Backend.default.value).lower()
-        self.datamodule = datamodule
+        self.autodataset = autodataset
         self.optimization_metric = optimization_metric
         self.max_epochs = max_epochs
         self.max_steps = max_steps
+
+    def _gf_objective(
+        self,
+        search_space: Dict,
+        trainer_config: Dict,
+        gpu: Optional[float] = 0,
+    ):
+
+        autodataset = self.autodataset
+        model = self.model_builder(search_space)
+        epochs = trainer_config.get("epochs", 1)
+        tracker = model.fit(
+            autodataset=autodataset,
+            epochs=epochs,
+            callbacks=trainer_config.get(
+                "callbacks", ("tune_checkpoint", "tune_report")
+            ),
+            fast_dev_run=trainer_config.get("fast_dev_run"),
+        )
+        return tracker.__dict__[self.optimization_metric]
 
     # noinspection PyTypeChecker
     def _lightning_objective(
@@ -56,7 +85,7 @@ class AutoTrainer:
         if self.max_steps:
             val_check_interval = max(self.max_steps - 1, 1.0)
 
-        datamodule = self.datamodule
+        datamodule = self.autodataset.datamodule
 
         trainer = pl.Trainer(
             logger=True,
@@ -90,6 +119,9 @@ class AutoTrainer:
         """
         if self.backend == Backend.pl.value:
             return self._lightning_objective(config, trainer_config, gpu)
+
+        if self.backend in (Backend.gf.value,):
+            return self._gf_objective(config, trainer_config, gpu)
 
         raise NotImplementedError(
             f"Trainer not implemented for backend: {self.backend}"

@@ -17,7 +17,6 @@ from typing import Dict, List, Optional, Union
 
 import pytorch_lightning as pl
 import torch
-from flash.core.data.data_module import DataModule
 from ray import tune
 from torch.utils.data import DataLoader
 
@@ -44,6 +43,7 @@ class AutoClassifier(AutoModel):
         suggested_conf: Optional[dict] = None,
         timeout: int = 600,
         prune: bool = True,
+        backend: Optional[str] = None,
     ):
         super().__init__(
             datamodule=datamodule,
@@ -57,6 +57,7 @@ class AutoClassifier(AutoModel):
             suggested_conf=suggested_conf,
             timeout=timeout,
             prune=prune,
+            backend=backend,
         )
 
         if isinstance(suggested_backbones, (str, list, tuple)):
@@ -66,8 +67,7 @@ class AutoClassifier(AutoModel):
         else:
             raise UserWarning("Invalid suggested_backbone type!")
 
-        self.datamodule = datamodule
-        self.num_classes = datamodule.num_classes
+        self.num_classes = num_classes
 
     def forward(self, x):
         if not self.model:
@@ -79,7 +79,7 @@ class AutoClassifier(AutoModel):
         """Create hyperparameter config from `ray.tune`
 
         Returns:
-             key-value pair of `ray.tune` hparams
+             key-value pair of `ray.tune` search_space
         """
         trial_backbone = tune.choice(self.suggested_backbones)
         trial_lr = tune.loguniform(*self.suggested_lr)

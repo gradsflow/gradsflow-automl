@@ -23,19 +23,6 @@ class AutoTextClassifier(AutoClassifier):
     """
     Automatically find Text Classification Model
 
-    Arguments:
-        datamodule Optional[DataModule]: PL Lightning DataModule with `num_classes` property.
-        train_dataloader Optional[DataLoader]: torch dataloader
-        val_dataloader Optional[DataLoader]: torch dataloader
-        num_classes Optional[int]: number of classes
-        max_epochs [int]: default=10.
-        n_trials [int]: default=100.
-        optimization_metric [Optional[str]]: defaults None
-        suggested_backbones Union[List, str, None]: defaults None
-        suggested_conf [Optional[dict] = None]: This sets Trial suggestions for optimizer,
-            learning rate, and all the hyperparameters.
-        timeout [int]: Hyperparameter search will stop after timeout.
-
     Examples:
         ```python
             from gradsflow import AutoTextClassifier
@@ -58,6 +45,19 @@ class AutoTextClassifier(AutoClassifier):
                                        timeout=300)
             model.hp_tune()
         ```
+
+    Arguments:
+        datamodule Optional[DataModule]: PL Lightning DataModule with `num_classes` property.
+        train_dataloader Optional[DataLoader]: torch dataloader
+        val_dataloader Optional[DataLoader]: torch dataloader
+        num_classes Optional[int]: number of classes
+        max_epochs [int]: default=10.
+        n_trials [int]: default=100.
+        optimization_metric [Optional[str]]: defaults None
+        suggested_backbones Union[List, str, None]: defaults None
+        suggested_conf [Optional[dict] = None]: This sets Trial suggestions for optimizer,
+            learning rate, and all the hyperparameters.
+        timeout [int]: Hyperparameter search will stop after timeout.
     """
 
     _DEFAULT_BACKBONES = [
@@ -67,7 +67,7 @@ class AutoTextClassifier(AutoClassifier):
 
     def build_model(self, config: dict) -> torch.nn.Module:
         """Build TextClassifier model from `ray.tune` hyperparameter configs
-        or via config dictionary arguments
+        or via search_space dictionary arguments
 
         Arguments:
             backbone [str]: Image classification backbone name - resnet18, resnet50,...
@@ -76,6 +76,7 @@ class AutoTextClassifier(AutoClassifier):
             optimizer [str]: PyTorch Optimizers. Check `AutoImageClassification._OPTIMIZER_INDEX`
             learning_rate [float]: Learning rate for the model.
         """
+        self.num_classes = self.auto_dataset.num_classes
         backbone = config["backbone"]
         optimizer = config["optimizer"]
         learning_rate = config["lr"]
