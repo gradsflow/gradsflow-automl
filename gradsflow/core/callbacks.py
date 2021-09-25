@@ -68,7 +68,7 @@ class Tracker:
         if self.val_loss:
             row.append(self.val_loss)
 
-        row = list(map(lambda x: f"{x: .3f}", row))
+        row = list(map(lambda x: f"{x: .3f}" if isinstance(x, float) else str(x), row))
         table.add_row(*row)
         return table
 
