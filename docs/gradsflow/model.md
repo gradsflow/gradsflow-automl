@@ -1,1 +1,1 @@
-::: gradsflow.core.model
+::: gradsflow.model

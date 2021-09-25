@@ -12,12 +12,13 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import os
-from dataclasses import dataclass
 from typing import Optional
 
 import torch
 from ray import tune
 from ray.tune.integration.pytorch_lightning import TuneReportCheckpointCallback
+
+from gradsflow.core.base import BaseTracker
 
 _METRICS = {
     "val_accuracy": "val_accuracy",
@@ -37,27 +38,8 @@ def report_checkpoint_callback(
     return callback
 
 
-@dataclass(init=False)
-class Tracker:
-    train_loss: Optional[float] = None
-    train_accuracy: Optional[float] = None
-    val_loss: Optional[float] = None
-    val_accuracy: Optional[float] = None
-
-    max_epochs: int = 0
-    epoch_steps: int = 0
-    epoch: int = 0  # current train epoch
-    steps_per_epoch: Optional[int] = None
-    val_steps: Optional[int] = None
-    train_steps: Optional[int] = None
-
-    def __init__(self):
-        self.model = None
-        self.optimizer = None
-
-
 class Callback:
-    def __init__(self, tracker: Tracker = None):
+    def __init__(self, tracker: BaseTracker = None):
         self.tracker = tracker
 
     def on_training_start(self):

@@ -16,11 +16,12 @@ import os
 from typing import Dict, List, Optional, Union
 
 import torch
-from rich.progress import track
+from rich.progress import BarColumn, Progress, RenderableColumn, TimeRemainingColumn
 from torch import nn
 
-from gradsflow.core.callbacks import ComposeCallback, Tracker
+from gradsflow.core.callbacks import ComposeCallback
 from gradsflow.core.data import AutoDataset
+from gradsflow.model.tracker import Tracker
 from gradsflow.utility.common import listify, module_to_cls_index
 
 
@@ -42,6 +43,7 @@ class Model:
         self.model.to(self.device)
         self.criterion = nn.CrossEntropyLoss()
         self.tracker = Tracker()
+        self.tracker.model = self.model
 
     def __call__(self, inputs):
         return self.model(inputs)
@@ -78,40 +80,49 @@ class Model:
     def train_epoch(self, autodataset):
         train_dataloader = autodataset.train_dataloader
         tracker = self.tracker
+        running_train_loss = 0.0
+        tracker.running_loss = 0.0
+        tracker.train_steps = 0
 
-        for i, data in enumerate(train_dataloader, 0):
-            # get the inputs; data is a list of [inputs, labels]
+        for step, data in enumerate(train_dataloader):
             inputs, target = data
             outputs = self.train_step(inputs, target)
             loss = outputs["loss"]
 
             loss = loss.item()
             tracker.running_loss += loss
-            tracker.train_loss += loss
-            tracker.epoch_steps += 1
+            running_train_loss += loss
             tracker.train_steps += 1
+            steps_per_epoch = tracker.steps_per_epoch
 
-            if i % 100 == 0:  # print every 100 mini-batches
-                print(
-                    f"epoch: {tracker.epoch}, loss: {tracker.running_loss / tracker.epoch_steps :.3f}"
-                )
+            if step % 100 == 0:  # print every 100 mini-batches
+                # print(
+                #     f"epoch: {tracker.epoch}, "
+                #     f"loss: {tracker.running_loss / tracker.train_steps :.3f}"
+                # )
                 tracker.running_loss = 0.0
             if self.TEST:
                 break
-            if (
-                tracker.steps_per_epoch
-                and tracker.steps_per_epoch >= tracker.epoch_steps
-            ):
+            if steps_per_epoch and step >= steps_per_epoch:
                 break
+        tracker.train_loss = running_train_loss / (tracker.train_steps + 1e-9)
+        # print(f"epoch: {tracker.epoch}: train/loss={tracker.train_loss: .3f}")
 
     def val_epoch(self, autodataset):
+        if not autodataset.val_dataloader:
+            return
         val_dataloader = autodataset.val_dataloader
         tracker = self.tracker
-
         tracker.total = 0
         tracker.correct = 0
+        running_val_loss = 0.0
+        tracker.val_steps = 0
 
-        for i, data in enumerate(val_dataloader, 0):
+        val_prog = tracker.progress.add_task(
+            "[green]Validation...", total=len(val_dataloader)
+        )
+
+        for _, data in enumerate(val_dataloader):
             with torch.no_grad():
                 inputs, labels = data
                 outputs = self.val_step(inputs, labels)
@@ -121,12 +132,18 @@ class Model:
                 tracker.total += labels.size(0)
                 tracker.correct += (predicted == labels).sum().item()
 
-                tracker.val_loss += loss.cpu().numpy()
+                running_val_loss += loss.cpu().numpy()
                 tracker.val_steps += 1
+                tracker.progress.update(val_prog, advance=1)
             if self.TEST:
                 break
-        tracker.val_loss /= tracker.val_steps + 1e-9
+        tracker.val_loss = running_val_loss / (tracker.val_steps + 1e-9)
         tracker.val_accuracy = tracker.correct / tracker.val_steps
+        # print(
+        #     f"val/loss={tracker.val_loss: .3f},"
+        #     f" val/accuracy={tracker.val_accuracy: .3f}"
+        # )
+        tracker.progress.remove_task(val_prog)
 
     def fit(
         self,
@@ -134,6 +151,7 @@ class Model:
         epochs: int = 1,
         steps_per_epoch: Optional[int] = None,
         callbacks: Union[List, None] = None,
+        progress_kwargs: Optional[Dict] = None,
     ) -> Tracker:
         """
         Similar to Keras model.fit() it trains the model for specified epochs and returns Tracker object
@@ -142,19 +160,17 @@ class Model:
             epochs: number of epochs to train
             steps_per_epoch: Number of steps trained in a single epoch
             callbacks: Callback object or string
+            progress_kwargs: Arguments for rich.progress
 
         Returns:
             Tracker object
         """
-        model = self.model
         optimizer = self.optimizer
+        progress_kwargs = progress_kwargs or {}
 
         callbacks = listify(callbacks)
-        train_dataloader = autodataset.train_dataloader
-        val_dataloader = autodataset.val_dataloader
 
         tracker = self.tracker
-        tracker.model = model
         tracker.max_epochs = epochs
         tracker.optimizer = optimizer
         tracker.steps_per_epoch = steps_per_epoch
@@ -162,38 +178,39 @@ class Model:
 
         # ----- EVENT: ON_TRAINING_START
         callbacks.on_training_start()
-        for epoch in track(
-            range(tracker.epoch, epochs), description="Training..."
-        ):  # loop over the dataset multiple times
-            # restarts from last epoch with tracker
-            tracker.epoch = epoch
-            tracker.running_loss = 0.0
-            tracker.epoch_steps = 0
-            tracker.train_loss = 0.0
-            tracker.train_steps = 0
 
-            # ----- EVENT: ON_EPOCH_START
-            callbacks.on_epoch_start()
+        bar_column = BarColumn()
+        table_column = RenderableColumn("{Tracker}")
 
-            self.train_epoch(autodataset)
-            # END OF TRAIN EPOCH
-            tracker.train_loss /= tracker.train_steps + 1e-9
-            print(f"epoch {tracker.epoch: .3f}: train/loss={tracker.train_loss: .3f}")
+        progress = Progress(
+            "[progress.description]{task.description}",
+            bar_column,
+            "[progress.percentage]{task.percentage:>3.0f}%",
+            TimeRemainingColumn(),
+            table_column,
+            expand=True,
+        )
+        tracker.progress = progress
+        with progress:
+            train_prog = progress.add_task("[blue]Training...", total=epochs)
 
-            if val_dataloader:
-                # Validation loss
-                tracker.val_loss = 0.0
-                tracker.val_steps = 0
+            for epoch in range(tracker.epoch, epochs):
+                tracker.epoch = epoch
+
+                # ----- EVENT: ON_EPOCH_START
+                callbacks.on_epoch_start()
+                self.train_epoch(autodataset)
+                progress.update(train_prog, advance=1)
+                table_column.renderable = tracker.create_table()
+
+                # END OF TRAIN EPOCH
                 self.val_epoch(autodataset)
-                print(
-                    f"val/loss={tracker.val_loss: .3f}, val/accuracy={tracker.val_accuracy: .3f}"
-                )
 
-            # ----- EVENT: ON_EPOCH_END
-            callbacks.on_epoch_end()
+                # ----- EVENT: ON_EPOCH_END
+                callbacks.on_epoch_end()
 
-            if self.TEST:
-                break
+                if self.TEST:
+                    break
 
         # ----- EVENT: ON_TRAINING_END
         callbacks.on_epoch_end()
