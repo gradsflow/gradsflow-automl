@@ -13,11 +13,12 @@
 #  limitations under the License.
 
 import os
+
+os.environ["GF_CI"] = "true"
+
 from unittest.mock import MagicMock
 
 from gradsflow.tasks import AutoTextClassifier
-
-os.environ["GF_CI"] = "true"
 
 
 def test_build_model():

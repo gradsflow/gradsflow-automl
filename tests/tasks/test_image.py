@@ -13,6 +13,9 @@
 # limitations under the License.
 
 import os
+
+os.environ["GF_CI"] = "true"
+
 import warnings
 from pathlib import Path
 
@@ -22,8 +25,6 @@ import torch
 from gradsflow.core.model import Model
 from gradsflow.data.image import image_dataset_from_directory
 from gradsflow.tasks import AutoImageClassifier
-
-os.environ["GF_CI"] = "true"
 
 warnings.filterwarnings("ignore")
 
