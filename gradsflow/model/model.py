@@ -107,17 +107,17 @@ class Model:
             steps_per_epoch = tracker.steps_per_epoch
 
             if step % 100 == 0:  # print every 100 mini-batches
-                print(
-                    f"epoch: {tracker.epoch}, "
-                    f"loss: {tracker.running_loss / tracker.train_steps :.3f}"
-                )
+                # print(
+                #     f"epoch: {tracker.epoch}, "
+                #     f"loss: {tracker.running_loss / tracker.train_steps :.3f}"
+                # )
                 tracker.running_loss = 0.0
             if self.TEST:
                 break
             if steps_per_epoch and step >= steps_per_epoch:
                 break
         tracker.train_loss = running_train_loss / (tracker.train_steps + 1e-9)
-        print(f"epoch: {tracker.epoch}: train/loss={tracker.train_loss: .3f}")
+        # print(f"epoch: {tracker.epoch}: train/loss={tracker.train_loss: .3f}")
 
     def val_epoch(self, autodataset):
         if not autodataset.val_dataloader:
@@ -150,10 +150,10 @@ class Model:
                 break
         tracker.val_loss = running_val_loss / (tracker.val_steps + 1e-9)
         tracker.val_accuracy = tracker.correct / tracker.val_steps
-        print(
-            f"val/loss={tracker.val_loss: .3f},"
-            f" val/accuracy={tracker.val_accuracy: .3f}"
-        )
+        # print(
+        #     f"val/loss={tracker.val_loss: .3f},"
+        #     f" val/accuracy={tracker.val_accuracy: .3f}"
+        # )
         tracker.progress.remove_task(val_prog)
 
     def fit(
@@ -201,6 +201,7 @@ class Model:
                 callbacks.on_epoch_start()
                 self.train_epoch(autodataset)
                 progress.update(train_prog, advance=1)
+                progress.console.print(tracker.create_table())
 
                 # END OF TRAIN EPOCH
                 self.val_epoch(autodataset)

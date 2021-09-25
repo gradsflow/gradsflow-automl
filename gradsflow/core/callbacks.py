@@ -18,6 +18,7 @@ from typing import Optional
 import torch
 from ray import tune
 from ray.tune.integration.pytorch_lightning import TuneReportCheckpointCallback
+from rich import box
 from rich.progress import Progress
 from rich.table import Table
 
@@ -58,14 +59,16 @@ class Tracker:
         self.progress: Optional[Progress] = None
 
     def create_table(self) -> Table:
-        headings = ["epoch", "train_loss"]
+        headings = ["epoch", "train/loss"]
         if self.val_loss:
-            headings.append("val_loss")
-        table = Table(*headings, title="Tracker")
+            headings.append("val/loss")
+        table = Table(*headings)
 
         row = [self.epoch, self.train_loss]
         if self.val_loss:
             row.append(self.val_loss)
+
+        row = list(map(lambda x: f"{x: .3f}", row))
         table.add_row(*row)
         return table
 
