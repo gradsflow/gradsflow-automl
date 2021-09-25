@@ -12,171 +12,132 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import logging
-from abc import ABC
-from typing import Optional, Union
+from typing import List, Union
 
-import pytorch_lightning as pl
 import torch
-from ray import tune
-from torch.utils.data import DataLoader
+from torch import nn
 
-from gradsflow.core.backend import AutoBackend
-from gradsflow.core.base import BaseAutoModel
+from gradsflow.core.callbacks import ComposeCallback, Tracker
 from gradsflow.core.data import AutoDataset
-from gradsflow.utility.common import module_to_cls_index
-
-logger = logging.getLogger("core.model")
+from gradsflow.utility.common import listify, module_to_cls_index
 
 
-class AutoModel(BaseAutoModel, ABC):
-    """
-    Base model that defines hyperparameter search methods and initializes `Ray`.
-    All other tasks are implementation of `AutoModel`.
-
-    Args:
-        datamodule flash.DataModule: DataModule from Flash or PyTorch Lightning
-        max_epochs [int]: Maximum number of epochs for which model will train
-        max_steps Optional[int]: Maximum number of steps for each epoch. Defaults None.
-        optimization_metric str: Value on which hyperparameter search will run.
-        By default, it is `val_accuracy`.
-        n_trials int: Number of trials for HPO
-        suggested_conf Dict: Any extra suggested configuration
-        timeout int: HPO will stop after timeout
-        prune bool: Whether to stop unpromising training.
-        backend Optional[str]: Training backend - PL / torch / fastai. Default is PL
-    """
-
+class Model:
     _OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
-    _DEFAULT_OPTIMIZERS = ["adam", "sgd"]
-    _DEFAULT_LR = (1e-5, 1e-2)
 
-    def __init__(
+    def __init__(self, model: nn.Module, optimizer: str, lr: float = 3e-4):
+        self.model = model
+        self.lr = lr
+        self.optimizer = self._OPTIMIZER_INDEX[optimizer](
+            self.model.parameters(), lr=lr
+        )
+
+    def fit(
         self,
-        datamodule: Optional[pl.LightningDataModule] = None,
-        train_dataloader: Optional[DataLoader] = None,
-        val_dataloader: Optional[DataLoader] = None,
-        num_classes: Optional[int] = None,
-        max_epochs: int = 10,
-        max_steps: Optional[int] = None,
-        optimization_metric: Optional[str] = None,
-        n_trials: int = 20,
-        suggested_conf: Optional[dict] = None,
-        timeout: int = 600,
-        prune: bool = True,
-        backend: Optional[str] = None,
-    ):
-
-        self.analysis = None
-        self.prune = prune
-        self.num_classes = datamodule.num_classes
-        self.n_trials = n_trials
-        self.model: Union[torch.nn.Module, pl.LightningModule, None] = None
-        self.max_epochs = max_epochs
-        self.max_steps = max_steps
-        self.timeout = timeout
-        self.optimization_metric = optimization_metric or "val_accuracy"
-        self.suggested_conf = suggested_conf or {}
-
-        self.auto_dataset = AutoDataset(
-            train_dataloader=train_dataloader,
-            val_dataloader=val_dataloader,
-            datamodule=datamodule,
-            num_classes=num_classes,
-        )
-
-        self.datamodule = self.auto_dataset.datamodule
-
-        self.autotrainer = AutoBackend(
-            datamodule,
-            model_builder=self.build_model,
-            optimization_metric=optimization_metric,
-            max_epochs=max_epochs,
-            max_steps=max_steps,
-            backend=backend,
-        )
-
-        self.suggested_optimizers = self.suggested_conf.get(
-            "optimizer", self._DEFAULT_OPTIMIZERS
-        )
-        default_lr = self._DEFAULT_LR
-        self.suggested_lr = (
-            self.suggested_conf.get("lr")
-            or self.suggested_conf.get("learning_rate")
-            or default_lr
-        )
-
-    def hp_tune(
-        self,
-        name: Optional[str] = None,
-        ray_config: Optional[dict] = None,
-        trainer_config: Optional[dict] = None,
-        mode: Optional[str] = None,
-        gpu: Optional[float] = 0,
-        cpu: Optional[float] = None,
-        resume: bool = False,
+        autodataset: AutoDataset,
+        epochs=1,
+        callbacks: Union[List, None] = None,
     ):
         """
-        Search Hyperparameter and builds model with the best params
-
-        ```python
-            automodel = AutoClassifier(data)  # implements `AutoModel`
-            automodel.hp_tune(name="gflow-example", gpu=1)
-        ```
-
+        Similar to Keras model.fit() it trains the model for specified epochs and returns Tracker object
         Args:
-            name Optional[str]: name of the experiment.
-            ray_config dict: configuration passed to `ray.tune.run(...)`
-            trainer_config dict: configuration passed to `pl.trainer.fit(...)`
-            mode Optional[str]: Whether to maximize or minimize the `optimization_metric`.
-            Values are `max` or `min`
-            gpu Optional[float]: Amount of GPU resource per trial.
-            cpu float: CPU cores per trial
-            resume bool: Whether to resume the training or not.
+            autodataset: AutoDataset object encapsulate dataloader and datamodule
+            epochs:
+            callbacks:
+
+        Returns:
+
         """
+        callbacks = listify(callbacks)
+        device = "cpu"
+        if torch.cuda.is_available():
+            device = "cuda"
 
-        trainer_config = trainer_config or {}
-        ray_config = ray_config or {}
+        train_dataloader = autodataset.train_dataloader
+        val_dataloader = autodataset.val_dataloader
 
-        search_space = self._create_search_space()
-        trainable = self.autotrainer.optimization_objective
+        model = self.model.to(device)
+        optimizer = self.optimizer
 
-        resources_per_trial = {}
-        if gpu:
-            resources_per_trial["gpu"] = gpu
-        if cpu:
-            resources_per_trial["cpu"] = cpu
+        criterion = nn.CrossEntropyLoss()
 
-        mode = mode or "max"
-        timeout_stopper = tune.stopper.TimeoutStopper(self.timeout)
-        logger.info(
-            "tuning search_space with metric = {} and model = {}".format(
-                self.optimization_metric,
-                mode,
+        tracker = Tracker()
+        tracker.model = model
+        tracker.optimizer = optimizer
+        callbacks = ComposeCallback(tracker, *callbacks)
+
+        # ----- EVENT: ON_TRAINING_START
+        callbacks.on_training_start()
+
+        for epoch in range(epochs):  # loop over the dataset multiple times
+            tracker.epoch = epoch
+            tracker.running_loss = 0.0
+            tracker.epoch_steps = 0
+            tracker.train_loss = 0.0
+            tracker.train_steps = 0
+
+            # ----- EVENT: ON_EPOCH_START
+            callbacks.on_epoch_start()
+
+            for i, data in enumerate(train_dataloader, 0):
+                # get the inputs; data is a list of [inputs, labels]
+                inputs, labels = data
+                inputs, labels = inputs.to(device), labels.to(device)
+
+                # zero the parameter gradients
+                optimizer.zero_grad()
+
+                # forward + backward + optimize
+                outputs = model(inputs)
+                loss = criterion(outputs, labels)
+                loss.backward()
+                optimizer.step()
+
+                # print statistics
+                tracker.running_loss += loss.item()
+                tracker.train_loss += loss.item()
+                tracker.epoch_steps += 1
+                tracker.train_steps += 1
+                if i % 100 == 0:  # print every 100 mini-batches
+                    print(
+                        f"epoch: {epoch}, loss: {tracker.running_loss / tracker.epoch_steps :.3f}"
+                    )
+                    tracker.running_loss = 0.0
+
+            # END OF TRAIN EPOCH
+            tracker.train_loss /= tracker.train_steps + 1e-9
+
+            # Validation loss
+            tracker.val_loss = 0.0
+            tracker.val_steps = 0
+            tracker.total = 0
+            tracker.correct = 0
+            for i, data in enumerate(val_dataloader, 0):
+                with torch.no_grad():
+                    inputs, labels = data
+                    inputs, labels = inputs.to(device), labels.to(device)
+
+                    outputs = model(inputs)
+                    _, predicted = torch.max(outputs.data, 1)
+                    tracker.total += labels.size(0)
+                    tracker.correct += (predicted == labels).sum().item()
+
+                    loss = criterion(outputs, labels)
+                    tracker.val_loss += loss.cpu().numpy()
+                    tracker.val_steps += 1
+            tracker.val_loss /= tracker.val_steps + 1e-9
+            tracker.val_accuracy = tracker.correct / tracker.val_steps
+
+            print(
+                f"epoch {tracker.epoch}: train/loss={tracker.train_loss}, "
+                f"val/loss={tracker.val_loss}, val/accuracy={tracker.val_accuracy}"
             )
-        )
-        analysis = tune.run(
-            tune.with_parameters(trainable, trainer_config=trainer_config),
-            name=name,
-            num_samples=self.n_trials,
-            metric=self.optimization_metric,
-            mode=mode,
-            config=search_space,
-            resources_per_trial=resources_per_trial,
-            resume=resume,
-            stop=timeout_stopper,
-            **ray_config,
-        )
-        self.analysis = analysis
-        self.model = self._get_best_model(analysis)
 
-        logger.info(f"🎉 Best hyperparameters found were: {analysis.best_config}")
-        return analysis
+            # ----- EVENT: ON_EPOCH_END
+            callbacks.on_epoch_end()
 
-    def _get_best_model(self, analysis, checkpoint_file: Optional[str] = None):
-        checkpoint_file = checkpoint_file or "filename"
-        best_model = self.build_model(self.analysis.best_config)
-        best_model = best_model.load_from_checkpoint(
-            analysis.best_checkpoint + "/" + checkpoint_file
-        )
-        return best_model
+        # ----- EVENT: ON_TRAINING_END
+        callbacks.on_epoch_end()
+
+        print("Finished Training")
+        return tracker

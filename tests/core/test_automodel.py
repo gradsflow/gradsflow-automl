@@ -19,7 +19,7 @@ import pytest
 import torch
 from flash.image import ImageClassificationData
 
-from gradsflow.core.model import AutoModel
+from gradsflow.core.automodel import AutoModel
 
 cwd = Path.cwd()
 datamodule = ImageClassificationData.from_folders(

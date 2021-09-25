@@ -15,8 +15,9 @@
 import timm
 import torch.nn
 
+from gradsflow.core.autoclassifier import AutoClassifier
 from gradsflow.core.backend import Backend
-from gradsflow.core.classifier import AutoClassifier
+from gradsflow.core.model import Model
 
 
 # noinspection PyTypeChecker
@@ -66,7 +67,7 @@ class AutoImageClassifier(AutoClassifier):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs, backend=Backend.gf.value)
 
-    def build_model(self, config: dict) -> torch.nn.Module:
+    def build_model(self, config: dict) -> Model:
         """Build ImageClassifier model from `ray.tune` hyperparameter configs
         or via search_space dictionary arguments.
 
@@ -79,7 +80,6 @@ class AutoImageClassifier(AutoClassifier):
         """
         backbone = config["backbone"]
 
-        model = timm.create_model(
-            backbone, pretrained=True, num_classes=self.num_classes
-        )
+        net = timm.create_model(backbone, pretrained=True, num_classes=self.num_classes)
+        model = Model(net, optimizer=config["optimizer"], lr=config["lr"])
         return model

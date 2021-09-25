@@ -18,7 +18,7 @@ import os
 
 import loguru
 
-from gradsflow.core.model import AutoModel
+from gradsflow.core.automodel import AutoModel
 from gradsflow.tasks.autoclassification.image import AutoImageClassifier
 from gradsflow.tasks.autoclassification.text import AutoTextClassifier
 from gradsflow.tasks.autosummarization import AutoSummarization

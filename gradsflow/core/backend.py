@@ -65,8 +65,7 @@ class AutoBackend:
         model = self.model_builder(search_space)
         epochs = trainer_config.get("epochs", 1)
         tracker = model.fit(
-            auto_data=autodataset,
-            search_space=search_space,
+            autodata=autodataset,
             epochs=epochs,
             callbacks=trainer_config.get(
                 "callbacks", ("tune_checkpoint", "tune_report")

@@ -20,7 +20,7 @@ import torch
 from ray import tune
 from torch.utils.data import DataLoader
 
-from gradsflow.core.model import AutoModel
+from gradsflow.core.automodel import AutoModel
 from gradsflow.utility.common import listify
 
 
