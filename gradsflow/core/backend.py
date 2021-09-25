@@ -40,7 +40,7 @@ class AutoBackend:
 
     def __init__(
         self,
-        datamodule,
+        autodataset: AutoDataset,
         model_builder: Callable,
         optimization_metric: Optional[str],
         max_epochs: int = 10,
@@ -49,7 +49,7 @@ class AutoBackend:
     ):
         self.model_builder = model_builder
         self.backend = (backend or Backend.default.value).lower()
-        self.datamodule = datamodule
+        self.autodataset = autodataset
         self.optimization_metric = optimization_metric
         self.max_epochs = max_epochs
         self.max_steps = max_steps
@@ -61,7 +61,7 @@ class AutoBackend:
         gpu: Optional[float] = 0,
     ):
 
-        autodataset = AutoDataset(datamodule=self.datamodule)
+        autodataset = self.autodataset
         model = self.model_builder(search_space)
         epochs = trainer_config.get("epochs", 1)
         tracker = model.fit(
@@ -84,7 +84,7 @@ class AutoBackend:
         if self.max_steps:
             val_check_interval = max(self.max_steps - 1, 1.0)
 
-        datamodule = self.datamodule
+        datamodule = self.autodataset.datamodule
 
         trainer = pl.Trainer(
             logger=True,

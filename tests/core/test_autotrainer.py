@@ -18,7 +18,7 @@ import pytest
 from gradsflow.core.backend import AutoBackend
 
 
-@patch("gradsflow.core.autotrainer.pl")
+@patch("gradsflow.core.backend.pl")
 def test_optimization_objective(mock_pl: Mock):
     dm = MagicMock()
     model_builder = MagicMock()

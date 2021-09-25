@@ -13,7 +13,6 @@
 #  limitations under the License.
 
 import timm
-import torch.nn
 
 from gradsflow.core.autoclassifier import AutoClassifier
 from gradsflow.core.backend import Backend

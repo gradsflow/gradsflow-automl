@@ -15,6 +15,7 @@ import logging
 from typing import Optional
 
 import pytorch_lightning as pl
+from torch.utils.data import DataLoader
 
 logger = logging.getLogger("core.data")
 
@@ -22,8 +23,8 @@ logger = logging.getLogger("core.data")
 class AutoDataset:
     def __init__(
         self,
-        train_dataloader: Optional = None,
-        val_dataloader: Optional = None,
+        train_dataloader: Optional[DataLoader] = None,
+        val_dataloader: Optional[DataLoader] = None,
         datamodule: Optional[pl.LightningDataModule] = None,
         num_classes: Optional[int] = None,
     ):
@@ -33,7 +34,7 @@ class AutoDataset:
         self.val_dataloader = val_dataloader
         self.num_classes = num_classes
 
-        if not (datamodule or train_dataloader):
+        if (datamodule or train_dataloader) is None:
             raise UserWarning("Both datamodule and train_dataloader can't be None!")
 
         if all((datamodule, train_dataloader)):

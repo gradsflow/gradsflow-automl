@@ -14,10 +14,6 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import os
-
-import loguru
-
 from gradsflow.core.automodel import AutoModel
 from gradsflow.tasks.autoclassification.image import AutoImageClassifier
 from gradsflow.tasks.autoclassification.text import AutoTextClassifier
@@ -25,5 +21,3 @@ from gradsflow.tasks.autosummarization import AutoSummarization
 from gradsflow.tasks.autotasks import autotask, available_tasks
 
 __version__ = "0.0.5a0"
-
-loguru.logger.level(os.environ.get("LOG_LEVEL", "INFO"))

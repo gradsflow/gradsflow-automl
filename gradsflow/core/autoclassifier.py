@@ -67,8 +67,7 @@ class AutoClassifier(AutoModel):
         else:
             raise UserWarning("Invalid suggested_backbone type!")
 
-        self.datamodule = datamodule
-        self.num_classes = datamodule.num_classes
+        self.num_classes = num_classes
 
     def forward(self, x):
         if not self.model:

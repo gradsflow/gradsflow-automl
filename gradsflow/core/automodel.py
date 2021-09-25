@@ -69,7 +69,6 @@ class AutoModel(BaseAutoModel, ABC):
 
         self.analysis = None
         self.prune = prune
-        self.num_classes = datamodule.num_classes
         self.n_trials = n_trials
         self.model: Union[torch.nn.Module, pl.LightningModule, None] = None
         self.max_epochs = max_epochs
@@ -87,8 +86,8 @@ class AutoModel(BaseAutoModel, ABC):
 
         self.datamodule = self.auto_dataset.datamodule
 
-        self.autotrainer = AutoBackend(
-            datamodule,
+        self.backend = AutoBackend(
+            self.auto_dataset,
             model_builder=self.build_model,
             optimization_metric=optimization_metric,
             max_epochs=max_epochs,
@@ -139,7 +138,7 @@ class AutoModel(BaseAutoModel, ABC):
         ray_config = ray_config or {}
 
         search_space = self._create_search_space()
-        trainable = self.autotrainer.optimization_objective
+        trainable = self.backend.optimization_objective
 
         resources_per_trial = {}
         if gpu:
