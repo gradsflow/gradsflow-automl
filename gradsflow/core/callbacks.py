@@ -70,7 +70,7 @@ class Callback:
         ...
 
 
-class CheckpointCallback(Callback):
+class TorchTuneCheckpointCallback(Callback):
     def on_epoch_end(self):
         epoch = self.tracker.epoch
         model = self.tracker.model
@@ -89,7 +89,10 @@ class TorchTuneReport(Callback):
 
 
 class ComposeCallback(Callback):
-    _CALLBACK_INDEX = {"checkpoint": CheckpointCallback, "tune_report": TorchTuneReport}
+    _CALLBACK_INDEX = {
+        "tune_checkpoint": TorchTuneCheckpointCallback,
+        "tune_report": TorchTuneReport,
+    }
 
     def available_callbacks(self):
         return list(self._CALLBACK_INDEX.keys())
