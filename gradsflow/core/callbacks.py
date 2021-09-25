@@ -50,7 +50,7 @@ class Tracker:
     def __init__(self):
         self.model = None
         self.optimizer = None
-        self.epoch = None
+        self.epoch = 0
         self.train_loss = None
         self.train_accuracy = None
         self.val_loss = None

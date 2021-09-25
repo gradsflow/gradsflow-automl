@@ -30,6 +30,7 @@ requires = [
     "smart_open>=5.1",
     "lightning-flash[image,text]==0.5.0",
     "ray[default,tune]>=1.6",
+    "rich"
 ]
 
 [tool.flit.metadata.urls]

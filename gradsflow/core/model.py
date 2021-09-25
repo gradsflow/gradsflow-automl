@@ -13,9 +13,10 @@
 #  limitations under the License.
 
 import os
-from typing import Dict, List, Union
+from typing import Dict, List, Optional, Union
 
 import torch
+from rich.progress import track
 from torch import nn
 
 from gradsflow.core.callbacks import ComposeCallback, Tracker
@@ -40,6 +41,14 @@ class Model:
 
         self.model.to(self.device)
         self.criterion = nn.CrossEntropyLoss()
+        self.tracker = Tracker()
+
+    def __call__(self, inputs):
+        return self.model(inputs)
+
+    @torch.no_grad()
+    def predict(self, inputs):
+        return self.model(inputs)
 
     def train_step(
         self, inputs: torch.Tensor, target: torch.Tensor
@@ -69,37 +78,40 @@ class Model:
     def fit(
         self,
         autodataset: AutoDataset,
-        epochs=1,
+        epochs: int = 1,
+        steps_per_epoch: Optional[int] = None,
         callbacks: Union[List, None] = None,
     ) -> Tracker:
         """
         Similar to Keras model.fit() it trains the model for specified epochs and returns Tracker object
         Args:
             autodataset: AutoDataset object encapsulate dataloader and datamodule
-            epochs:
-            callbacks:
+            epochs: number of epochs to train
+            steps_per_epoch: Number of steps trained in a single epoch
+            callbacks: Callback object or string
 
         Returns:
             Tracker object
         """
-        device = self.device
         model = self.model
         optimizer = self.optimizer
-        criterion = self.criterion
 
         callbacks = listify(callbacks)
         train_dataloader = autodataset.train_dataloader
         val_dataloader = autodataset.val_dataloader
 
-        tracker = Tracker()
+        tracker = self.tracker
         tracker.model = model
         tracker.optimizer = optimizer
+        tracker.steps_per_epoch = steps_per_epoch
         callbacks = ComposeCallback(tracker, *callbacks)
 
         # ----- EVENT: ON_TRAINING_START
         callbacks.on_training_start()
-
-        for epoch in range(epochs):  # loop over the dataset multiple times
+        for epoch in track(
+            range(tracker.epoch, epochs), description="Training..."
+        ):  # loop over the dataset multiple times
+            # restarts from last epoch with tracker
             tracker.epoch = epoch
             tracker.running_loss = 0.0
             tracker.epoch_steps = 0
@@ -121,6 +133,7 @@ class Model:
                 tracker.train_loss += loss
                 tracker.epoch_steps += 1
                 tracker.train_steps += 1
+
                 if i % 100 == 0:  # print every 100 mini-batches
                     print(
                         f"epoch: {epoch}, loss: {tracker.running_loss / tracker.epoch_steps :.3f}"
@@ -128,35 +141,40 @@ class Model:
                     tracker.running_loss = 0.0
                 if self.TEST:
                     break
+                if (
+                    tracker.steps_per_epoch
+                    and tracker.steps_per_epoch >= tracker.epoch_steps
+                ):
+                    break
             # END OF TRAIN EPOCH
             tracker.train_loss /= tracker.train_steps + 1e-9
+            print(f"epoch {tracker.epoch}: train/loss={tracker.train_loss}")
 
             # Validation loss
             tracker.val_loss = 0.0
             tracker.val_steps = 0
             tracker.total = 0
             tracker.correct = 0
-            for i, data in enumerate(val_dataloader, 0):
-                with torch.no_grad():
-                    inputs, labels = data
-                    outputs = self.val_step(inputs, labels)
-                    loss = outputs["loss"]
-                    predicted = outputs["predictions"]
+            if val_dataloader:
+                for i, data in enumerate(val_dataloader, 0):
+                    with torch.no_grad():
+                        inputs, labels = data
+                        outputs = self.val_step(inputs, labels)
+                        loss = outputs["loss"]
+                        predicted = outputs["predictions"]
 
-                    tracker.total += labels.size(0)
-                    tracker.correct += (predicted == labels).sum().item()
+                        tracker.total += labels.size(0)
+                        tracker.correct += (predicted == labels).sum().item()
 
-                    tracker.val_loss += loss.cpu().numpy()
-                    tracker.val_steps += 1
-                if self.TEST:
-                    break
-            tracker.val_loss /= tracker.val_steps + 1e-9
-            tracker.val_accuracy = tracker.correct / tracker.val_steps
-
-            print(
-                f"epoch {tracker.epoch}: train/loss={tracker.train_loss}, "
-                f"val/loss={tracker.val_loss}, val/accuracy={tracker.val_accuracy}"
-            )
+                        tracker.val_loss += loss.cpu().numpy()
+                        tracker.val_steps += 1
+                    if self.TEST:
+                        break
+                tracker.val_loss /= tracker.val_steps + 1e-9
+                tracker.val_accuracy = tracker.correct / tracker.val_steps
+                print(
+                    f"val/loss={tracker.val_loss}, val/accuracy={tracker.val_accuracy}"
+                )
 
             # ----- EVENT: ON_EPOCH_END
             callbacks.on_epoch_end()
