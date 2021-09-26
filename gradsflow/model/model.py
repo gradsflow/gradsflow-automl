@@ -21,34 +21,22 @@ from torch import nn
 
 from gradsflow.core.callbacks import ComposeCallback
 from gradsflow.core.data import AutoDataset
+from gradsflow.model.base import BaseModel
 from gradsflow.model.tracker import Tracker
 from gradsflow.utility.common import listify, module_to_cls_index
 
 
-class Model:
+class Model(BaseModel):
     TEST = os.environ.get("GF_CI", "false").lower() == "true"
     _OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
 
-    def __init__(self, model: nn.Module, optimizer: str, lr: float = 3e-4):
-        self.model = model
-        self.lr = lr
-        self.optimizer = self._OPTIMIZER_INDEX[optimizer](self.model.parameters(), lr=lr)
+    def __init__(self, model: nn.Module, optimizer: str, lr: float = 3e-4, device=None):
+        optimizer = self._OPTIMIZER_INDEX[optimizer](self.model.parameters(), lr=lr)
+        super().__init__(model=model, optimizer=optimizer, lr=lr, device=device)
 
-        self.device = "cpu"
-        if torch.cuda.is_available():
-            self.device = "cuda"
-
-        self.model.to(self.device)
         self.criterion = nn.CrossEntropyLoss()
         self.tracker = Tracker()
-        self.tracker.model = self.model
-
-    def __call__(self, inputs):
-        return self.model(inputs)
-
-    @torch.no_grad()
-    def predict(self, inputs):
-        return self.model(inputs)
+        self.tracker.model = model
 
     def train_step(self, inputs: torch.Tensor, target: torch.Tensor) -> Dict[str, torch.Tensor]:
         inputs, target = inputs.to(self.device), target.to(self.device)
@@ -78,7 +66,7 @@ class Model:
         tracker.train.steps = 0
         steps_per_epoch = tracker.steps_per_epoch
 
-        tracker.train_prog = tracker.progress.add_task("[green]Training...", total=len(train_dataloader))
+        tracker.train_prog = tracker.progress.add_task("[green]Learning...", total=len(train_dataloader))
         for step, data in enumerate(train_dataloader):
             inputs, target = data
             outputs = self.train_step(inputs, target)
@@ -174,7 +162,7 @@ class Model:
         )
         tracker.progress = progress
         with progress:
-            tracker.epoch_prog = progress.add_task("[red]Learning...", total=epochs, completed=tracker.epoch)
+            tracker.epoch_prog = progress.add_task("[red]Epoch Progress...", total=epochs, completed=tracker.epoch)
 
             for epoch in range(tracker.epoch, epochs):
                 tracker.epoch = epoch
@@ -200,6 +188,3 @@ class Model:
 
         print("Finished Training")
         return tracker
-
-    def load_from_checkpoint(self, checkpoint):
-        self.model = torch.load(checkpoint)
