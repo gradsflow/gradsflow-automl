@@ -120,7 +120,7 @@ class Model:
             if self.TEST:
                 break
         tracker.val.loss = running_val_loss / (tracker.val.steps + 1e-9)
-        tracker.val_accuracy = tracker.correct / tracker.val.steps
+        tracker.tune_metric = tracker.val_accuracy = tracker.correct / tracker.val.steps
         tracker.progress.remove_task(val_prog)
 
     def fit(

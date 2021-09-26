@@ -71,7 +71,8 @@ class TorchTuneReport(Callback):
     def on_epoch_end(self):
         val_loss = self.tracker.val.loss
         train_loss = self.tracker.train.loss
-        tune.report(loss=val_loss, train_loss=train_loss)
+        val_accuracy = self.tracker.tune_metric
+        tune.report(loss=val_loss, val_accuracy=val_accuracy, train_loss=train_loss)
 
 
 class ComposeCallback(Callback):

@@ -51,7 +51,7 @@ class BaseTracker:
     max_epochs: int = 0
     epoch: int = 0  # current train epoch
     steps_per_epoch: Optional[int] = None
-
+    tune_metric: Optional[float] = None
     train: TrackingValues = TrackingValues()
     val: TrackingValues = TrackingValues()
 
