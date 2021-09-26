@@ -67,9 +67,9 @@ class Model(BaseModel):
         steps_per_epoch = tracker.steps_per_epoch
 
         tracker.train_prog = tracker.progress.add_task("[green]Learning...", total=len(train_dataloader))
-        for step, data in enumerate(train_dataloader):
-            inputs, target = data
-            outputs = self.train_step(inputs, target)
+        for step, (inputs, labels) in enumerate(train_dataloader):
+            inputs, labels = inputs.to(self.device), labels.to(self.device)
+            outputs = self.train_step(inputs, labels)
             loss = outputs["loss"].item()
             running_train_loss += loss
             tracker.train.steps += 1
@@ -94,9 +94,9 @@ class Model(BaseModel):
 
         val_prog = tracker.progress.add_task("[green]Validating...", total=len(val_dataloader))
 
-        for _, data in enumerate(val_dataloader):
+        for _, (inputs, labels) in enumerate(val_dataloader):
             with torch.no_grad():
-                inputs, labels = data
+                inputs, labels = inputs.to(self.device), labels.to(self.device)
                 outputs = self.val_step(inputs, labels)
                 loss = outputs["loss"]
                 predicted = outputs["predictions"]
