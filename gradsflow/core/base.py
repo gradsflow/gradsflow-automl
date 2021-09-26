@@ -39,15 +39,25 @@ class BaseAutoModel(ABC):
         raise NotImplementedError
 
 
+@dataclass(init=True)
+class TrackingValues:
+    loss: Optional[float] = None
+    steps: Optional[int] = None
+    step_loss: Optional[float] = None
+
+
 @dataclass(init=False)
 class BaseTracker:
     max_epochs: int = 0
     epoch: int = 0  # current train epoch
     steps_per_epoch: Optional[int] = None
 
-    train_loss: Optional[float] = None
-    train_accuracy: Optional[float] = None
-    val_loss: Optional[float] = None
-    val_accuracy: Optional[float] = None
-    val_steps: Optional[int] = None
-    train_steps: Optional[int] = None
+    train: TrackingValues = TrackingValues()
+    val: TrackingValues = TrackingValues()
+
+    def reset(self):
+        self.max_epochs = 0
+        self.epoch = 0
+        self.steps_per_epoch = None
+        self.train = TrackingValues()
+        self.val = TrackingValues()
