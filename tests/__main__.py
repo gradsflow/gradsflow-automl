@@ -18,9 +18,7 @@ from flash.core.data.utils import download_data
 
 cwd = str(Path.cwd())
 
-download_data(
-    "https://pl-flash-data.s3.amazonaws.com/hymenoptera_data.zip", f"{cwd}/data"
-)
+download_data("https://pl-flash-data.s3.amazonaws.com/hymenoptera_data.zip", f"{cwd}/data")
 
 download_data(
     "https://github.com/gradsflow/test-data/archive/refs/tags/cat-dog-v0.zip",

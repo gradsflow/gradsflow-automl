@@ -53,7 +53,9 @@ def test_create_search_space():
 def test_objective(mock_pl):
     optimization_metric = "val_accuracy"
     model = AutoModel(
-        datamodule, optimization_metric=optimization_metric, backend=Backend.pl.value
+        datamodule,
+        optimization_metric=optimization_metric,
+        backend=Backend.pl.value,
     )
 
     model.backend.model_builder = MagicMock()

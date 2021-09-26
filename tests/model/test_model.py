@@ -54,12 +54,18 @@ val_dl = val_data["dl"]
 num_classes = len(train_dataset.classes)
 autodataset = AutoDataset(train_dl, num_classes=num_classes)
 
-cnn = timm.create_model("ssl_resnet18", pretrained=False, num_classes=2)
+cnn = timm.create_model("ssl_resnet18", pretrained=False, num_classes=2).eval()
 model = Model(cnn, "adam")
 model.TEST = True
 
 
 def test_predict():
+    x = torch.randn(1, 3, 64, 64)
+    r1 = model.forward(x)
+    r2 = model(x)
+    r3 = model.predict(x)
+    assert torch.all(torch.isclose(r1, r2))
+    assert torch.all(torch.isclose(r2, r3))
     assert isinstance(model.predict(torch.randn(1, 3, 64, 64)), torch.Tensor)
 
 

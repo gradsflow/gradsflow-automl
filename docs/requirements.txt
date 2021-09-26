@@ -10,4 +10,3 @@ tags-macros-plugin @ git+https://github.com/jldiaz/mkdocs-plugin-tags.git@d26e2f
 mkdocs-jupyter
 mkdocs-meta-descriptions-plugin
 jupyter_contrib_nbextensions
-rich

@@ -95,15 +95,9 @@ class AutoModel(BaseAutoModel, ABC):
             backend=backend,
         )
 
-        self.suggested_optimizers = self.suggested_conf.get(
-            "optimizer", self._DEFAULT_OPTIMIZERS
-        )
+        self.suggested_optimizers = self.suggested_conf.get("optimizer", self._DEFAULT_OPTIMIZERS)
         default_lr = self._DEFAULT_LR
-        self.suggested_lr = (
-            self.suggested_conf.get("lr")
-            or self.suggested_conf.get("learning_rate")
-            or default_lr
-        )
+        self.suggested_lr = self.suggested_conf.get("lr") or self.suggested_conf.get("learning_rate") or default_lr
 
     def hp_tune(
         self,

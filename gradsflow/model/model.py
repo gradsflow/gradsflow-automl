@@ -21,40 +21,24 @@ from torch import nn
 
 from gradsflow.core.callbacks import ComposeCallback
 from gradsflow.core.data import AutoDataset
+from gradsflow.model.base import BaseModel
 from gradsflow.model.tracker import Tracker
 from gradsflow.utility.common import listify, module_to_cls_index
 
 
-class Model:
+class Model(BaseModel):
     TEST = os.environ.get("GF_CI", "false").lower() == "true"
     _OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
 
-    def __init__(self, model: nn.Module, optimizer: str, lr: float = 3e-4):
-        self.model = model
-        self.lr = lr
-        self.optimizer = self._OPTIMIZER_INDEX[optimizer](
-            self.model.parameters(), lr=lr
-        )
+    def __init__(self, model: nn.Module, optimizer: str, lr: float = 3e-4, device=None):
+        optimizer = self._OPTIMIZER_INDEX[optimizer](model.parameters(), lr=lr)
+        super().__init__(model=model, optimizer=optimizer, lr=lr, device=device)
 
-        self.device = "cpu"
-        if torch.cuda.is_available():
-            self.device = "cuda"
-
-        self.model.to(self.device)
         self.criterion = nn.CrossEntropyLoss()
         self.tracker = Tracker()
-        self.tracker.model = self.model
+        self.tracker.model = model
 
-    def __call__(self, inputs):
-        return self.model(inputs)
-
-    @torch.no_grad()
-    def predict(self, inputs):
-        return self.model(inputs)
-
-    def train_step(
-        self, inputs: torch.Tensor, target: torch.Tensor
-    ) -> Dict[str, torch.Tensor]:
+    def train_step(self, inputs: torch.Tensor, target: torch.Tensor) -> Dict[str, torch.Tensor]:
         inputs, target = inputs.to(self.device), target.to(self.device)
 
         self.optimizer.zero_grad()
@@ -65,9 +49,7 @@ class Model:
         self.optimizer.step()
         return {"loss": loss}
 
-    def val_step(
-        self, inputs: torch.Tensor, target: torch.Tensor
-    ) -> Dict[str, torch.Tensor]:
+    def val_step(self, inputs: torch.Tensor, target: torch.Tensor) -> Dict[str, torch.Tensor]:
         inputs, target = inputs.to(self.device), target.to(self.device)
 
         self.optimizer.zero_grad()
@@ -81,32 +63,24 @@ class Model:
         train_dataloader = autodataset.train_dataloader
         tracker = self.tracker
         running_train_loss = 0.0
-        tracker.running_loss = 0.0
-        tracker.train_steps = 0
+        tracker.train.steps = 0
+        steps_per_epoch = tracker.steps_per_epoch
 
+        tracker.train_prog = tracker.progress.add_task("[green]Learning...", total=len(train_dataloader))
         for step, data in enumerate(train_dataloader):
             inputs, target = data
             outputs = self.train_step(inputs, target)
-            loss = outputs["loss"]
-
-            loss = loss.item()
-            tracker.running_loss += loss
+            loss = outputs["loss"].item()
             running_train_loss += loss
-            tracker.train_steps += 1
-            steps_per_epoch = tracker.steps_per_epoch
+            tracker.train.steps += 1
+            tracker.progress.update(tracker.train_prog, advance=1)
 
-            if step % 100 == 0:  # print every 100 mini-batches
-                # print(
-                #     f"epoch: {tracker.epoch}, "
-                #     f"loss: {tracker.running_loss / tracker.train_steps :.3f}"
-                # )
-                tracker.running_loss = 0.0
             if self.TEST:
                 break
             if steps_per_epoch and step >= steps_per_epoch:
                 break
-        tracker.train_loss = running_train_loss / (tracker.train_steps + 1e-9)
-        # print(f"epoch: {tracker.epoch}: train/loss={tracker.train_loss: .3f}")
+        tracker.train.loss = running_train_loss / (tracker.train.steps + 1e-9)
+        tracker.progress.remove_task(tracker.train_prog)
 
     def val_epoch(self, autodataset):
         if not autodataset.val_dataloader:
@@ -116,11 +90,9 @@ class Model:
         tracker.total = 0
         tracker.correct = 0
         running_val_loss = 0.0
-        tracker.val_steps = 0
+        tracker.val.steps = 0
 
-        val_prog = tracker.progress.add_task(
-            "[green]Validation...", total=len(val_dataloader)
-        )
+        val_prog = tracker.progress.add_task("[green]Validating...", total=len(val_dataloader))
 
         for _, data in enumerate(val_dataloader):
             with torch.no_grad():
@@ -128,21 +100,15 @@ class Model:
                 outputs = self.val_step(inputs, labels)
                 loss = outputs["loss"]
                 predicted = outputs["predictions"]
-
                 tracker.total += labels.size(0)
                 tracker.correct += (predicted == labels).sum().item()
-
                 running_val_loss += loss.cpu().numpy()
-                tracker.val_steps += 1
+                tracker.val.steps += 1
                 tracker.progress.update(val_prog, advance=1)
             if self.TEST:
                 break
-        tracker.val_loss = running_val_loss / (tracker.val_steps + 1e-9)
-        tracker.val_accuracy = tracker.correct / tracker.val_steps
-        # print(
-        #     f"val/loss={tracker.val_loss: .3f},"
-        #     f" val/accuracy={tracker.val_accuracy: .3f}"
-        # )
+        tracker.val.loss = running_val_loss / (tracker.val.steps + 1e-9)
+        tracker.tune_metric = tracker.val_accuracy = tracker.correct / tracker.val.steps
         tracker.progress.remove_task(val_prog)
 
     def fit(
@@ -151,6 +117,7 @@ class Model:
         epochs: int = 1,
         steps_per_epoch: Optional[int] = None,
         callbacks: Union[List, None] = None,
+        resume: bool = True,
         progress_kwargs: Optional[Dict] = None,
     ) -> Tracker:
         """
@@ -160,6 +127,7 @@ class Model:
             epochs: number of epochs to train
             steps_per_epoch: Number of steps trained in a single epoch
             callbacks: Callback object or string
+            resume: Resume training from the last epoch
             progress_kwargs: Arguments for rich.progress
 
         Returns:
@@ -167,9 +135,10 @@ class Model:
         """
         optimizer = self.optimizer
         progress_kwargs = progress_kwargs or {}
-
         callbacks = listify(callbacks)
 
+        if not resume:
+            self.tracker.reset()
         tracker = self.tracker
         tracker.max_epochs = epochs
         tracker.optimizer = optimizer
@@ -180,7 +149,7 @@ class Model:
         callbacks.on_training_start()
 
         bar_column = BarColumn()
-        table_column = RenderableColumn("{Tracker}")
+        table_column = RenderableColumn(tracker.create_table())
 
         progress = Progress(
             "[progress.description]{task.description}",
@@ -189,10 +158,11 @@ class Model:
             TimeRemainingColumn(),
             table_column,
             expand=True,
+            **progress_kwargs,
         )
         tracker.progress = progress
         with progress:
-            train_prog = progress.add_task("[blue]Training...", total=epochs)
+            tracker.epoch_prog = progress.add_task("[red]Epoch Progress...", total=epochs, completed=tracker.epoch)
 
             for epoch in range(tracker.epoch, epochs):
                 tracker.epoch = epoch
@@ -200,23 +170,21 @@ class Model:
                 # ----- EVENT: ON_EPOCH_START
                 callbacks.on_epoch_start()
                 self.train_epoch(autodataset)
-                progress.update(train_prog, advance=1)
                 table_column.renderable = tracker.create_table()
 
                 # END OF TRAIN EPOCH
                 self.val_epoch(autodataset)
+                table_column.renderable = tracker.create_table()
 
                 # ----- EVENT: ON_EPOCH_END
                 callbacks.on_epoch_end()
+                progress.update(tracker.epoch_prog, advance=1)
 
                 if self.TEST:
                     break
 
         # ----- EVENT: ON_TRAINING_END
-        callbacks.on_epoch_end()
+        callbacks.on_training_end()
 
         print("Finished Training")
         return tracker
-
-    def load_from_checkpoint(self, checkpoint):
-        self.model = torch.load(checkpoint)

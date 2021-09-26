@@ -38,10 +38,7 @@ class AutoDataset:
             raise UserWarning("Both datamodule and train_dataloader can't be None!")
 
         if all((datamodule, train_dataloader)):
-            logger.warning(
-                "Both datamodule and train_dataloader is set!"
-                "Using datamodule over train_dataloader."
-            )
+            logger.warning("Both datamodule and train_dataloader is set!" "Using datamodule over train_dataloader.")
 
         if not datamodule:
             datamodule = pl.LightningDataModule()

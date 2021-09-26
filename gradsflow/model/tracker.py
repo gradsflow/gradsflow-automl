@@ -31,13 +31,13 @@ class Tracker(BaseTracker):
 
     def create_table(self) -> Table:
         headings = ["epoch", "train/loss"]
-        if self.val_loss:
+        if self.val.loss:
             headings.append("val/loss")
         table = Table(*headings)
 
-        row = [self.epoch, self.train_loss]
-        if self.val_loss:
-            row.append(self.val_loss)
+        row = [self.epoch, self.train.loss]
+        if self.val.loss:
+            row.append(self.val.loss)
 
         row = list(map(lambda x: f"{x: .3f}" if isinstance(x, float) else str(x), row))
         table.add_row(*row)
