@@ -39,8 +39,6 @@ class Tracker(BaseTracker):
         if self.val.loss:
             row.append(self.val.loss)
 
-        row = list(
-            map(lambda x: f"{x: .3f}" if isinstance(x, float) else str(x), row)
-        )
+        row = list(map(lambda x: f"{x: .3f}" if isinstance(x, float) else str(x), row))
         table.add_row(*row)
         return table
