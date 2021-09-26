@@ -31,7 +31,7 @@ class Model(BaseModel):
     _OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
 
     def __init__(self, model: nn.Module, optimizer: str, lr: float = 3e-4, device=None):
-        optimizer = self._OPTIMIZER_INDEX[optimizer](self.model.parameters(), lr=lr)
+        optimizer = self._OPTIMIZER_INDEX[optimizer](model.parameters(), lr=lr)
         super().__init__(model=model, optimizer=optimizer, lr=lr, device=device)
 
         self.criterion = nn.CrossEntropyLoss()
