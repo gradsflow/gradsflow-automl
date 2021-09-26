@@ -51,7 +51,7 @@ You can easily integrate any PyTorch Model with Gradsflow [AutoModel](https://do
 - `gradsflow.core`: [Core](https://docs.gradsflow.com/en/latest/gradsflow/core/) defines the building blocks
 of AutoML tasks.
 
-- `gradsflow.autotasks`: [AutoTasks](https://docs.gradsflow.com/en/latest/gradsflow/model/) defines
+- `gradsflow.autotasks`: [AutoTasks](https://docs.gradsflow.com/en/latest/gradsflow/tasks/) defines
 different ML/DL tasks which is provided by gradsflow AutoML API.
 
 - `gradsflow.model`: [Model](https://docs.gradsflow.com/en/latest/gradsflow/tasks/) defines the model training functionality.

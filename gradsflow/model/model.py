@@ -30,7 +30,7 @@ class Model(BaseModel):
     TEST = os.environ.get("GF_CI", "false").lower() == "true"
     _OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
 
-    def __init__(self, model: nn.Module, optimizer: str, lr: float = 3e-4, device=None):
+    def __init__(self, model: nn.Module, optimizer: Union[str, torch.optim.Optimizer], lr: float = 3e-4, device=None):
         optimizer = self._OPTIMIZER_INDEX[optimizer](model.parameters(), lr=lr)
         super().__init__(model=model, optimizer=optimizer, lr=lr, device=device)
 
@@ -39,8 +39,6 @@ class Model(BaseModel):
         self.tracker.model = model
 
     def train_step(self, inputs: torch.Tensor, target: torch.Tensor) -> Dict[str, torch.Tensor]:
-        inputs, target = inputs.to(self.device), target.to(self.device)
-
         self.optimizer.zero_grad()
         logits = self.model(inputs)
 
@@ -50,9 +48,6 @@ class Model(BaseModel):
         return {"loss": loss}
 
     def val_step(self, inputs: torch.Tensor, target: torch.Tensor) -> Dict[str, torch.Tensor]:
-        inputs, target = inputs.to(self.device), target.to(self.device)
-
-        self.optimizer.zero_grad()
         logits = self.model(inputs)
         loss = self.criterion(logits, target)
         _, predictions = torch.max(logits.data, 1)
@@ -67,9 +62,9 @@ class Model(BaseModel):
         steps_per_epoch = tracker.steps_per_epoch
 
         tracker.train_prog = tracker.progress.add_task("[green]Learning...", total=len(train_dataloader))
-        for step, data in enumerate(train_dataloader):
-            inputs, target = data
-            outputs = self.train_step(inputs, target)
+        for step, (inputs, labels) in enumerate(train_dataloader):
+            inputs, labels = inputs.to(self.device), labels.to(self.device)
+            outputs = self.train_step(inputs, labels)
             loss = outputs["loss"].item()
             running_train_loss += loss
             tracker.train.steps += 1
@@ -94,9 +89,9 @@ class Model(BaseModel):
 
         val_prog = tracker.progress.add_task("[green]Validating...", total=len(val_dataloader))
 
-        for _, data in enumerate(val_dataloader):
+        for _, (inputs, labels) in enumerate(val_dataloader):
             with torch.no_grad():
-                inputs, labels = data
+                inputs, labels = inputs.to(self.device), labels.to(self.device)
                 outputs = self.val_step(inputs, labels)
                 loss = outputs["loss"]
                 predicted = outputs["predictions"]
@@ -186,5 +181,4 @@ class Model(BaseModel):
         # ----- EVENT: ON_TRAINING_END
         callbacks.on_training_end()
 
-        print("Finished Training")
         return tracker
