@@ -26,11 +26,10 @@ class BaseModel:
         self.model = model
         self.optimizer = optimizer
         self.lr = lr
+        self.device = "cpu"
 
-        if not device:
-            self.device = "cpu"
-            if torch.cuda.is_available():
-                self.device = "cuda"
+        if not device and torch.cuda.is_available():
+            self.device = "cuda"
         else:
             self.device = device
 

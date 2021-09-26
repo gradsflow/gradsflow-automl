@@ -30,7 +30,7 @@ class Model(BaseModel):
     TEST = os.environ.get("GF_CI", "false").lower() == "true"
     _OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
 
-    def __init__(self, model: nn.Module, optimizer: str, lr: float = 3e-4, device=None):
+    def __init__(self, model: nn.Module, optimizer: Union[str, torch.optim.Optimizer], lr: float = 3e-4, device=None):
         optimizer = self._OPTIMIZER_INDEX[optimizer](model.parameters(), lr=lr)
         super().__init__(model=model, optimizer=optimizer, lr=lr, device=device)
 
@@ -39,8 +39,6 @@ class Model(BaseModel):
         self.tracker.model = model
 
     def train_step(self, inputs: torch.Tensor, target: torch.Tensor) -> Dict[str, torch.Tensor]:
-        inputs, target = inputs.to(self.device), target.to(self.device)
-
         self.optimizer.zero_grad()
         logits = self.model(inputs)
 
@@ -50,9 +48,6 @@ class Model(BaseModel):
         return {"loss": loss}
 
     def val_step(self, inputs: torch.Tensor, target: torch.Tensor) -> Dict[str, torch.Tensor]:
-        inputs, target = inputs.to(self.device), target.to(self.device)
-
-        self.optimizer.zero_grad()
         logits = self.model(inputs)
         loss = self.criterion(logits, target)
         _, predictions = torch.max(logits.data, 1)
@@ -186,5 +181,4 @@ class Model(BaseModel):
         # ----- EVENT: ON_TRAINING_END
         callbacks.on_training_end()
 
-        print("Finished Training")
         return tracker
