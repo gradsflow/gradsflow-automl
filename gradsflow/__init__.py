@@ -21,4 +21,4 @@ from gradsflow.tasks.autoclassification.text import AutoTextClassifier
 from gradsflow.tasks.autosummarization import AutoSummarization
 from gradsflow.tasks.autotasks import autotask, available_tasks
 
-__version__ = "0.0.5rc0"
+__version__ = "0.0.5"
