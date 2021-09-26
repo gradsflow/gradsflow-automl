@@ -23,14 +23,10 @@ datamodule = ImageClassificationData.from_folders(
 )
 data_dir = Path.cwd() / "data"
 
-train_data = image_dataset_from_directory(
-    f"{data_dir}/hymenoptera_data/train/", transform=True
-)
+train_data = image_dataset_from_directory(f"{data_dir}/hymenoptera_data/train/", transform=True)
 train_dl = train_data["dl"]
 
-val_data = image_dataset_from_directory(
-    f"{data_dir}/hymenoptera_data/val/", transform=True
-)
+val_data = image_dataset_from_directory(f"{data_dir}/hymenoptera_data/val/", transform=True)
 val_dl = val_data["dl"]
 
 

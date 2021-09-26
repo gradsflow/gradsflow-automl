@@ -26,14 +26,10 @@ _METRICS = {
 }
 
 
-def report_checkpoint_callback(
-    metrics: Optional[dict] = None, filename: Optional[str] = None
-):
+def report_checkpoint_callback(metrics: Optional[dict] = None, filename: Optional[str] = None):
     metrics = metrics or _METRICS
     filename = filename or "filename"
-    callback = TuneReportCheckpointCallback(
-        metrics=metrics, filename=filename, on="validation_end"
-    )
+    callback = TuneReportCheckpointCallback(metrics=metrics, filename=filename, on="validation_end")
 
     return callback
 
@@ -73,9 +69,9 @@ class TorchTuneCheckpointCallback(Callback):
 
 class TorchTuneReport(Callback):
     def on_epoch_end(self):
-        val_loss = self.tracker.val_loss
-        val_accuracy = self.tracker.val_accuracy
-        train_loss = self.tracker.train_loss
+        val_loss = self.tracker.val.loss
+        val_accuracy = self.tracker.val.accuracy
+        train_loss = self.tracker.train.loss
         tune.report(loss=val_loss, val_accuracy=val_accuracy, train_loss=train_loss)
 
 

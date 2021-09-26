@@ -67,9 +67,7 @@ class AutoBackend:
         tracker = model.fit(
             autodataset=autodataset,
             epochs=epochs,
-            callbacks=trainer_config.get(
-                "callbacks", ("tune_checkpoint", "tune_report")
-            ),
+            callbacks=trainer_config.get("callbacks", ("tune_checkpoint", "tune_report")),
         )
         return tracker.__dict__[self.optimization_metric]
 
@@ -105,9 +103,7 @@ class AutoBackend:
         logger.debug(trainer.callback_metrics)
         return trainer.callback_metrics[self.optimization_metric].item()
 
-    def optimization_objective(
-        self, config: dict, trainer_config: dict, gpu: Optional[float] = 0.0
-    ):
+    def optimization_objective(self, config: dict, trainer_config: dict, gpu: Optional[float] = 0.0):
         """
         Defines lightning_objective function which is used by tuner to minimize/maximize the metric.
 
@@ -122,6 +118,4 @@ class AutoBackend:
         if self.backend in (Backend.gf.value,):
             return self._gf_objective(config, trainer_config, gpu)
 
-        raise NotImplementedError(
-            f"Trainer not implemented for backend: {self.backend}"
-        )
+        raise NotImplementedError(f"Trainer not implemented for backend: {self.backend}")

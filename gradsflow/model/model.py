@@ -32,9 +32,7 @@ class Model:
     def __init__(self, model: nn.Module, optimizer: str, lr: float = 3e-4):
         self.model = model
         self.lr = lr
-        self.optimizer = self._OPTIMIZER_INDEX[optimizer](
-            self.model.parameters(), lr=lr
-        )
+        self.optimizer = self._OPTIMIZER_INDEX[optimizer](self.model.parameters(), lr=lr)
 
         self.device = "cpu"
         if torch.cuda.is_available():
@@ -52,9 +50,7 @@ class Model:
     def predict(self, inputs):
         return self.model(inputs)
 
-    def train_step(
-        self, inputs: torch.Tensor, target: torch.Tensor
-    ) -> Dict[str, torch.Tensor]:
+    def train_step(self, inputs: torch.Tensor, target: torch.Tensor) -> Dict[str, torch.Tensor]:
         inputs, target = inputs.to(self.device), target.to(self.device)
 
         self.optimizer.zero_grad()
@@ -65,9 +61,7 @@ class Model:
         self.optimizer.step()
         return {"loss": loss}
 
-    def val_step(
-        self, inputs: torch.Tensor, target: torch.Tensor
-    ) -> Dict[str, torch.Tensor]:
+    def val_step(self, inputs: torch.Tensor, target: torch.Tensor) -> Dict[str, torch.Tensor]:
         inputs, target = inputs.to(self.device), target.to(self.device)
 
         self.optimizer.zero_grad()
@@ -84,14 +78,11 @@ class Model:
         tracker.train.steps = 0
         steps_per_epoch = tracker.steps_per_epoch
 
-        tracker.train_prog = tracker.progress.add_task(
-            "[green]Training...", total=len(train_dataloader)
-        )
+        tracker.train_prog = tracker.progress.add_task("[green]Training...", total=len(train_dataloader))
         for step, data in enumerate(train_dataloader):
             inputs, target = data
             outputs = self.train_step(inputs, target)
-            loss = outputs["loss"]
-            loss = loss.item()
+            loss = outputs["loss"].item()
             running_train_loss += loss
             tracker.train.steps += 1
             tracker.progress.update(tracker.train_prog, advance=1)
@@ -113,9 +104,7 @@ class Model:
         running_val_loss = 0.0
         tracker.val.steps = 0
 
-        val_prog = tracker.progress.add_task(
-            "[green]Validating...", total=len(val_dataloader)
-        )
+        val_prog = tracker.progress.add_task("[green]Validating...", total=len(val_dataloader))
 
         for _, data in enumerate(val_dataloader):
             with torch.no_grad():
@@ -185,9 +174,7 @@ class Model:
         )
         tracker.progress = progress
         with progress:
-            tracker.epoch_prog = progress.add_task(
-                "[red]Learning...", total=epochs, completed=tracker.epoch
-            )
+            tracker.epoch_prog = progress.add_task("[red]Learning...", total=epochs, completed=tracker.epoch)
 
             for epoch in range(tracker.epoch, epochs):
                 tracker.epoch = epoch

@@ -24,15 +24,16 @@ def test_optimization_objective(mock_pl: Mock):
     model_builder = MagicMock()
 
     # backend is pl
-    autotrainer = AutoBackend(
-        dm, model_builder, optimization_metric="val_accuracy", backend="pl"
-    )
+    autotrainer = AutoBackend(dm, model_builder, optimization_metric="val_accuracy", backend="pl")
     autotrainer.optimization_objective({}, {})
     mock_pl.Trainer.assert_called()
 
     # wrong backend is passed
     with pytest.raises(NotImplementedError):
         autotrainer = AutoBackend(
-            dm, model_builder, optimization_metric="val_accuracy", backend="error"
+            dm,
+            model_builder,
+            optimization_metric="val_accuracy",
+            backend="error",
         )
         autotrainer.optimization_objective({}, {})
