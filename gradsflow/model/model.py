@@ -85,7 +85,7 @@ class Model:
         steps_per_epoch = tracker.steps_per_epoch
 
         tracker.train_prog = tracker.progress.add_task(
-            "[green]Training...", total=min(steps_per_epoch, len(train_dataloader))
+            "[green]Training...", total=len(train_dataloader)
         )
         for step, data in enumerate(train_dataloader):
             inputs, target = data
