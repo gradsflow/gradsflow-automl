@@ -62,6 +62,7 @@ class Model(BaseModel):
         steps_per_epoch = tracker.steps_per_epoch
 
         tracker.train_prog = tracker.progress.add_task("[green]Learning...", total=len(train_dataloader))
+        self.model.train()
         for step, (inputs, labels) in enumerate(train_dataloader):
             inputs, labels = inputs.to(self.device), labels.to(self.device)
             outputs = self.train_step(inputs, labels)
@@ -88,7 +89,7 @@ class Model(BaseModel):
         tracker.val.steps = 0
 
         val_prog = tracker.progress.add_task("[green]Validating...", total=len(val_dataloader))
-
+        self.model.eval()
         for _, (inputs, labels) in enumerate(val_dataloader):
             with torch.no_grad():
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
