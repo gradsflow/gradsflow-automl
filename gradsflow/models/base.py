@@ -11,18 +11,15 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-import dataclasses
 import os
 from dataclasses import dataclass
-from re import S
-from typing import Any, Callable, List, Union
+from typing import Any, Callable, Optional, Union
 
 import torch
 from accelerate import Accelerator
-from torch import nn, optim
-from torch.cuda import init
-from torch.optim import optimizer
+from torch import nn
 
+from gradsflow.models.utils import losses
 from gradsflow.utility.common import module_to_cls_index
 
 
@@ -30,7 +27,7 @@ from gradsflow.utility.common import module_to_cls_index
 class Base:
     learner: Union[nn.Module, Any]
     optimizer: torch.optim.Optimizer
-    loss: Union[Callable, nn._Loss]
+    loss: Union[Callable]
 
 
 class BaseModel(Base):
@@ -53,16 +50,30 @@ class BaseModel(Base):
                 f"prepare_model is not implemented for model of type {type(learner)}! Please implement prepare_model or raise an issue."
             )
 
-    def compile(self, loss, optimizer) -> None:
-        self.optimizer = self._get_optimizer(optimizer)
-        self.loss = None
+    def compile(self, loss, optimizer, learning_rate=3e-4, optimizer_config: Optional[dict] = None) -> None:
+        optimizer_config = optimizer_config or {}
+        optimizer_fn = self._get_optimizer(optimizer)
+        self.optimizer = optimizer_fn(self.learner.parameters(), learning_rate=learning_rate, **optimizer_config)
+        self.loss = self._get_loss(loss)
 
-    def _get_optimizer(self, optimizer) -> torch.optim.Optimizer:
+    def _get_loss(self, loss) -> Callable:
+        if isinstance(loss, str):
+            loss_fn = losses.get(loss)
+            assert loss_fn is not None, f"loss {loss} is not available! Available losses are {tuple(losses.keys())}"
+
+        elif callable(loss):
+            loss_fn = loss
+        else:
+            raise NotImplementedError(f"Unknown loss {loss}")
+
+        return loss_fn
+
+    def _get_optimizer(self, optimizer) -> Callable:
         if isinstance(optimizer, str):
             optimizer_fn = self._OPTIMIZER_INDEX.get(optimizer)
             assert (
                 optimizer_fn is not None
-            ), f"optimizer {optimizer} is not available! Available optimizers are {self._OPTIMIZER_INDEX.keys()}"
+            ), f"optimizer {optimizer} is not available! Available optimizers are {tuple(self._OPTIMIZER_INDEX.keys())}"
         elif isinstance(optimizer, torch.optim.Optimizer):
             optimizer_fn = optimizer
         else:
