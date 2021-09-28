@@ -12,13 +12,15 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import os
+import typing
 from typing import Optional, Union
 
 import torch
 from ray import tune
 from ray.tune.integration.pytorch_lightning import TuneReportCheckpointCallback
 
-from gradsflow import Model
+if typing.TYPE_CHECKING:
+    from gradsflow.models.model import Model
 
 _METRICS = {
     "val_accuracy": "val_accuracy",
@@ -35,7 +37,7 @@ def report_checkpoint_callback(metrics: Optional[dict] = None, filename: Optiona
 
 
 class Callback:
-    def __init__(self, model: Model):
+    def __init__(self, model: "Model"):
         self.model = model
 
     def on_training_start(self):
@@ -80,7 +82,7 @@ class ComposeCallback(Callback):
         "tune_report": TorchTuneReport,
     }
 
-    def __init__(self, model: Model, *callbacks: Union[str, Callback]):
+    def __init__(self, model: "Model", *callbacks: Union[str, Callback]):
         super().__init__(model)
         self.callbacks = []
         for callback in callbacks:
