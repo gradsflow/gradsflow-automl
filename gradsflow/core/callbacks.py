@@ -58,13 +58,12 @@ class Callback:
 class TorchTuneCheckpointCallback(Callback):
     def on_epoch_end(self):
         epoch = self.tracker.epoch
-        model = self.tracker.model
-        optimizer = self.tracker.optimizer
+        model = self.tracker.learner
 
         with tune.checkpoint_dir(epoch) as checkpoint_dir:
             print("checkpoint_dir", checkpoint_dir)
             path = os.path.join(checkpoint_dir, "filename")
-            torch.save((model.state_dict(), optimizer.state_dict()), path)
+            torch.save((model.state_dict()), path)
 
 
 class TorchTuneReport(Callback):

@@ -11,51 +11,32 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-#
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
 from pathlib import Path
 
 import timm
 import torch
+from torch.utils.data import DataLoader
+from torchvision.datasets import FakeData
 
+from gradsflow import AutoDataset, Model
 from gradsflow.core.data import AutoDataset
-from gradsflow.data.image import image_dataset_from_directory
+from gradsflow.data.image import get_augmentations, image_dataset_from_directory
 from gradsflow.models.model import Model
 from gradsflow.models.tracker import Tracker
 
-data_dir = Path.cwd() / "data"
-train_data = image_dataset_from_directory(
-    f"{data_dir}/hymenoptera_data/train/",
-    image_size=(96, 96),
-    num_workers=None,
-    transform=True,
-)
+image_size = (96, 96)
+transform = get_augmentations(image_size)
+train_ds = FakeData(size=100, image_size=[3, *image_size], transform=transform)
+val_ds = FakeData(size=100, image_size=[3, *image_size], transform=transform)
+train_dl = DataLoader(train_ds)
+val_dl = DataLoader(val_ds)
 
-val_data = image_dataset_from_directory(
-    f"{data_dir}/hymenoptera_data/val/",
-    image_size=(96, 96),
-    num_workers=None,
-    transform=True,
-)
+num_classes = train_ds.num_classes
+autodataset = AutoDataset(train_dl, val_dl, num_classes=num_classes)
 
-train_dataset = train_data["ds"]
-train_dl = train_data["dl"]
-val_dl = val_data["dl"]
-num_classes = len(train_dataset.classes)
-autodataset = AutoDataset(train_dl, num_classes=num_classes)
-
-cnn = timm.create_model("ssl_resnet18", pretrained=False, num_classes=2).eval()
-model = Model(cnn, "adam")
+cnn = timm.create_model("ssl_resnet18", pretrained=False, num_classes=num_classes).eval()
+model = Model(cnn)
+model.compile("crossentropyloss", "adam")
 model.TEST = True
 
 
