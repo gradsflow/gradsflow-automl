@@ -54,7 +54,7 @@ repos:
         exclude: tests/
         args:
           - -s
-          - "B404,B602,B603,B607"
+          - "B404,B602,B603,B607,B101"
 
   - repo: local
     hooks:

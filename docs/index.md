@@ -32,13 +32,13 @@
 ## What is GradsFlow?
 
 !!! attention
-    GradsFlow is changing fast and is not stable yet.
+    🚨 GradsFlow is changing fast. There will be lot of breaking changes until we reach `0.1.0`. Feel free to try and give your feedback by creating an issue or join our [Slack](https://join.slack.com/t/gradsflow/shared_invite/zt-ulc0m0ef-xstzyowuTgYceVmFbJlBmg) group.
 
 GradsFlow is an open-source AutoML Library for PyTorch that can train Deep Learning Models on your laptop or
 to a remote cluster directly from your laptop.
-Our aim is to enable non ML expert to train and build AI Products.
+Our aim is to democratize AI by enabling non ML expert to train and build AI Products.
 GradsFlow leverages the power of PyTorch Lightning ⚡️ and Ray️.
-It leverages PyTorch Lightning Flash so that you don't have to write any code for model building or hyperparameter tuning 🚀
+You don't have to write any PyTorch or Hyperparameter optimization code.
 
 GradsFlow [Model API](https://docs.gradsflow.com/en/latest/gradsflow/model) provides a simple
 [Keras like](https://keras.io) model training functionality 🔥.

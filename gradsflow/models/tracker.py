@@ -25,7 +25,7 @@ class Tracker(BaseTracker):
     """
 
     def __init__(self):
-        self.model = None
+        self.learner = None
         self.optimizer = None
         self.progress: Optional[Progress] = None
 

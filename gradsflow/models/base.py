@@ -11,39 +11,73 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+import dataclasses
 import os
+from dataclasses import dataclass
+from re import S
+from typing import Any, Callable, List, Union
 
 import torch
 from accelerate import Accelerator
+from torch import nn, optim
+from torch.cuda import init
+from torch.optim import optimizer
 
 from gradsflow.utility.common import module_to_cls_index
 
 
-class BaseModel:
+@dataclass(init=False)
+class Base:
+    learner: Union[nn.Module, Any]
+    optimizer: torch.optim.Optimizer
+    loss: Union[Callable, nn._Loss]
+
+
+class BaseModel(Base):
     TEST = os.environ.get("GF_CI", "false").lower() == "true"
     _OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
 
-    def __init__(self, model, optimizer, lr, accelerator_config: dict = None):
-        accelerator_config = accelerator_config or {}
+    def __init__(self, learner: Union[nn.Module, Any], accelerator_config: dict = None):
         self.accelerator = Accelerator(**accelerator_config)
-        self.model = model
-        self.optimizer = optimizer
-        self.lr = lr
-        self.device = "cpu"
-
+        self.learner = None
         self.device = self.accelerator.device
-        self.model.to(self.device)
-        self.model, self.optimizer = self.accelerator.prepare(self.model, self.optimizer)
+        self.prepare_model(learner)
+
+    def prepare_model(self, learner) -> None:
+        if isinstance(learner, (list, tuple)):
+            self.learner = self.accelerator.prepare_model(*learner)
+        elif isinstance(learner, nn.Module):
+            self.learner = self.accelerator.prepare_model(learner)
+        else:
+            raise NotImplementedError(
+                f"prepare_model is not implemented for model of type {type(learner)}! Please implement prepare_model or raise an issue."
+            )
+
+    def compile(self, loss, optimizer) -> None:
+        self.optimizer = self._get_optimizer(optimizer)
+        self.loss = None
+
+    def _get_optimizer(self, optimizer) -> torch.optim.Optimizer:
+        if isinstance(optimizer, str):
+            optimizer_fn = self._OPTIMIZER_INDEX.get(optimizer)
+            assert (
+                optimizer_fn is not None
+            ), f"optimizer {optimizer} is not available! Available optimizers are {self._OPTIMIZER_INDEX.keys()}"
+        elif isinstance(optimizer, torch.optim.Optimizer):
+            optimizer_fn = optimizer
+        else:
+            raise NotImplementedError(f"Unknown optimizer {optimizer}")
+        return optimizer_fn
 
     def forward(self, x):
-        return self.model(x)
+        return self.learner(x)
 
     def __call__(self, x):
         return self.forward(x)
 
     @torch.no_grad()
     def predict(self, x):
-        return self.model(x)
+        return self.learner(x)
 
     def load_from_checkpoint(self, checkpoint):
-        self.model = torch.load(checkpoint)
+        self.learner = torch.load(checkpoint)
