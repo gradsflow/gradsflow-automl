@@ -23,3 +23,10 @@ jobs:
           update: true
           target_branch: ''
           target_repository: ''
+
+    - name: Commit Updated Notebooks
+      uses: devops-infra/action-commit-push@master
+      with:
+        github_token: "${{ secrets.GITHUB_TOKEN }}"
+        add_timestamp: true
+        commit_prefix: "[AUTO]"
