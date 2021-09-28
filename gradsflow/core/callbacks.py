@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import os
-from typing import Optional
+from typing import Optional, Union
 
 import torch
 from ray import tune
@@ -35,7 +35,7 @@ def report_checkpoint_callback(metrics: Optional[dict] = None, filename: Optiona
 
 
 class Callback:
-    def __init__(self, tracker: BaseTracker = None):
+    def __init__(self, tracker: Optional[BaseTracker] = None):
         self.tracker = tracker
 
     def on_training_start(self):
@@ -58,13 +58,12 @@ class Callback:
 class TorchTuneCheckpointCallback(Callback):
     def on_epoch_end(self):
         epoch = self.tracker.epoch
-        model = self.tracker.model
-        optimizer = self.tracker.optimizer
+        model = self.tracker.learner
 
         with tune.checkpoint_dir(epoch) as checkpoint_dir:
             print("checkpoint_dir", checkpoint_dir)
             path = os.path.join(checkpoint_dir, "filename")
-            torch.save((model.state_dict(), optimizer.state_dict()), path)
+            torch.save((model.state_dict()), path)
 
 
 class TorchTuneReport(Callback):
@@ -76,21 +75,21 @@ class TorchTuneReport(Callback):
 
 
 class ComposeCallback(Callback):
-    _CALLBACK_INDEX = {
+    _AVAILABLE_CALLBACKS = {
         "tune_checkpoint": TorchTuneCheckpointCallback,
         "tune_report": TorchTuneReport,
     }
 
     def available_callbacks(self):
-        return list(self._CALLBACK_INDEX.keys())
+        return list(self._AVAILABLE_CALLBACKS.keys())
 
-    def __init__(self, tracker, *callbacks: str):
+    def __init__(self, tracker, *callbacks: Union[str, Callback]):
         super().__init__()
         self.callbacks = []
         for callback in callbacks:
             if isinstance(callback, str):
-                callback = self._CALLBACK_INDEX[callback](tracker)
-                self.callbacks.append(callback)
+                callback_fn = self._AVAILABLE_CALLBACKS[callback](tracker)
+                self.callbacks.append(callback_fn)
             elif isinstance(callback, Callback):
                 self.callbacks.append(callback)
             else:

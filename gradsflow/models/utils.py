@@ -1,5 +1,3 @@
-"""An open-source AutoML Library in PyTorch"""
-
 #  Copyright (c) 2021 GradsFlow. All rights reserved.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,12 +12,13 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from gradsflow.core.automodel import AutoModel
-from gradsflow.core.data import AutoDataset
-from gradsflow.models.model import Model
-from gradsflow.tasks.autoclassification.image import AutoImageClassifier
-from gradsflow.tasks.autoclassification.text import AutoTextClassifier
-from gradsflow.tasks.autosummarization import AutoSummarization
-from gradsflow.tasks.autotasks import autotask, available_tasks
+from typing import Callable, Dict
 
-__version__ = "0.0.6.dev"
+from torch import nn
+
+from gradsflow.utility.common import module_to_cls_index
+
+nn_classes = module_to_cls_index(nn)
+
+
+losses: Dict[str, Callable] = {k: v for k, v in nn_classes.items() if "loss" in k}

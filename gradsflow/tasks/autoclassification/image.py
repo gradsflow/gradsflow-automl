@@ -79,6 +79,7 @@ class AutoImageClassifier(AutoClassifier):
         """
         backbone = config["backbone"]
 
-        net = timm.create_model(backbone, pretrained=True, num_classes=self.num_classes)
-        model = Model(net, optimizer=config["optimizer"], lr=config["lr"])
+        cnn = timm.create_model(backbone, pretrained=True, num_classes=self.num_classes)
+        model = Model(cnn)
+        model.compile(loss="crossentropyloss", optimizer=config["optimizer"], learning_rate=config["lr"])
         return model

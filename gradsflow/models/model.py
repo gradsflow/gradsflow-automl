@@ -13,13 +13,13 @@
 #  limitations under the License.
 
 import os
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import torch
 from rich.progress import BarColumn, Progress, RenderableColumn, TimeRemainingColumn
 from torch import nn
 
-from gradsflow.core.callbacks import ComposeCallback
+from gradsflow.core.callbacks import Callback, ComposeCallback
 from gradsflow.core.data import AutoDataset
 from gradsflow.models.base import BaseModel
 from gradsflow.models.tracker import Tracker
@@ -32,30 +32,26 @@ class Model(BaseModel):
 
     def __init__(
         self,
-        model: nn.Module,
-        optimizer: Union[str, torch.optim.Optimizer],
-        lr: float = 3e-4,
+        learner: Union[nn.Module, Any],
         accelerator_config: dict = None,
     ):
         accelerator_config = accelerator_config or {}
-        optimizer = self._OPTIMIZER_INDEX[optimizer](model.parameters(), lr=lr)
-        super().__init__(model=model, optimizer=optimizer, lr=lr, accelerator_config=accelerator_config)
+        super().__init__(learner=learner, accelerator_config=accelerator_config)
 
         self.criterion = nn.CrossEntropyLoss()
         self.tracker = Tracker()
-        self.tracker.model = model
+        self.tracker.learner = self.learner
 
     def train_step(self, inputs: torch.Tensor, target: torch.Tensor) -> Dict[str, torch.Tensor]:
         self.optimizer.zero_grad()
-        logits = self.model(inputs)
-
-        loss = self.criterion(logits, target)
+        logits = self.learner(inputs)
+        loss = self.loss(logits, target)
         self.accelerator.backward(loss)
         self.optimizer.step()
-        return {"loss": loss}
+        return {"loss": loss, "logits": logits}
 
     def val_step(self, inputs: torch.Tensor, target: torch.Tensor) -> Dict[str, torch.Tensor]:
-        logits = self.model(inputs)
+        logits = self.learner(inputs)
         loss = self.criterion(logits, target)
         _, predictions = torch.max(logits.data, 1)
 
@@ -69,7 +65,7 @@ class Model(BaseModel):
         steps_per_epoch = tracker.steps_per_epoch
 
         tracker.train_prog = tracker.progress.add_task("[green]Learning...", total=len(train_dataloader))
-        self.model.train()
+        self.learner.train()
         for step, (inputs, labels) in enumerate(train_dataloader):
             inputs, labels = inputs.to(self.device), labels.to(self.device)
             outputs = self.train_step(inputs, labels)
@@ -96,7 +92,7 @@ class Model(BaseModel):
         tracker.val.steps = 0
 
         val_prog = tracker.progress.add_task("[green]Validating...", total=len(val_dataloader))
-        self.model.eval()
+        self.learner.eval()
         for _, (inputs, labels) in enumerate(val_dataloader):
             with torch.no_grad():
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
@@ -119,7 +115,7 @@ class Model(BaseModel):
         autodataset: AutoDataset,
         epochs: int = 1,
         steps_per_epoch: Optional[int] = None,
-        callbacks: Union[List, None] = None,
+        callbacks: Union[List[str], Callback] = None,
         resume: bool = True,
         progress_kwargs: Optional[Dict] = None,
     ) -> Tracker:
@@ -136,9 +132,10 @@ class Model(BaseModel):
         Returns:
             Tracker object
         """
+        self.assert_compiled()
         optimizer = self.optimizer
         progress_kwargs = progress_kwargs or {}
-        callbacks = listify(callbacks)
+        composed_callbacks: ComposeCallback = ComposeCallback(self.tracker, *listify(callbacks))
 
         autodataset.train_dataloader, autodataset.val_dataloader = self.accelerator.prepare(
             autodataset.train_dataloader, autodataset.val_dataloader
@@ -150,10 +147,9 @@ class Model(BaseModel):
         tracker.max_epochs = epochs
         tracker.optimizer = optimizer
         tracker.steps_per_epoch = steps_per_epoch
-        callbacks = ComposeCallback(tracker, *callbacks)
 
         # ----- EVENT: ON_TRAINING_START
-        callbacks.on_training_start()
+        composed_callbacks.on_training_start()
 
         bar_column = BarColumn()
         table_column = RenderableColumn(tracker.create_table())
@@ -169,13 +165,13 @@ class Model(BaseModel):
         )
         tracker.progress = progress
         with progress:
-            tracker.epoch_prog = progress.add_task("[red]Epoch Progress...", total=epochs, completed=tracker.epoch)
+            epoch_prog = progress.add_task("[red]Epoch Progress...", total=epochs, completed=tracker.epoch)
 
             for epoch in range(tracker.epoch, epochs):
                 tracker.epoch = epoch
 
                 # ----- EVENT: ON_EPOCH_START
-                callbacks.on_epoch_start()
+                composed_callbacks.on_epoch_start()
                 self.train_epoch(autodataset)
                 table_column.renderable = tracker.create_table()
 
@@ -184,13 +180,13 @@ class Model(BaseModel):
                 table_column.renderable = tracker.create_table()
 
                 # ----- EVENT: ON_EPOCH_END
-                callbacks.on_epoch_end()
-                progress.update(tracker.epoch_prog, advance=1)
+                composed_callbacks.on_epoch_end()
+                progress.update(epoch_prog, advance=1)
 
                 if self.TEST:
                     break
 
         # ----- EVENT: ON_TRAINING_END
-        callbacks.on_training_end()
+        composed_callbacks.on_training_end()
 
         return tracker
