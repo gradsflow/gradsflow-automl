@@ -14,6 +14,7 @@
 import os
 
 import torch
+from accelerate import Accelerator
 
 from gradsflow.utility.common import module_to_cls_index
 
@@ -22,18 +23,17 @@ class BaseModel:
     TEST = os.environ.get("GF_CI", "false").lower() == "true"
     _OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
 
-    def __init__(self, model, optimizer, lr, device=None):
+    def __init__(self, model, optimizer, lr, accelerate_config: dict = None):
+        accelerate_config = accelerate_config or {}
+        self.accelerator = Accelerator(**accelerate_config)
         self.model = model
         self.optimizer = optimizer
         self.lr = lr
         self.device = "cpu"
 
-        if not device and torch.cuda.is_available():
-            self.device = "cuda"
-        else:
-            self.device = device
-
+        self.device = self.accelerator.device
         self.model.to(self.device)
+        self.model, self.optimizer = self.accelerator.prepare(self.model, self.optimizer)
 
     def forward(self, x):
         return self.model(x)

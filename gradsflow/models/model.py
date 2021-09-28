@@ -21,8 +21,8 @@ from torch import nn
 
 from gradsflow.core.callbacks import ComposeCallback
 from gradsflow.core.data import AutoDataset
-from gradsflow.model.base import BaseModel
-from gradsflow.model.tracker import Tracker
+from gradsflow.models.base import BaseModel
+from gradsflow.models.tracker import Tracker
 from gradsflow.utility.common import listify, module_to_cls_index
 
 
@@ -43,7 +43,7 @@ class Model(BaseModel):
         logits = self.model(inputs)
 
         loss = self.criterion(logits, target)
-        loss.backward()
+        self.accelerator.backward(loss)
         self.optimizer.step()
         return {"loss": loss}
 
@@ -132,6 +132,10 @@ class Model(BaseModel):
         optimizer = self.optimizer
         progress_kwargs = progress_kwargs or {}
         callbacks = listify(callbacks)
+
+        autodataset.train_dataloader, autodataset.val_dataloader = self.accelerator.prepare(
+            autodataset.train_dataloader, autodataset.val_dataloader
+        )
 
         if not resume:
             self.tracker.reset()

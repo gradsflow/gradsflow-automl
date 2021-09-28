@@ -30,8 +30,8 @@ import torch
 
 from gradsflow.core.data import AutoDataset
 from gradsflow.data.image import image_dataset_from_directory
-from gradsflow.model.model import Model
-from gradsflow.model.tracker import Tracker
+from gradsflow.models.model import Model
+from gradsflow.models.tracker import Tracker
 
 data_dir = Path.cwd() / "data"
 train_data = image_dataset_from_directory(
