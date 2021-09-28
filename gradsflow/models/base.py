@@ -23,9 +23,9 @@ class BaseModel:
     TEST = os.environ.get("GF_CI", "false").lower() == "true"
     _OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
 
-    def __init__(self, model, optimizer, lr, accelerate_config: dict = None):
-        accelerate_config = accelerate_config or {}
-        self.accelerator = Accelerator(**accelerate_config)
+    def __init__(self, model, optimizer, lr, accelerator_config: dict = None):
+        accelerator_config = accelerator_config or {}
+        self.accelerator = Accelerator(**accelerator_config)
         self.model = model
         self.optimizer = optimizer
         self.lr = lr

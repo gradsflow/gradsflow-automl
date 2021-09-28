@@ -30,9 +30,16 @@ class Model(BaseModel):
     TEST = os.environ.get("GF_CI", "false").lower() == "true"
     _OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
 
-    def __init__(self, model: nn.Module, optimizer: Union[str, torch.optim.Optimizer], lr: float = 3e-4, device=None):
+    def __init__(
+        self,
+        model: nn.Module,
+        optimizer: Union[str, torch.optim.Optimizer],
+        lr: float = 3e-4,
+        accelerator_config: dict = None,
+    ):
+        accelerator_config = accelerator_config or {}
         optimizer = self._OPTIMIZER_INDEX[optimizer](model.parameters(), lr=lr)
-        super().__init__(model=model, optimizer=optimizer, lr=lr, device=device)
+        super().__init__(model=model, optimizer=optimizer, lr=lr, accelerator_config=accelerator_config)
 
         self.criterion = nn.CrossEntropyLoss()
         self.tracker = Tracker()
