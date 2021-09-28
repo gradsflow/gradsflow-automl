@@ -74,7 +74,7 @@ nav:
           - Model Training: 'examples/nbs/05-model_fit.ipynb'
   - API References:
       - Core: gradsflow/core
-      - model: gradsflow/model
+      - Model Training: gradsflow/models
       - AutoTasks: gradsflow/tasks
       - Data: gradsflow/data
       - utility: gradsflow/utility.md

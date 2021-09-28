@@ -21,8 +21,8 @@ from torch import nn
 
 from gradsflow.core.callbacks import ComposeCallback
 from gradsflow.core.data import AutoDataset
-from gradsflow.model.base import BaseModel
-from gradsflow.model.tracker import Tracker
+from gradsflow.models.base import BaseModel
+from gradsflow.models.tracker import Tracker
 from gradsflow.utility.common import listify, module_to_cls_index
 
 
@@ -30,9 +30,16 @@ class Model(BaseModel):
     TEST = os.environ.get("GF_CI", "false").lower() == "true"
     _OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
 
-    def __init__(self, model: nn.Module, optimizer: Union[str, torch.optim.Optimizer], lr: float = 3e-4, device=None):
+    def __init__(
+        self,
+        model: nn.Module,
+        optimizer: Union[str, torch.optim.Optimizer],
+        lr: float = 3e-4,
+        accelerator_config: dict = None,
+    ):
+        accelerator_config = accelerator_config or {}
         optimizer = self._OPTIMIZER_INDEX[optimizer](model.parameters(), lr=lr)
-        super().__init__(model=model, optimizer=optimizer, lr=lr, device=device)
+        super().__init__(model=model, optimizer=optimizer, lr=lr, accelerator_config=accelerator_config)
 
         self.criterion = nn.CrossEntropyLoss()
         self.tracker = Tracker()
@@ -43,7 +50,7 @@ class Model(BaseModel):
         logits = self.model(inputs)
 
         loss = self.criterion(logits, target)
-        loss.backward()
+        self.accelerator.backward(loss)
         self.optimizer.step()
         return {"loss": loss}
 
@@ -132,6 +139,10 @@ class Model(BaseModel):
         optimizer = self.optimizer
         progress_kwargs = progress_kwargs or {}
         callbacks = listify(callbacks)
+
+        autodataset.train_dataloader, autodataset.val_dataloader = self.accelerator.prepare(
+            autodataset.train_dataloader, autodataset.val_dataloader
+        )
 
         if not resume:
             self.tracker.reset()
