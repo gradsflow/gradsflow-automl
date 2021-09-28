@@ -21,10 +21,8 @@ jobs:
         with:
           check: 'all'
           update: true
-          target_branch: main
-          target_repository: user/user-repo
+          target_branch: ''
+          target_repository: ''
 
       - name: Use your favorite commit&push action here
         uses: action/commit@push
-        with:
-          ...
