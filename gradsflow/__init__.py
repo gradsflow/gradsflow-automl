@@ -15,10 +15,11 @@
 #  limitations under the License.
 
 from gradsflow.core.automodel import AutoModel
+from gradsflow.core.data import AutoDataset
 from gradsflow.models.model import Model
 from gradsflow.tasks.autoclassification.image import AutoImageClassifier
 from gradsflow.tasks.autoclassification.text import AutoTextClassifier
 from gradsflow.tasks.autosummarization import AutoSummarization
 from gradsflow.tasks.autotasks import autotask, available_tasks
 
-__version__ = "0.0.5post0"
+__version__ = "0.0.6.dev"

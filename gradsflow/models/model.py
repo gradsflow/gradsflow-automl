@@ -132,6 +132,7 @@ class Model(BaseModel):
         Returns:
             Tracker object
         """
+        self.assert_compiled()
         optimizer = self.optimizer
         progress_kwargs = progress_kwargs or {}
         composed_callbacks: ComposeCallback = ComposeCallback(self.tracker, *listify(callbacks))

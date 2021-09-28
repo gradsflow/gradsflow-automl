@@ -17,7 +17,7 @@ from typing import Any, Callable, Optional, Union
 
 import torch
 from accelerate import Accelerator
-from torch import nn
+from torch import nn, optim
 
 from gradsflow.models.utils import losses
 from gradsflow.utility.common import module_to_cls_index
@@ -28,6 +28,7 @@ class Base:
     learner: Union[nn.Module, Any]
     optimizer: torch.optim.Optimizer
     loss: Union[Callable]
+    _compiled: bool = False
 
 
 class BaseModel(Base):
@@ -50,11 +51,24 @@ class BaseModel(Base):
                 f"prepare_model is not implemented for model of type {type(learner)}! Please implement prepare_model or raise an issue."
             )
 
-    def compile(self, loss, optimizer, learning_rate=3e-4, optimizer_config: Optional[dict] = None) -> None:
+    def prepare_optimizer(self, optimizer) -> None:
+        self.optimizer = self.accelerator.prepare_optimizer(optimizer)
+
+    def compile(
+        self,
+        loss,
+        optimizer,
+        learning_rate=3e-4,
+        loss_config: Optional[dict] = None,
+        optimizer_config: Optional[dict] = None,
+    ) -> None:
+        loss_config = loss_config or {}
         optimizer_config = optimizer_config or {}
         optimizer_fn = self._get_optimizer(optimizer)
-        self.optimizer = optimizer_fn(self.learner.parameters(), learning_rate=learning_rate, **optimizer_config)
-        self.loss = self._get_loss(loss)
+        optimizer = optimizer_fn(self.learner.parameters(), lr=learning_rate, **optimizer_config)
+        self.loss = self._get_loss(loss)(**loss_config)
+        self.prepare_optimizer(optimizer)
+        self._compiled = True
 
     def _get_loss(self, loss) -> Callable:
         if isinstance(loss, str):
@@ -79,6 +93,10 @@ class BaseModel(Base):
         else:
             raise NotImplementedError(f"Unknown optimizer {optimizer}")
         return optimizer_fn
+
+    def assert_compiled(self):
+        if not self._compiled:
+            raise UserWarning("Model not compiled yet! Please call `model.compile(...)` first.")
 
     def forward(self, x):
         return self.learner(x)
