@@ -19,7 +19,7 @@ import torch
 from rich.progress import BarColumn, Progress, RenderableColumn, TimeRemainingColumn
 from torch import nn
 
-from gradsflow.core.callbacks import Callback, ComposeCallback
+from gradsflow.callbacks.callbacks import Callback, ComposeCallback
 from gradsflow.core.data import AutoDataset
 from gradsflow.models.base import BaseModel
 from gradsflow.models.tracker import Tracker
@@ -38,9 +38,8 @@ class Model(BaseModel):
         accelerator_config = accelerator_config or {}
         super().__init__(learner=learner, accelerator_config=accelerator_config)
 
-        self.criterion = nn.CrossEntropyLoss()
         self.tracker = Tracker()
-        self.tracker.learner = self.learner
+        self.tracker.learner = self
 
     def train_step(self, inputs: torch.Tensor, target: torch.Tensor) -> Dict[str, torch.Tensor]:
         self.optimizer.zero_grad()
@@ -52,7 +51,7 @@ class Model(BaseModel):
 
     def val_step(self, inputs: torch.Tensor, target: torch.Tensor) -> Dict[str, torch.Tensor]:
         logits = self.learner(inputs)
-        loss = self.criterion(logits, target)
+        loss = self.loss(logits, target)
         _, predictions = torch.max(logits.data, 1)
 
         return {"loss": loss, "logits": logits, "predictions": predictions}

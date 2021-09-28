@@ -35,7 +35,7 @@ class BaseAutoModel(ABC):
 
     @abstractmethod
     def build_model(self, search_space: dict):
-        """Build model from dictionary search_space"""
+        """Build model from dictionary _search_space"""
         raise NotImplementedError
 
 

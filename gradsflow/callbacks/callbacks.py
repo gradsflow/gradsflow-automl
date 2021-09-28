@@ -18,7 +18,7 @@ import torch
 from ray import tune
 from ray.tune.integration.pytorch_lightning import TuneReportCheckpointCallback
 
-from gradsflow.core.base import BaseTracker
+from gradsflow import Model
 
 _METRICS = {
     "val_accuracy": "val_accuracy",
@@ -35,8 +35,8 @@ def report_checkpoint_callback(metrics: Optional[dict] = None, filename: Optiona
 
 
 class Callback:
-    def __init__(self, tracker: Optional[BaseTracker] = None):
-        self.tracker = tracker
+    def __init__(self, model: Model):
+        self.model = model
 
     def on_training_start(self):
         ...
@@ -57,8 +57,8 @@ class Callback:
 
 class TorchTuneCheckpointCallback(Callback):
     def on_epoch_end(self):
-        epoch = self.tracker.epoch
-        model = self.tracker.learner
+        epoch = self.model.tracker.epoch
+        model = self.model.learner
 
         with tune.checkpoint_dir(epoch) as checkpoint_dir:
             print("checkpoint_dir", checkpoint_dir)
@@ -68,9 +68,9 @@ class TorchTuneCheckpointCallback(Callback):
 
 class TorchTuneReport(Callback):
     def on_epoch_end(self):
-        val_loss = self.tracker.val.loss
-        train_loss = self.tracker.train.loss
-        val_accuracy = self.tracker.tune_metric
+        val_loss = self.model.tracker.val.loss
+        train_loss = self.model.tracker.train.loss
+        val_accuracy = self.model.tracker.tune_metric
         tune.report(loss=val_loss, val_accuracy=val_accuracy, train_loss=train_loss)
 
 
@@ -80,15 +80,12 @@ class ComposeCallback(Callback):
         "tune_report": TorchTuneReport,
     }
 
-    def available_callbacks(self):
-        return list(self._AVAILABLE_CALLBACKS.keys())
-
-    def __init__(self, tracker, *callbacks: Union[str, Callback]):
-        super().__init__()
+    def __init__(self, model: Model, *callbacks: Union[str, Callback]):
+        super().__init__(model)
         self.callbacks = []
         for callback in callbacks:
             if isinstance(callback, str):
-                callback_fn = self._AVAILABLE_CALLBACKS[callback](tracker)
+                callback_fn = self._AVAILABLE_CALLBACKS[callback](model)
                 self.callbacks.append(callback_fn)
             elif isinstance(callback, Callback):
                 self.callbacks.append(callback)
@@ -102,3 +99,6 @@ class ComposeCallback(Callback):
     def on_epoch_start(self):
         for callback in self.callbacks:
             callback.on_epoch_start()
+
+    def available_callbacks(self):
+        return list(self._AVAILABLE_CALLBACKS.keys())
