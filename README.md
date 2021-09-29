@@ -41,11 +41,11 @@ GradsFlow leverages the power of PyTorch Lightning ⚡️ and Ray️.
 You don't have to write any PyTorch or Hyperparameter optimization code.
 
 GradsFlow [Model API](https://docs.gradsflow.com/en/latest/gradsflow/model) provides a simple
-[Keras like](https://keras.io) model training functionality 🔥.
+[Keras like](https://keras.io) model training interface 🔥.
 You can train any PyTorch model using `model.fit(...)` and it is easily customizable for more complex tasks.
 
 You might want to train a custom model and search hyperparameters,
-You can easily integrate any PyTorch Model with Gradsflow [AutoModel](https://docs.gradsflow.com/en/latest/gradsflow/core/) ✨
+You can easily integrate any PyTorch Model with GradsFlow [AutoModel](https://docs.gradsflow.com/en/latest/gradsflow/core/) ✨
 
 
 - `gradsflow.core`: [Core](https://docs.gradsflow.com/en/latest/gradsflow/core/) defines the building blocks
@@ -54,7 +54,9 @@ of AutoML tasks.
 - `gradsflow.autotasks`: [AutoTasks](https://docs.gradsflow.com/en/latest/gradsflow/tasks/) defines
 different ML/DL tasks which is provided by gradsflow AutoML API.
 
-- `gradsflow.model`: [Model](https://docs.gradsflow.com/en/latest/gradsflow/tasks/) defines the model training functionality.
+- `gradsflow.model`: [Model](https://docs.gradsflow.com/en/latest/gradsflow/model/) defines the model training functionality.
+
+- `gradsflow.tuner`: [Model](https://docs.gradsflow.com/en/latest/gradsflow/tuner/) HyperParameter search with minimal code changes.
 
 
 📑 Check out [notebooks examples](https://github.com/gradsflow/gradsflow/tree/main/examples/nbs).

@@ -74,8 +74,8 @@ nav:
       - AutoModel - HyperParameter Search: 'examples/nbs/06-AutoModel_fit.ipynb'
   - API References:
       - Core: gradsflow/core
-      - Model Training: gradsflow/models
-      - AutoModel: gradsflow/tuner
+      - Model: gradsflow/models
+      - Tuner: gradsflow/tuner
       - AutoTasks: gradsflow/tasks
       - Data: gradsflow/data
       - utility: gradsflow/utility.md
