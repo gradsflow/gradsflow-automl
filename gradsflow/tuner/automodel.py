@@ -30,12 +30,14 @@ class AutoModelV2:
     """Searches Hyperparameter
 
     Examples:
-        tuner = Tuner()
-        cnns = tuner.suggest_complex("learner", cnn1, cnn2)
-        optimizers = tuner.choice("optimizer", "adam", "sgd")
-        loss = "crossentropyloss"
-        model = AutoModelV2(cnns)
-        model.hp_tune(tuner, autodataset, epochs=10)
+        ```python
+            tuner = Tuner()
+            cnns = tuner.suggest_complex("learner", cnn1, cnn2)
+            optimizers = tuner.choice("optimizer", "adam", "sgd")
+            loss = "crossentropyloss"
+            model = AutoModelV2(cnns)
+            model.hp_tune(tuner, autodataset, epochs=10)
+        ```
 
     Args:
         learner: tuner.

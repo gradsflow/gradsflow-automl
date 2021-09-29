@@ -35,9 +35,11 @@ class Model(BaseModel):
         accelerator_config: HuggingFace Accelerator config
 
     Examples:
-        model = Model(cnn)
-        model.compile("crossentropyloss", "adam", learning_rate=1e-3)
-        model.fit(autodataset)
+        ```python
+            model = Model(cnn)
+            model.compile("crossentropyloss", "adam", learning_rate=1e-3)
+            model.fit(autodataset)
+        ```
     """
 
     TEST = os.environ.get("GF_CI", "false").lower() == "true"
