@@ -27,6 +27,21 @@ from gradsflow.utility.common import listify, module_to_cls_index
 
 
 class Model(BaseModel):
+    """
+    Model provide training functionality with `model.fit(...)`
+
+    Args:
+        learner: Trainable model
+        accelerator_config: HuggingFace Accelerator config
+
+    Examples:
+        ```python
+            model = Model(cnn)
+            model.compile("crossentropyloss", "adam", learning_rate=1e-3)
+            model.fit(autodataset)
+        ```
+    """
+
     TEST = os.environ.get("GF_CI", "false").lower() == "true"
     _OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
 

@@ -27,6 +27,25 @@ logger = logging.getLogger("tuner.automodel")
 
 
 class AutoModelV2:
+    """Searches Hyperparameter
+
+    Examples:
+        ```python
+            tuner = Tuner()
+            cnns = tuner.suggest_complex("learner", cnn1, cnn2)
+            optimizers = tuner.choice("optimizer", "adam", "sgd")
+            loss = "crossentropyloss"
+            model = AutoModelV2(cnns)
+            model.hp_tune(tuner, autodataset, epochs=10)
+        ```
+
+    Args:
+        learner: tuner.
+        optimization_metric: metric on which to optimize model on
+        mode: max or min for optimization_metric
+
+    """
+
     TEST = os.environ.get("GF_CI", "false").lower() == "true"
 
     def __init__(
