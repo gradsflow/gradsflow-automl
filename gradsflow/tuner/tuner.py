@@ -16,9 +16,9 @@ from dataclasses import dataclass
 from ray import tune
 
 
-@dataclass(init=False)
 class Tuner:
-    _search_space: dict
+    def __init__(self):
+        self._search_space = {}
 
     def choice(self, key: str, *values):
         """Tune for categorical values"""

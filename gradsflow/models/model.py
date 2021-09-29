@@ -41,6 +41,22 @@ class Model(BaseModel):
         self.tracker = Tracker()
         self.tracker.learner = self
 
+    def compile(
+        self,
+        loss,
+        optimizer,
+        learning_rate=3e-4,
+        loss_config: Optional[dict] = None,
+        optimizer_config: Optional[dict] = None,
+    ) -> None:
+        loss_config = loss_config or {}
+        optimizer_config = optimizer_config or {}
+        optimizer_fn = self._get_optimizer(optimizer)
+        optimizer = optimizer_fn(self.learner.parameters(), lr=learning_rate, **optimizer_config)
+        self.loss = self._get_loss(loss)(**loss_config)
+        self.prepare_optimizer(optimizer)
+        self._compiled = True
+
     def train_step(self, inputs: torch.Tensor, target: torch.Tensor) -> Dict[str, torch.Tensor]:
         self.optimizer.zero_grad()
         logits = self.learner(inputs)
