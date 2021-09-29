@@ -30,7 +30,7 @@ class ComplexObject:
     def get_complex_object(self, idx):
         return self.values[idx]
 
-    def to_choice(self):
+    def to_choice(self) -> Domain:
         """converts to ray.tune Domain"""
         indices = tuple(range(len(self.values)))
         return tune.choice(indices)
@@ -79,14 +79,14 @@ class Tuner:
         return self
 
     @staticmethod
-    def merge(*tuners: "Tuner"):
-        tuner = Tuner()
+    def merge(*tuners: "Tuner") -> "Tuner":
+        final_tuner = Tuner()
         for t in tuners:
-            tuner.union(t)
-        return tuner
+            final_tuner.union(t)
+        return final_tuner
 
     @property
-    def value(self):
+    def value(self) -> Dict[str, Domain]:
         return self._search_space
 
     def get_complex_object(self, key: str, idx: int):
