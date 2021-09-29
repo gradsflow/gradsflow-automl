@@ -15,7 +15,7 @@
 import logging
 import os
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 from torch.utils.data import DataLoader
 from torchvision import transforms as T
@@ -67,6 +67,23 @@ def image_dataset_from_directory(
     else:
         ds = ImageFolder(directory, transform=transform)
     logger.info("ds created")
+    dl = DataLoader(
+        ds,
+        batch_size=batch_size,
+        pin_memory=pin_memory,
+        shuffle=shuffle,
+        num_workers=num_workers,
+    )
+    return {"ds": ds, "dl": dl}
+
+
+def get_fake_data(image_size: Tuple[int, int], batch_size=1, pin_memory=False, shuffle=True, num_workers=0):
+    from torchvision.datasets import FakeData
+
+    transform = get_augmentations(
+        image_size=image_size,
+    )
+    ds = FakeData(size=100, image_size=[3, *image_size], transform=transform)
     dl = DataLoader(
         ds,
         batch_size=batch_size,
