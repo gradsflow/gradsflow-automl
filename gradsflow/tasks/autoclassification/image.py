@@ -68,7 +68,7 @@ class AutoImageClassifier(AutoClassifier):
 
     def build_model(self, config: dict) -> Model:
         """Build ImageClassifier model from `ray.tune` hyperparameter configs
-        or via search_space dictionary arguments.
+        or via _search_space dictionary arguments.
 
         Arguments:
             backbone [str]: Image classification backbone name - resnet18, resnet50,...

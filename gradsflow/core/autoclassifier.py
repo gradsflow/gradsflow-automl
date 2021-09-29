@@ -79,7 +79,7 @@ class AutoClassifier(AutoModel):
         """Create hyperparameter config from `ray.tune`
 
         Returns:
-             key-value pair of `ray.tune` search_space
+             key-value pair of `ray.tune` _search_space
         """
         trial_backbone = tune.choice(self.suggested_backbones)
         trial_lr = tune.loguniform(*self.suggested_lr)

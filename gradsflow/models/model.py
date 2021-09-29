@@ -19,7 +19,7 @@ import torch
 from rich.progress import BarColumn, Progress, RenderableColumn, TimeRemainingColumn
 from torch import nn
 
-from gradsflow.core.callbacks import Callback, ComposeCallback
+from gradsflow.callbacks.callbacks import Callback, ComposeCallback
 from gradsflow.core.data import AutoDataset
 from gradsflow.models.base import BaseModel
 from gradsflow.models.tracker import Tracker
@@ -38,9 +38,23 @@ class Model(BaseModel):
         accelerator_config = accelerator_config or {}
         super().__init__(learner=learner, accelerator_config=accelerator_config)
 
-        self.criterion = nn.CrossEntropyLoss()
         self.tracker = Tracker()
-        self.tracker.learner = self.learner
+
+    def compile(
+        self,
+        loss,
+        optimizer,
+        learning_rate=3e-4,
+        loss_config: Optional[dict] = None,
+        optimizer_config: Optional[dict] = None,
+    ) -> None:
+        loss_config = loss_config or {}
+        optimizer_config = optimizer_config or {}
+        optimizer_fn = self._get_optimizer(optimizer)
+        optimizer = optimizer_fn(self.learner.parameters(), lr=learning_rate, **optimizer_config)
+        self.loss = self._get_loss(loss)(**loss_config)
+        self.prepare_optimizer(optimizer)
+        self._compiled = True
 
     def train_step(self, inputs: torch.Tensor, target: torch.Tensor) -> Dict[str, torch.Tensor]:
         self.optimizer.zero_grad()
@@ -52,12 +66,12 @@ class Model(BaseModel):
 
     def val_step(self, inputs: torch.Tensor, target: torch.Tensor) -> Dict[str, torch.Tensor]:
         logits = self.learner(inputs)
-        loss = self.criterion(logits, target)
+        loss = self.loss(logits, target)
         _, predictions = torch.max(logits.data, 1)
 
         return {"loss": loss, "logits": logits, "predictions": predictions}
 
-    def train_epoch(self, autodataset):
+    def train_one_epoch(self, autodataset):
         train_dataloader = autodataset.train_dataloader
         tracker = self.tracker
         running_train_loss = 0.0
@@ -81,7 +95,7 @@ class Model(BaseModel):
         tracker.train.loss = running_train_loss / (tracker.train.steps + 1e-9)
         tracker.progress.remove_task(tracker.train_prog)
 
-    def val_epoch(self, autodataset):
+    def val_one_epoch(self, autodataset):
         if not autodataset.val_dataloader:
             return
         val_dataloader = autodataset.val_dataloader
@@ -135,7 +149,7 @@ class Model(BaseModel):
         self.assert_compiled()
         optimizer = self.optimizer
         progress_kwargs = progress_kwargs or {}
-        composed_callbacks: ComposeCallback = ComposeCallback(self.tracker, *listify(callbacks))
+        composed_callbacks: ComposeCallback = ComposeCallback(self, *listify(callbacks))
 
         autodataset.train_dataloader, autodataset.val_dataloader = self.accelerator.prepare(
             autodataset.train_dataloader, autodataset.val_dataloader
@@ -172,11 +186,11 @@ class Model(BaseModel):
 
                 # ----- EVENT: ON_EPOCH_START
                 composed_callbacks.on_epoch_start()
-                self.train_epoch(autodataset)
+                self.train_one_epoch(autodataset)
                 table_column.renderable = tracker.create_table()
 
                 # END OF TRAIN EPOCH
-                self.val_epoch(autodataset)
+                self.val_one_epoch(autodataset)
                 table_column.renderable = tracker.create_table()
 
                 # ----- EVENT: ON_EPOCH_END

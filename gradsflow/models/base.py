@@ -13,11 +13,11 @@
 #  limitations under the License.
 import os
 from dataclasses import dataclass
-from typing import Any, Callable, Optional, Union
+from typing import Any, Callable, Union
 
 import torch
 from accelerate import Accelerator
-from torch import nn, optim
+from torch import nn
 
 from gradsflow.models.utils import losses
 from gradsflow.utility.common import module_to_cls_index
@@ -26,8 +26,8 @@ from gradsflow.utility.common import module_to_cls_index
 @dataclass(init=False)
 class Base:
     learner: Union[nn.Module, Any]
-    optimizer: torch.optim.Optimizer
-    loss: Union[Callable]
+    optimizer: torch.optim.Optimizer = None
+    loss: Union[Callable] = None
     _compiled: bool = False
 
 
@@ -53,22 +53,6 @@ class BaseModel(Base):
 
     def prepare_optimizer(self, optimizer) -> None:
         self.optimizer = self.accelerator.prepare_optimizer(optimizer)
-
-    def compile(
-        self,
-        loss,
-        optimizer,
-        learning_rate=3e-4,
-        loss_config: Optional[dict] = None,
-        optimizer_config: Optional[dict] = None,
-    ) -> None:
-        loss_config = loss_config or {}
-        optimizer_config = optimizer_config or {}
-        optimizer_fn = self._get_optimizer(optimizer)
-        optimizer = optimizer_fn(self.learner.parameters(), lr=learning_rate, **optimizer_config)
-        self.loss = self._get_loss(loss)(**loss_config)
-        self.prepare_optimizer(optimizer)
-        self._compiled = True
 
     def _get_loss(self, loss) -> Callable:
         if isinstance(loss, str):

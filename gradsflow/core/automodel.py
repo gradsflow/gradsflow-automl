@@ -21,7 +21,7 @@ import torch
 from ray import tune
 from torch.utils.data import DataLoader
 
-from gradsflow.core.backend import AutoBackend, Backend
+from gradsflow.core.backend import AutoBackend
 from gradsflow.core.base import BaseAutoModel
 from gradsflow.core.data import AutoDataset
 from gradsflow.utility.common import module_to_cls_index
@@ -143,7 +143,7 @@ class AutoModel(BaseAutoModel, ABC):
         mode = mode or "max"
         timeout_stopper = tune.stopper.TimeoutStopper(self.timeout)
         logger.info(
-            "tuning search_space with metric = {} and model = {}".format(
+            "tuning _search_space with metric = {} and model = {}".format(
                 self.optimization_metric,
                 mode,
             )
