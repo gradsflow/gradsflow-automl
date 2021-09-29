@@ -63,7 +63,6 @@ class TorchTuneCheckpointCallback(Callback):
         model = self.model.learner
 
         with tune.checkpoint_dir(epoch) as checkpoint_dir:
-            print("checkpoint_dir", checkpoint_dir)
             path = os.path.join(checkpoint_dir, "filename")
             torch.save((model.state_dict()), path)
 
@@ -73,7 +72,7 @@ class TorchTuneReport(Callback):
         val_loss = self.model.tracker.val.loss
         train_loss = self.model.tracker.train.loss
         val_accuracy = self.model.tracker.tune_metric
-        tune.report(loss=val_loss, val_accuracy=val_accuracy, train_loss=train_loss)
+        tune.report(val_loss=val_loss, val_accuracy=val_accuracy, train_loss=train_loss)
 
 
 class ComposeCallback(Callback):

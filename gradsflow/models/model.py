@@ -39,7 +39,6 @@ class Model(BaseModel):
         super().__init__(learner=learner, accelerator_config=accelerator_config)
 
         self.tracker = Tracker()
-        self.tracker.learner = self
 
     def compile(
         self,
@@ -72,7 +71,7 @@ class Model(BaseModel):
 
         return {"loss": loss, "logits": logits, "predictions": predictions}
 
-    def train_epoch(self, autodataset):
+    def train_one_epoch(self, autodataset):
         train_dataloader = autodataset.train_dataloader
         tracker = self.tracker
         running_train_loss = 0.0
@@ -96,7 +95,7 @@ class Model(BaseModel):
         tracker.train.loss = running_train_loss / (tracker.train.steps + 1e-9)
         tracker.progress.remove_task(tracker.train_prog)
 
-    def val_epoch(self, autodataset):
+    def val_one_epoch(self, autodataset):
         if not autodataset.val_dataloader:
             return
         val_dataloader = autodataset.val_dataloader
@@ -150,7 +149,7 @@ class Model(BaseModel):
         self.assert_compiled()
         optimizer = self.optimizer
         progress_kwargs = progress_kwargs or {}
-        composed_callbacks: ComposeCallback = ComposeCallback(self.tracker, *listify(callbacks))
+        composed_callbacks: ComposeCallback = ComposeCallback(self, *listify(callbacks))
 
         autodataset.train_dataloader, autodataset.val_dataloader = self.accelerator.prepare(
             autodataset.train_dataloader, autodataset.val_dataloader
@@ -187,11 +186,11 @@ class Model(BaseModel):
 
                 # ----- EVENT: ON_EPOCH_START
                 composed_callbacks.on_epoch_start()
-                self.train_epoch(autodataset)
+                self.train_one_epoch(autodataset)
                 table_column.renderable = tracker.create_table()
 
                 # END OF TRAIN EPOCH
-                self.val_epoch(autodataset)
+                self.val_one_epoch(autodataset)
                 table_column.renderable = tracker.create_table()
 
                 # ----- EVENT: ON_EPOCH_END
