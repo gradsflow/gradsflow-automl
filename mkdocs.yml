@@ -71,6 +71,7 @@ nav:
       - Auto Summarization: 'examples/nbs/03-TextSummarization.ipynb'
       - Remote Dataset Loading: 'examples/nbs/04-RayDataset.ipynb'
       - Model Training: 'examples/nbs/05-model_fit.ipynb'
+      - Model Training: 'examples/nbs/06-AutoModel_fit.ipynb'
   - API References:
       - Core: gradsflow/core
       - Model Training: gradsflow/models
