@@ -11,24 +11,21 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-from functools import partial
-from typing import Any, Callable, Dict, List, Union
+from typing import Any, Dict, List, Union
 
 from ray import tune
 from ray.tune.sample import Domain
 
 
 class ComplexObject:
-    values: List[Callable]
-
     def __init__(self):
-        self.values = []
+        self.values: List[Any] = []
 
     def __len__(self):
         return len(self.values)
 
     def append(self, value: Any):
-        self.values.append(partial(value))
+        self.values.append(value)
 
     def get_complex_object(self, idx):
         return self.values[idx]
@@ -45,11 +42,9 @@ class Tuner:
         self._complex_objects: Dict[str, ComplexObject] = {}
 
     def update_search_space(self, k: str, v: Union[Domain, ComplexObject]):
-        print("received ", type(v))
         if isinstance(v, Domain):
             self._search_space[k] = v
         elif isinstance(v, ComplexObject):
-            print("inside complex")
             assert isinstance(v, ComplexObject), f"Selected is_complex but object is of type {type(v)}"
             self._search_space[k] = v.to_choice()
             self._complex_objects[k] = v
@@ -78,6 +73,7 @@ class Tuner:
         return x
 
     def union(self, tuner: "Tuner") -> "Tuner":
+        """Inplace Merge of two Tuners"""
         self._search_space.update(tuner._search_space)
         self._complex_objects.update(tuner._complex_objects)
         return self
@@ -85,8 +81,8 @@ class Tuner:
     @staticmethod
     def merge(*tuners: "Tuner"):
         tuner = Tuner()
-        for _tuner in tuners:
-            tuner.union(_tuner)
+        for t in tuners:
+            tuner.union(t)
         return tuner
 
     @property
@@ -95,5 +91,4 @@ class Tuner:
 
     def get_complex_object(self, key: str, idx: int):
         """Get registered complex object value from key at given index"""
-        print(self._complex_objects)
         return self._complex_objects[key].get_complex_object(idx)

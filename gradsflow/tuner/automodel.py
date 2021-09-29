@@ -28,7 +28,6 @@ logger = logging.getLogger("tuner.automodel")
 
 class AutoModelV2:
     TEST = os.environ.get("GF_CI", "false").lower() == "true"
-    tuner: Tuner = Tuner()
 
     def __init__(
         self,
@@ -36,6 +35,7 @@ class AutoModelV2:
         optimization_metric: Optional[str] = None,
         mode: Optional[str] = None,
     ):
+        self.tuner: Tuner = Tuner()
         self.learner = self._register_object(LEARNER, learner)
         self.optimization_metric = optimization_metric or "val_loss"
         self.mode = mode or "min"
@@ -50,7 +50,7 @@ class AutoModelV2:
     def _build(self, hparams) -> Model:
         if self.learner is None:
             idx = hparams.get(LEARNER)
-            learner = self.tuner.get_complex_object(LEARNER, idx)()
+            learner = self.tuner.get_complex_object(LEARNER, idx)
         else:
             learner = self.learner
         model = Model(learner)
