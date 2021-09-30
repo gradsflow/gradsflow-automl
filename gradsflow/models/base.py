@@ -13,7 +13,7 @@
 #  limitations under the License.
 import os
 from dataclasses import dataclass
-from typing import Any, Callable, Union
+from typing import Any, Callable, Optional, Union
 
 import torch
 from accelerate import Accelerator
@@ -54,15 +54,13 @@ class BaseModel(Base):
     def prepare_optimizer(self, optimizer) -> None:
         self.optimizer = self.accelerator.prepare_optimizer(optimizer)
 
-    def _get_loss(self, loss) -> Callable:
+    def _get_loss(self, loss: Union[str, Callable]) -> Optional[Callable]:
+        loss_fn = None
         if isinstance(loss, str):
             loss_fn = losses.get(loss)
             assert loss_fn is not None, f"loss {loss} is not available! Available losses are {tuple(losses.keys())}"
-
         elif callable(loss):
             loss_fn = loss
-        else:
-            raise NotImplementedError(f"Unknown loss {loss}")
 
         return loss_fn
 

@@ -20,7 +20,7 @@ from typing import Callable, Dict, Optional
 import pytorch_lightning as pl
 import torch
 
-from gradsflow.callbacks.callbacks import report_checkpoint_callback
+from gradsflow.callbacks import report_checkpoint_callback
 from gradsflow.core.data import AutoDataset
 from gradsflow.utility.common import module_to_cls_index
 

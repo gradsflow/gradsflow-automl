@@ -11,11 +11,10 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-from typing import Optional
 
-from rich.progress import Progress
 from rich.table import Table
 
+from gradsflow.callbacks import ComposeCallback
 from gradsflow.core.base import BaseTracker
 
 
@@ -26,8 +25,8 @@ class Tracker(BaseTracker):
 
     def __init__(self):
         self.learner = None
-        self.optimizer = None
-        self.progress: Optional[Progress] = None
+        self.autodataset = None
+        self.callbacks: ComposeCallback = None
 
     def create_table(self) -> Table:
         headings = ["epoch", "train/loss"]
