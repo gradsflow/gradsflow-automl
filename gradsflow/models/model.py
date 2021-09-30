@@ -96,21 +96,18 @@ class Model(BaseModel):
         tracker.train.steps = 0
         steps_per_epoch = tracker.steps_per_epoch
 
-        # tracker.train_prog = tracker.progress.add_task("[green]Learning...", total=len(train_dataloader))
         self.learner.train()
         for step, (inputs, labels) in enumerate(train_dataloader):
             outputs = self.train_step(inputs, labels)
             loss = outputs["loss"].item()
             running_train_loss += loss
             tracker.train.steps += 1
-            # tracker.progress.update(tracker.train_prog, advance=1)
 
             if self.TEST:
                 break
             if steps_per_epoch and step >= steps_per_epoch:
                 break
         tracker.train.loss = running_train_loss / (tracker.train.steps + 1e-9)
-        # tracker.progress.remove_task(tracker.train_prog)
         self.tracker.callbacks.on_train_epoch_end()
 
     def val_one_epoch(self, autodataset):
@@ -124,7 +121,6 @@ class Model(BaseModel):
         running_val_loss = 0.0
         tracker.val.steps = 0
 
-        # val_prog = tracker.progress.add_task("[green]Validating...", total=len(val_dataloader))
         self.learner.eval()
         for _, (inputs, labels) in enumerate(val_dataloader):
             with torch.no_grad():
@@ -135,13 +131,11 @@ class Model(BaseModel):
                 tracker.correct += (predicted == labels).sum().item()
                 running_val_loss += loss.cpu().numpy()
                 tracker.val.steps += 1
-                # tracker.progress.update(val_prog, advance=1)
             if self.TEST:
                 break
         tracker.val.loss = running_val_loss / (tracker.val.steps + 1e-9)
         tracker.tune_metric = tracker.val_accuracy = tracker.correct / tracker.val.steps
         self.tracker.callbacks.on_val_epoch_end()
-        # tracker.progress.remove_task(val_prog)
 
     def fit(
         self,
@@ -192,15 +186,12 @@ class Model(BaseModel):
             composed_callbacks.on_epoch_start()
 
             self.train_one_epoch(autodataset)
-            # table_column.renderable = tracker.create_table()
 
             # END OF TRAIN EPOCH
             self.val_one_epoch(autodataset)
-            # table_column.renderable = tracker.create_table()
 
             # ----- EVENT: ON_EPOCH_END
             composed_callbacks.on_epoch_end()
-            # progress.update(epoch_prog, advance=1)
 
             if self.TEST:
                 break
