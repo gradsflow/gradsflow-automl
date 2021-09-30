@@ -67,7 +67,7 @@ class AutoBackend:
         tracker = model.fit(
             autodataset=autodataset,
             max_epochs=epochs,
-            callbacks=trainer_config.get("callbacks", ("tune_checkpoint", "tune_report")),
+            callbacks=trainer_config.get("callback_runner", ("tune_checkpoint", "tune_report")),
         )
         return tracker.__dict__[self.optimization_metric]
 

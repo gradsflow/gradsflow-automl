@@ -14,7 +14,7 @@
 
 from rich.table import Table
 
-from gradsflow.callbacks import ComposeCallback
+from gradsflow.callbacks import CallbackRunner
 from gradsflow.core.base import BaseTracker
 
 
@@ -26,7 +26,7 @@ class Tracker(BaseTracker):
     def __init__(self):
         self.learner = None
         self.autodataset = None
-        self.callbacks: ComposeCallback = None
+        self.callback_runner: CallbackRunner = None
 
     def create_table(self) -> Table:
         headings = ["epoch", "train/loss"]

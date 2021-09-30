@@ -13,4 +13,4 @@
 #  limitations under the License.
 from .callbacks import Callback
 from .raytune import report_checkpoint_callback
-from .runner import ComposeCallback
+from .runner import CallbackRunner

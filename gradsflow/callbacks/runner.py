@@ -20,10 +20,8 @@ from gradsflow.callbacks.raytune import TorchTuneCheckpointCallback, TorchTuneRe
 if typing.TYPE_CHECKING:
     from gradsflow.models.model import Model
 
-from loguru import logger
 
-
-class ComposeCallback(Callback):
+class CallbackRunner(Callback):
     _AVAILABLE_CALLBACKS = {
         "tune_checkpoint": TorchTuneCheckpointCallback,
         "tune_report": TorchTuneReport,

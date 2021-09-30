@@ -18,7 +18,7 @@ from typing import Any, Dict, List, Optional, Union
 import torch
 from torch import nn
 
-from gradsflow.callbacks import Callback, ComposeCallback
+from gradsflow.callbacks import Callback, CallbackRunner
 from gradsflow.callbacks.progress import ProgressCallback
 from gradsflow.core.data import AutoDataset
 from gradsflow.models.base import BaseModel
@@ -71,25 +71,25 @@ class Model(BaseModel):
         self._compiled = True
 
     def train_step(self, inputs: torch.Tensor, target: torch.Tensor) -> Dict[str, torch.Tensor]:
-        self.tracker.callbacks.on_train_step_start()
+        self.tracker.callback_runner.on_train_step_start()
         self.optimizer.zero_grad()
         logits = self.learner(inputs)
         loss = self.loss(logits, target)
         self.accelerator.backward(loss)
         self.optimizer.step()
-        self.tracker.callbacks.on_train_step_end()
+        self.tracker.callback_runner.on_train_step_end()
         return {"loss": loss, "logits": logits}
 
     def val_step(self, inputs: torch.Tensor, target: torch.Tensor) -> Dict[str, torch.Tensor]:
-        self.tracker.callbacks.on_val_step_start()
+        self.tracker.callback_runner.on_val_step_start()
         logits = self.learner(inputs)
         loss = self.loss(logits, target)
         _, predictions = torch.max(logits.data, 1)
-        self.tracker.callbacks.on_val_step_end()
+        self.tracker.callback_runner.on_val_step_end()
         return {"loss": loss, "logits": logits, "predictions": predictions}
 
     def train_one_epoch(self, autodataset):
-        self.tracker.callbacks.on_train_epoch_start()
+        self.tracker.callback_runner.on_train_epoch_start()
         train_dataloader = autodataset.train_dataloader
         tracker = self.tracker
         running_train_loss = 0.0
@@ -108,10 +108,10 @@ class Model(BaseModel):
             if steps_per_epoch and step >= steps_per_epoch:
                 break
         tracker.train.loss = running_train_loss / (tracker.train.steps + 1e-9)
-        self.tracker.callbacks.on_train_epoch_end()
+        self.tracker.callback_runner.on_train_epoch_end()
 
     def val_one_epoch(self, autodataset):
-        self.tracker.callbacks.on_val_epoch_start()
+        self.tracker.callback_runner.on_val_epoch_start()
         if not autodataset.val_dataloader:
             return
         val_dataloader = autodataset.val_dataloader
@@ -135,7 +135,7 @@ class Model(BaseModel):
                 break
         tracker.val.loss = running_val_loss / (tracker.val.steps + 1e-9)
         tracker.tune_metric = tracker.val_accuracy = tracker.correct / tracker.val.steps
-        self.tracker.callbacks.on_val_epoch_end()
+        self.tracker.callback_runner.on_val_epoch_end()
 
     def fit(
         self,
@@ -161,29 +161,21 @@ class Model(BaseModel):
         if not resume:
             self.tracker.reset()
         self.assert_compiled()
+        callback_list = listify(callbacks) + [ProgressCallback(self)]
+        callback_runner = CallbackRunner(self, *callback_list)
+        autodataset = self.prepare_data(autodataset)
 
-        listified_callbacks = listify(callbacks) + [ProgressCallback(self)]
-        composed_callbacks: ComposeCallback = ComposeCallback(self, *listified_callbacks)
-        self.tracker.composed_callbacks = composed_callbacks
-
-        autodataset.train_dataloader, autodataset.val_dataloader = self.accelerator.prepare(
-            autodataset.train_dataloader, autodataset.val_dataloader
-        )
-
+        self.tracker.update_attributes(locals())
         tracker = self.tracker
-        tracker.callbacks = composed_callbacks
-        tracker.autodataset = autodataset
-        tracker.max_epochs = max_epochs
-        tracker.steps_per_epoch = steps_per_epoch
 
         # ----- EVENT: ON_TRAINING_START
-        composed_callbacks.on_fit_start()
+        callback_runner.on_fit_start()
 
         for epoch in range(tracker.epoch, max_epochs):
             tracker.epoch = epoch
 
             # ----- EVENT: ON_EPOCH_START
-            composed_callbacks.on_epoch_start()
+            callback_runner.on_epoch_start()
 
             self.train_one_epoch(autodataset)
 
@@ -191,12 +183,12 @@ class Model(BaseModel):
             self.val_one_epoch(autodataset)
 
             # ----- EVENT: ON_EPOCH_END
-            composed_callbacks.on_epoch_end()
+            callback_runner.on_epoch_end()
 
             if self.TEST:
                 break
 
         # ----- EVENT: ON_TRAINING_END
-        composed_callbacks.on_fit_end()
+        callback_runner.on_fit_end()
 
         return tracker

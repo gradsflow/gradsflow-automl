@@ -19,6 +19,7 @@ import torch
 from accelerate import Accelerator
 from torch import nn
 
+from gradsflow.core.data import AutoDataset
 from gradsflow.models.utils import losses
 from gradsflow.utility.common import module_to_cls_index
 
@@ -53,6 +54,12 @@ class BaseModel(Base):
 
     def prepare_optimizer(self, optimizer) -> None:
         self.optimizer = self.accelerator.prepare_optimizer(optimizer)
+
+    def prepare_data(self, autodataset: AutoDataset = None) -> AutoDataset:
+        autodataset.train_dataloader = self.accelerator.prepare_data_loader(autodataset.train_dataloader)
+        if autodataset.val_dataloader:
+            autodataset.val_dataloader = self.accelerator.prepare_data_loader(autodataset.val_dataloader)
+        return autodataset
 
     def _get_loss(self, loss: Union[str, Callable]) -> Optional[Callable]:
         loss_fn = None
