@@ -63,10 +63,10 @@ class AutoBackend:
 
         autodataset = self.autodataset
         model = self.model_builder(search_space)
-        epochs = trainer_config.get("epochs", 1)
+        epochs = trainer_config.get("max_epochs", 1)
         tracker = model.fit(
             autodataset=autodataset,
-            epochs=epochs,
+            max_epochs=epochs,
             callbacks=trainer_config.get("callbacks", ("tune_checkpoint", "tune_report")),
         )
         return tracker.__dict__[self.optimization_metric]

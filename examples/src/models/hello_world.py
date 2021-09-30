@@ -32,4 +32,4 @@ cnn = create_model("resnet18", pretrained=False, num_classes=num_classes)
 
 model = Model(cnn)
 model.compile("crossentropyloss", "adam")
-model.fit(autodataset, epochs=10)
+model.fit(autodataset, max_epochs=10)

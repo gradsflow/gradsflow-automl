@@ -140,7 +140,7 @@ class Model(BaseModel):
     def fit(
         self,
         autodataset: AutoDataset,
-        epochs: int = 1,
+        max_epochs: int = 1,
         steps_per_epoch: Optional[int] = None,
         callbacks: Union[List[str], Callback] = None,
         resume: bool = True,
@@ -149,7 +149,7 @@ class Model(BaseModel):
         Similar to Keras model.fit() it trains the model for specified epochs and returns Tracker object
         Args:
             autodataset: AutoDataset object encapsulate dataloader and datamodule
-            epochs: number of epochs to train
+            max_epochs: number of epochs to train
             steps_per_epoch: Number of steps trained in a single epoch
             callbacks: Callback object or string
             resume: Resume training from the last epoch
@@ -173,13 +173,13 @@ class Model(BaseModel):
         tracker = self.tracker
         tracker.callbacks = composed_callbacks
         tracker.autodataset = autodataset
-        tracker.max_epochs = epochs
+        tracker.max_epochs = max_epochs
         tracker.steps_per_epoch = steps_per_epoch
 
         # ----- EVENT: ON_TRAINING_START
         composed_callbacks.on_fit_start()
 
-        for epoch in range(tracker.epoch, epochs):
+        for epoch in range(tracker.epoch, max_epochs):
             tracker.epoch = epoch
 
             # ----- EVENT: ON_EPOCH_START

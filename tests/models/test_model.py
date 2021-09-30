@@ -51,5 +51,5 @@ def test_predict():
 
 
 def test_fit():
-    tracker = model.fit(autodataset, epochs=10, steps_per_epoch=1)
+    tracker = model.fit(autodataset, max_epochs=10, steps_per_epoch=1)
     assert isinstance(tracker, Tracker)
