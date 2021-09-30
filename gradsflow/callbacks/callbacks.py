@@ -18,47 +18,49 @@ if typing.TYPE_CHECKING:
 
 
 class Callback:
+    """Callback objects define events on which it will run during the model training cycle."""
+
     def __init__(self, model: "Model"):
         self.model = model
 
     def on_fit_start(self):
-        ...
+        """Called on each `model.fit(...)`"""
 
     def on_fit_end(
         self,
     ):
-        ...
+        """Called after `model.fit(...)`"""
 
     def on_train_epoch_start(
         self,
     ):
-        ...
+        """Called on start of training epoch"""
 
     def on_train_epoch_end(self):
-        ...
+        """Called after end of training epoch"""
 
     def on_val_epoch_start(
         self,
     ):
-        ...
+        """Called on start of validation epoch"""
 
     def on_val_epoch_end(self):
-        ...
+        """called after validation epoch ends"""
 
     def on_train_step_start(self):
-        ...
+        """called before `train_step`"""
 
     def on_train_step_end(self):
-        ...
+        """Called after training step"""
 
     def on_val_step_start(self):
-        ...
+        """Called on validation step"""
 
     def on_val_step_end(self):
-        ...
+        """Called after validation step"""
 
     def on_epoch_start(self):
-        ...
+        """Called Before each training Epoch"""
 
     def on_epoch_end(self):
-        ...
+        """Called after each training epoch"""

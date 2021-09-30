@@ -27,7 +27,7 @@ classifiers = [
 ]
 requires-python = ">=3.7"
 requires = [
-    "accelerate",
+    "accelerate>=0.5.0",
     "smart_open>=5.1",
     "lightning-flash[image,text]==0.5.0",
     "ray[default,tune]>=1.6",
