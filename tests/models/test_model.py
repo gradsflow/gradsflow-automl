@@ -11,14 +11,13 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-
+import pytest
 import timm
 import torch
-from torch.utils.data import DataLoader
-from torchvision.datasets import FakeData
+from torchmetrics import Accuracy
 
 from gradsflow.core.data import AutoDataset
-from gradsflow.data.image import get_augmentations, get_fake_data
+from gradsflow.data.image import get_fake_data
 from gradsflow.models.model import Model
 from gradsflow.models.tracker import Tracker
 
@@ -46,5 +45,16 @@ def test_predict():
 
 
 def test_fit():
-    tracker = model.fit(autodataset, max_epochs=10, steps_per_epoch=1)
+    model.compile("crossentropyloss", "adam", metrics="accuracy")
+    tracker = model.fit(autodataset, max_epochs=1, steps_per_epoch=1)
     assert isinstance(tracker, Tracker)
+
+    model.compile("crossentropyloss", "adam", metrics=Accuracy())
+    tracker = model.fit(autodataset, max_epochs=1, steps_per_epoch=1)
+    assert isinstance(tracker, Tracker)
+
+    def cal_accuracy(pred, target):
+        return 1
+
+    with pytest.raises(NotImplementedError):
+        model.compile("crossentropyloss", "adam", metrics=cal_accuracy)
