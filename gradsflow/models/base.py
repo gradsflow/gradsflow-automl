@@ -111,16 +111,23 @@ class BaseModel(Base):
         return self.forward(x)
 
     @staticmethod
-    def tensor_to_item(data: Union[Dict[str, torch.Tensor], torch.Tensor, List[torch.Tensor]]):
+    def to_item(x):
+        if torch.is_tensor(x):
+            x = x.item()
+        return x
+
+    @staticmethod
+    def data_to_item(data: Union[Dict[str, torch.Tensor], torch.Tensor, List[torch.Tensor]]):
+        to_item = BaseModel.to_item
         if isinstance(data, (list, tuple)):
             for i, e in enumerate(data):
-                data[i] = e.item()
+                data[i] = to_item(e)
         elif isinstance(data, torch.Tensor):
-            data = data.item()
+            data = to_item(data)
 
         elif isinstance(data, dict):
             for k in data.keys():
-                data[k] = data[k].item()
+                data[k] = to_item(data[k])
 
         return data
 

@@ -104,9 +104,9 @@ class Model(BaseModel):
         self.learner.train()
         for step, (inputs, target) in enumerate(train_dataloader):
             self.tracker.callback_runner.on_train_step_start()
-            outputs = self.tensor_to_item(self.train_step(inputs, target))
+            outputs = self.data_to_item(self.train_step(inputs, target))
             self.tracker.callback_runner.on_train_step_end()
-            loss = outputs["loss"].item()
+            loss = outputs["loss"]
             self.metrics.update(outputs["logits"], target)
             self.tracker.train.metrics = self.metrics.compute()
 
@@ -136,7 +136,7 @@ class Model(BaseModel):
         for _, (inputs, target) in enumerate(val_dataloader):
             with torch.no_grad():
                 self.tracker.callback_runner.on_val_step_start()
-                outputs = self.tensor_to_item(self.train_step(inputs, target))
+                outputs = self.data_to_item(self.train_step(inputs, target))
                 self.tracker.callback_runner.on_val_step_end()
                 loss = outputs["loss"]
                 self.metrics.update(outputs["logits"], target)
