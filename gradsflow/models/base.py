@@ -68,9 +68,9 @@ class BaseModel(Base):
         for m in metrics:
             if isinstance(m, str):
                 m_cls = metrics_classes.get(m)
-                assert m_cls is not None, (
-                    f"metrics {m} is not available!" f"Available metrics are {tuple(metrics_classes.keys())}"
-                )
+                assert (
+                    m_cls is not None
+                ), f"metrics {m} is not available! Available metrics are {tuple(metrics_classes.keys())}"
                 m_obj = m_cls()
             elif isinstance(m, Metric):
                 m_obj = m
@@ -99,9 +99,6 @@ class BaseModel(Base):
         else:
             raise NotImplementedError(f"Unknown optimizer {optimizer}")
         return optimizer_fn
-
-    def reset_metrics(self):
-        self.metrics.reset()
 
     def assert_compiled(self):
         if not self._compiled:
