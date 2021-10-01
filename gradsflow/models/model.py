@@ -71,26 +71,22 @@ class Model(BaseModel):
         self._compiled = True
 
     def train_step(self, inputs: torch.Tensor, target: torch.Tensor) -> Dict[str, torch.Tensor]:
-        self.tracker.callback_runner.on_train_step_start()
         self.optimizer.zero_grad()
         logits = self.learner(inputs)
         loss = self.loss(logits, target)
         self.accelerator.backward(loss)
         self.optimizer.step()
-        self.tracker.callback_runner.on_train_step_end()
         return {"loss": loss, "logits": logits}
 
     def val_step(self, inputs: torch.Tensor, target: torch.Tensor) -> Dict[str, torch.Tensor]:
-        self.tracker.callback_runner.on_val_step_start()
         logits = self.learner(inputs)
         loss = self.loss(logits, target)
         _, predictions = torch.max(logits.data, 1)
-        self.tracker.callback_runner.on_val_step_end()
         return {"loss": loss, "logits": logits, "predictions": predictions}
 
-    def train_one_epoch(self, autodataset):
+    def train_one_epoch(self):
         self.tracker.callback_runner.on_train_epoch_start()
-        train_dataloader = autodataset.train_dataloader
+        train_dataloader = self.tracker.autodataset.train_dataloader
         tracker = self.tracker
         running_train_loss = 0.0
         tracker.train.steps = 0
@@ -98,7 +94,9 @@ class Model(BaseModel):
 
         self.learner.train()
         for step, (inputs, labels) in enumerate(train_dataloader):
+            self.tracker.callback_runner.on_train_step_start()
             outputs = self.train_step(inputs, labels)
+            self.tracker.callback_runner.on_train_step_end()
             loss = outputs["loss"].item()
             running_train_loss += loss
             tracker.train.steps += 1
@@ -110,8 +108,9 @@ class Model(BaseModel):
         tracker.train.loss = running_train_loss / (tracker.train.steps + 1e-9)
         self.tracker.callback_runner.on_train_epoch_end()
 
-    def val_one_epoch(self, autodataset):
+    def val_one_epoch(self):
         self.tracker.callback_runner.on_val_epoch_start()
+        autodataset = self.tracker.autodataset
         if not autodataset.val_dataloader:
             return
         val_dataloader = autodataset.val_dataloader
@@ -124,7 +123,9 @@ class Model(BaseModel):
         self.learner.eval()
         for _, (inputs, labels) in enumerate(val_dataloader):
             with torch.no_grad():
+                self.tracker.callback_runner.on_val_step_start()
                 outputs = self.val_step(inputs, labels)
+                self.tracker.callback_runner.on_val_step_end()
                 loss = outputs["loss"]
                 predicted = outputs["predictions"]
                 tracker.total += labels.size(0)
@@ -162,33 +163,33 @@ class Model(BaseModel):
             self.tracker.reset()
         self.assert_compiled()
         callback_list = listify(callbacks) + [ProgressCallback(self)]
-        callback_runner = CallbackRunner(self, *callback_list)
-        autodataset = self.prepare_data(autodataset)
+        self.tracker.callback_runner = CallbackRunner(self, *callback_list)
+        self.tracker.autodataset = self.prepare_data(autodataset)
+        self.tracker.steps_per_epoch = steps_per_epoch
 
-        self.tracker.update_attributes(locals())
         tracker = self.tracker
 
         # ----- EVENT: ON_TRAINING_START
-        callback_runner.on_fit_start()
+        tracker.callback_runner.on_fit_start()
 
         for epoch in range(tracker.epoch, max_epochs):
             tracker.epoch = epoch
 
             # ----- EVENT: ON_EPOCH_START
-            callback_runner.on_epoch_start()
+            tracker.callback_runner.on_epoch_start()
 
-            self.train_one_epoch(autodataset)
+            self.train_one_epoch()
 
             # END OF TRAIN EPOCH
-            self.val_one_epoch(autodataset)
+            self.val_one_epoch()
 
             # ----- EVENT: ON_EPOCH_END
-            callback_runner.on_epoch_end()
+            tracker.callback_runner.on_epoch_end()
 
             if self.TEST:
                 break
 
         # ----- EVENT: ON_TRAINING_END
-        callback_runner.on_fit_end()
+        tracker.callback_runner.on_fit_end()
 
         return tracker

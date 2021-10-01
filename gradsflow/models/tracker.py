@@ -41,10 +41,3 @@ class Tracker(BaseTracker):
         row = list(map(lambda x: f"{x: .3f}" if isinstance(x, float) else str(x), row))
         table.add_row(*row)
         return table
-
-    def update_attributes(self, data: dict):
-        """capture dictionary and update attributes of tracker"""
-
-        for k, v in data.items():
-            if getattr(self, k):
-                setattr(self, k, v)
