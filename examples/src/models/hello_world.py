@@ -16,7 +16,8 @@ from timm import create_model
 from gradsflow import AutoDataset, Model
 from gradsflow.data.image import get_fake_data
 
-image_size = (128, 128)
+# Replace dataloaders with your custom dataset and you are all set to train your model
+image_size = (64, 64)
 num_classes = 2
 train_dl = get_fake_data(image_size, num_classes=num_classes).dataloader
 val_dl = get_fake_data(image_size, num_classes=num_classes).dataloader
@@ -29,4 +30,4 @@ if __name__ == "__main__":
 
     model = Model(cnn)
     model.compile("crossentropyloss", "adam", metrics="accuracy")
-    model.fit(autodataset, max_epochs=10, steps_per_epoch=10)
+    model.fit(autodataset, max_epochs=10, steps_per_epoch=50)

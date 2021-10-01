@@ -48,39 +48,32 @@ class ProgressCallback(Callback):
         self.progress.stop()
 
     def on_epoch_end(self):
-        with self.progress:
-            self.progress.update(self.fit_prog, advance=1)
+        self.progress.update(self.fit_prog, advance=1)
 
     def on_train_epoch_start(self):
         n = len(self.model.tracker.autodataset.train_dataloader)
-        with self.progress:
-            self.train_prog_bar = self.progress.add_task("[green]Learning...", total=n)
+        self.train_prog_bar = self.progress.add_task("[green]Learning...", total=n)
 
     def on_train_epoch_end(self):
-        with self.progress:
-            self.progress.remove_task(self.train_prog_bar)
-            self.table_column.renderable = self.model.tracker.create_table()
+        self.progress.remove_task(self.train_prog_bar)
+        self.table_column.renderable = self.model.tracker.create_table()
 
     def on_train_step_end(self):
-        with self.progress:
-            self.progress.update(self.train_prog_bar, advance=1)
+        self.progress.update(self.train_prog_bar, advance=1)
 
     def on_val_epoch_start(self):
         val_dl = self.model.tracker.autodataset.val_dataloader
         if not val_dl:
             return
         n = len(val_dl)
-        with self.progress:
-            self.val_prog_bar = self.progress.add_task("[green]Validating...", total=n)
+        self.val_prog_bar = self.progress.add_task("[green]Validating...", total=n)
 
     def on_val_epoch_end(self):
         val_dl = self.model.tracker.autodataset.val_dataloader
         if not val_dl:
             return
-        with self.progress:
-            self.table_column.renderable = self.model.tracker.create_table()
-            self.progress.remove_task(self.val_prog_bar)
+        self.table_column.renderable = self.model.tracker.create_table()
+        self.progress.remove_task(self.val_prog_bar)
 
     def on_val_step_end(self):
-        with self.progress:
-            self.progress.update(self.val_prog_bar, advance=1)
+        self.progress.update(self.val_prog_bar, advance=1)
