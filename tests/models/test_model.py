@@ -14,7 +14,6 @@
 import pytest
 import timm
 import torch
-from torchmetrics import Accuracy
 
 from gradsflow.core.data import AutoDataset
 from gradsflow.data.image import get_fake_data
@@ -52,11 +51,14 @@ def test_fit():
 
 def test_compile():
     model1 = Model(cnn)
-    model1.compile("crossentropyloss", "adam", metrics="accuracy")
-    model1.compile("crossentropyloss", "adam", metrics=Accuracy())
 
     def cal_accuracy(pred, target):
         return 1
 
     with pytest.raises(NotImplementedError):
         model1.compile("crossentropyloss", "adam", metrics=cal_accuracy)
+
+    with pytest.raises(AssertionError):
+        model1.compile("crossentropyloss", "adam", metrics="random_val")
+
+    model1.compile("crossentropyloss", "adam", metrics="accuracy")

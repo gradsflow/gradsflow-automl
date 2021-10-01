@@ -67,10 +67,11 @@ class BaseModel(Base):
     def add_metrics(self, *metrics: Union[str, Metric]) -> None:
         for m in metrics:
             if isinstance(m, str):
-                m_obj = metrics_classes.get(m)()
-                assert (
-                    m_obj is not None
-                ), f"metrics {m} is not available! Available metrics are {tuple(metrics_classes.keys())}"
+                m_cls = metrics_classes.get(m)
+                assert m_cls is not None, (
+                    f"metrics {m} is not available!" f"Available metrics are {tuple(metrics_classes.keys())}"
+                )
+                m_obj = m_cls()
             elif isinstance(m, Metric):
                 m_obj = m
             else:

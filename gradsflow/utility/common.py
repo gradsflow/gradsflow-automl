@@ -61,4 +61,7 @@ def listify(item: Any) -> List:
         return list(item)
     if isinstance(item, (int, float, str)):
         return [item]
-    return list(item)
+    try:
+        return list(item)
+    except TypeError:
+        return [item]
