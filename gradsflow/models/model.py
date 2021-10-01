@@ -55,12 +55,18 @@ class Model(BaseModel):
         super().__init__(learner=learner, accelerator_config=accelerator_config)
         self.tracker = Tracker()
 
+    def _forward_once(self, x) -> torch.Tensor:
+        self.tracker.callback_runner.on_forward_start()
+        x = self.forward(x)
+        self.tracker.callback_runner.on_forward_end()
+        return x
+
     def compile(
         self,
         loss=None,
         optimizer="adam",
         learning_rate=3e-4,
-        metrics: Union[str, Metric, None] = None,
+        metrics: Union[List[Union[str, Metric]], None] = None,
         loss_config: Optional[dict] = None,
         optimizer_config: Optional[dict] = None,
     ) -> None:
@@ -75,14 +81,14 @@ class Model(BaseModel):
 
     def train_step(self, inputs: torch.Tensor, target: torch.Tensor) -> Dict[str, torch.Tensor]:
         self.optimizer.zero_grad()
-        logits = self.learner(inputs)
+        logits = self._forward_once(inputs)
         loss = self.loss(logits, target)
         self.accelerator.backward(loss)
         self.optimizer.step()
         return {"loss": loss, "logits": logits}
 
     def val_step(self, inputs: torch.Tensor, target: torch.Tensor) -> Dict[str, torch.Tensor]:
-        logits = self.learner(inputs)
+        logits = self._forward_once(inputs)
         loss = self.loss(logits, target)
         _, predictions = torch.max(logits.data, 1)
         return {"loss": loss, "logits": logits, "predictions": predictions}
@@ -98,7 +104,7 @@ class Model(BaseModel):
         self.learner.train()
         for step, (inputs, target) in enumerate(train_dataloader):
             self.tracker.callback_runner.on_train_step_start()
-            outputs = self.train_step(inputs, target)
+            outputs = self.tensor_to_item(self.train_step(inputs, target))
             self.tracker.callback_runner.on_train_step_end()
             loss = outputs["loss"].item()
             self.metrics.update(outputs["logits"], target)
@@ -130,15 +136,13 @@ class Model(BaseModel):
         for _, (inputs, target) in enumerate(val_dataloader):
             with torch.no_grad():
                 self.tracker.callback_runner.on_val_step_start()
-                outputs = self.val_step(inputs, target)
+                outputs = self.tensor_to_item(self.train_step(inputs, target))
                 self.tracker.callback_runner.on_val_step_end()
                 loss = outputs["loss"]
-                predicted = outputs["predictions"]
                 self.metrics.update(outputs["logits"], target)
                 self.tracker.val.metrics = self.metrics.compute()
 
                 tracker.total += target.size(0)
-                tracker.correct += (predicted == target).sum().item()
                 running_val_loss += loss.cpu().numpy()
                 tracker.val.steps += 1
             if self.TEST:

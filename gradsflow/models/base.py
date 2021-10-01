@@ -13,7 +13,7 @@
 #  limitations under the License.
 import os
 from dataclasses import dataclass
-from typing import Any, Callable, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Union
 
 import torch
 from accelerate import Accelerator
@@ -109,6 +109,20 @@ class BaseModel(Base):
 
     def __call__(self, x):
         return self.forward(x)
+
+    @staticmethod
+    def tensor_to_item(data: Union[Dict[str, torch.Tensor], torch.Tensor, List[torch.Tensor]]):
+        if isinstance(data, (list, tuple)):
+            for i in range(len(data)):
+                data[i] = data[i].item()
+        elif isinstance(data, torch.Tensor):
+            data = data.item()
+
+        elif isinstance(data, dict):
+            for k in data.keys():
+                data[k] = data[k].item()
+
+        return data
 
     @torch.no_grad()
     def predict(self, x):

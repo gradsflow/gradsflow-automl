@@ -64,3 +64,9 @@ class Callback:
 
     def on_epoch_end(self):
         """Called after each training epoch"""
+
+    def on_forward_start(self):
+        """Called before model.forward(...)"""
+
+    def on_forward_end(self):
+        """Called after model.forward(...)"""
