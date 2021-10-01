@@ -113,8 +113,8 @@ class BaseModel(Base):
     @staticmethod
     def tensor_to_item(data: Union[Dict[str, torch.Tensor], torch.Tensor, List[torch.Tensor]]):
         if isinstance(data, (list, tuple)):
-            for i in range(len(data)):
-                data[i] = data[i].item()
+            for i, e in enumerate(data):
+                data[i] = e.item()
         elif isinstance(data, torch.Tensor):
             data = data.item()
 
