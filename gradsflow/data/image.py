@@ -78,7 +78,9 @@ def image_dataset_from_directory(
     return {"ds": ds, "dl": dl}
 
 
-def get_fake_data(image_size: Tuple[int, int], batch_size=1, pin_memory=False, shuffle=True, num_workers=0):
+def get_fake_data(
+    image_size: Tuple[int, int], num_classes=10, batch_size=1, pin_memory=False, shuffle=True, num_workers=0
+):
     from torchvision.datasets import FakeData
 
     data = Data()
@@ -86,7 +88,7 @@ def get_fake_data(image_size: Tuple[int, int], batch_size=1, pin_memory=False, s
     transform = get_augmentations(
         image_size=image_size,
     )
-    data.dataset = FakeData(size=100, image_size=[3, *image_size], transform=transform)
+    data.dataset = FakeData(size=100, image_size=[3, *image_size], num_classes=num_classes, transform=transform)
     data.dataloader = DataLoader(
         data.dataset,
         batch_size=batch_size,

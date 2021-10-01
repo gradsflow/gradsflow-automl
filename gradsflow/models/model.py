@@ -17,6 +17,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import torch
 from torch import nn
+from torchmetrics import Metric
 
 from gradsflow.callbacks import Callback, CallbackRunner
 from gradsflow.callbacks.progress import ProgressCallback
@@ -28,18 +29,18 @@ from gradsflow.utility.common import listify, module_to_cls_index
 
 class Model(BaseModel):
     """
-    Model provide training functionality with `model.fit(...)`
+    Model provide training functionality with `model.fit(...)` inspired from Keras
+
+    Examples:
+    ```python
+        model = Model(cnn)
+        model.compile("crossentropyloss", "adam", learning_rate=1e-3)
+        model.fit(autodataset)
+    ```
 
     Args:
         learner: Trainable model
         accelerator_config: HuggingFace Accelerator config
-
-    Examples:
-        ```python
-            model = Model(cnn)
-            model.compile("crossentropyloss", "adam", learning_rate=1e-3)
-            model.fit(autodataset)
-        ```
     """
 
     TEST = os.environ.get("GF_CI", "false").lower() == "true"
@@ -59,6 +60,7 @@ class Model(BaseModel):
         loss=None,
         optimizer="adam",
         learning_rate=3e-4,
+        metrics: Union[str, Metric, None] = None,
         loss_config: Optional[dict] = None,
         optimizer_config: Optional[dict] = None,
     ) -> None:
@@ -67,6 +69,7 @@ class Model(BaseModel):
         optimizer_fn = self._get_optimizer(optimizer)
         optimizer = optimizer_fn(self.learner.parameters(), lr=learning_rate, **optimizer_config)
         self.loss = self._get_loss(loss)(**loss_config)
+        self.add_metrics(*listify(metrics))
         self.prepare_optimizer(optimizer)
         self._compiled = True
 
@@ -93,20 +96,23 @@ class Model(BaseModel):
         steps_per_epoch = tracker.steps_per_epoch
 
         self.learner.train()
-        for step, (inputs, labels) in enumerate(train_dataloader):
+        for step, (inputs, target) in enumerate(train_dataloader):
             self.tracker.callback_runner.on_train_step_start()
-            outputs = self.train_step(inputs, labels)
+            outputs = self.train_step(inputs, target)
             self.tracker.callback_runner.on_train_step_end()
             loss = outputs["loss"].item()
+            self.metrics.update(outputs["logits"], target)
+            self.tracker.train.metrics = self.metrics.compute()
+
             running_train_loss += loss
             tracker.train.steps += 1
-
             if self.TEST:
                 break
             if steps_per_epoch and step >= steps_per_epoch:
                 break
         tracker.train.loss = running_train_loss / (tracker.train.steps + 1e-9)
         self.tracker.callback_runner.on_train_epoch_end()
+        self.metrics.reset()
 
     def val_one_epoch(self):
         self.tracker.callback_runner.on_val_epoch_start()
@@ -121,15 +127,18 @@ class Model(BaseModel):
         tracker.val.steps = 0
 
         self.learner.eval()
-        for _, (inputs, labels) in enumerate(val_dataloader):
+        for _, (inputs, target) in enumerate(val_dataloader):
             with torch.no_grad():
                 self.tracker.callback_runner.on_val_step_start()
-                outputs = self.val_step(inputs, labels)
+                outputs = self.val_step(inputs, target)
                 self.tracker.callback_runner.on_val_step_end()
                 loss = outputs["loss"]
                 predicted = outputs["predictions"]
-                tracker.total += labels.size(0)
-                tracker.correct += (predicted == labels).sum().item()
+                self.metrics.update(outputs["logits"], target)
+                self.tracker.val.metrics = self.metrics.compute()
+
+                tracker.total += target.size(0)
+                tracker.correct += (predicted == target).sum().item()
                 running_val_loss += loss.cpu().numpy()
                 tracker.val.steps += 1
             if self.TEST:
@@ -137,6 +146,7 @@ class Model(BaseModel):
         tracker.val.loss = running_val_loss / (tracker.val.steps + 1e-9)
         tracker.tune_metric = tracker.val_accuracy = tracker.correct / tracker.val.steps
         self.tracker.callback_runner.on_val_epoch_end()
+        self.metrics.reset()
 
     def fit(
         self,
@@ -145,9 +155,10 @@ class Model(BaseModel):
         steps_per_epoch: Optional[int] = None,
         callbacks: Union[List[str], Callback] = None,
         resume: bool = True,
+        progress_kwargs=None,
     ) -> Tracker:
         """
-        Similar to Keras model.fit() it trains the model for specified epochs and returns Tracker object
+        Similar to Keras model.fit(...) it trains the model for specified epochs and returns Tracker object
         Args:
             autodataset: AutoDataset object encapsulate dataloader and datamodule
             max_epochs: number of epochs to train
@@ -159,10 +170,11 @@ class Model(BaseModel):
         Returns:
             Tracker object
         """
+        progress_kwargs = progress_kwargs or {}
         if not resume:
             self.tracker.reset()
         self.assert_compiled()
-        callback_list = listify(callbacks) + [ProgressCallback(self)]
+        callback_list = listify(callbacks) + [ProgressCallback(self, **progress_kwargs)]
         self.tracker.callback_runner = CallbackRunner(self, *callback_list)
         self.tracker.autodataset = self.prepare_data(autodataset)
         self.tracker.steps_per_epoch = steps_per_epoch

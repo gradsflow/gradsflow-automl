@@ -15,6 +15,7 @@ import typing
 from typing import Union
 
 from gradsflow.callbacks.callbacks import Callback
+from gradsflow.callbacks.progress import ProgressCallback
 from gradsflow.callbacks.raytune import TorchTuneCheckpointCallback, TorchTuneReport
 
 if typing.TYPE_CHECKING:
@@ -25,6 +26,7 @@ class CallbackRunner(Callback):
     _AVAILABLE_CALLBACKS = {
         "tune_checkpoint": TorchTuneCheckpointCallback,
         "tune_report": TorchTuneReport,
+        "progress": ProgressCallback,
     }
 
     def __init__(self, model: "Model", *callbacks: Union[str, Callback]):

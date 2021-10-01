@@ -18,9 +18,11 @@ from typing import Any, Callable, Optional, Union
 import torch
 from accelerate import Accelerator
 from torch import nn
+from torchmetrics import Metric, MetricCollection
 
 from gradsflow.core.data import AutoDataset
 from gradsflow.models.utils import losses
+from gradsflow.models.utils import metrics as metrics_classes
 from gradsflow.utility.common import module_to_cls_index
 
 
@@ -28,7 +30,7 @@ from gradsflow.utility.common import module_to_cls_index
 class Base:
     learner: Union[nn.Module, Any]
     optimizer: torch.optim.Optimizer = None
-    loss: Union[Callable] = None
+    loss: Callable = None
     _compiled: bool = False
 
 
@@ -41,6 +43,7 @@ class BaseModel(Base):
         self.learner = None
         self.device = self.accelerator.device
         self.prepare_model(learner)
+        self.metrics: MetricCollection = MetricCollection([])
 
     def prepare_model(self, learner) -> None:
         if isinstance(learner, (list, tuple)):
@@ -60,6 +63,19 @@ class BaseModel(Base):
         if autodataset.val_dataloader:
             autodataset.val_dataloader = self.accelerator.prepare_data_loader(autodataset.val_dataloader)
         return autodataset
+
+    def add_metrics(self, *metrics: Union[str, Metric]) -> None:
+        for m in metrics:
+            if isinstance(m, str):
+                m_obj = metrics_classes.get(m)()
+                assert (
+                    m_obj is not None
+                ), f"metrics {m} is not available! Available metrics are {tuple(metrics_classes.keys())}"
+            elif isinstance(m, Metric):
+                m_obj = m
+            else:
+                raise NotImplementedError(f"metrics not implemented for {m}! Please see `torchmetrics`.")
+            self.metrics.add_metrics(m_obj)
 
     def _get_loss(self, loss: Union[str, Callable]) -> Optional[Callable]:
         loss_fn = None
@@ -82,6 +98,9 @@ class BaseModel(Base):
         else:
             raise NotImplementedError(f"Unknown optimizer {optimizer}")
         return optimizer_fn
+
+    def reset_metrics(self):
+        self.metrics.reset()
 
     def assert_compiled(self):
         if not self._compiled:

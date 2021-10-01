@@ -17,7 +17,7 @@ import os
 import sys
 from glob import glob
 from pathlib import Path
-from typing import Any
+from typing import Any, List
 
 from smart_open import open as smart_open
 
@@ -51,7 +51,7 @@ def module_to_cls_index(module, lower_key: bool = True) -> dict:
     return mapping
 
 
-def listify(item: Any) -> list:
+def listify(item: Any) -> List:
     """Convert any scalar value into list."""
     if not item:
         return []
