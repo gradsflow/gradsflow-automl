@@ -30,7 +30,7 @@ class ProgressCallback(Callback):
             "[progress.percentage]{task.percentage:>3.0f}%",
             TimeRemainingColumn(),
             self.table_column,
-            refresh_per_second=kwargs.get("refresh_per_second", 5),
+            refresh_per_second=kwargs.get("refresh_per_second", 10),
             expand=kwargs.get("expand", True),
         )
         tracker.progress = self.progress
@@ -60,6 +60,7 @@ class ProgressCallback(Callback):
 
     def on_train_step_end(self):
         self.progress.update(self.train_prog_bar, advance=1)
+        self.table_column.renderable = self.model.tracker.create_table()
 
     def on_val_epoch_start(self):
         val_dl = self.model.tracker.autodataset.val_dataloader
