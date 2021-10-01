@@ -21,7 +21,7 @@ from gradsflow.data.image import get_fake_data
 from gradsflow.models.model import Model
 from gradsflow.models.tracker import Tracker
 
-image_size = (96, 96)
+image_size = (64, 64)
 train_data = get_fake_data(image_size)
 val_data = get_fake_data(image_size)
 
@@ -45,16 +45,18 @@ def test_predict():
 
 
 def test_fit():
-    model.compile("crossentropyloss", "adam", metrics="accuracy")
+    model.TEST = True
     tracker = model.fit(autodataset, max_epochs=1, steps_per_epoch=1)
     assert isinstance(tracker, Tracker)
 
-    model.compile("crossentropyloss", "adam", metrics=Accuracy())
-    tracker = model.fit(autodataset, max_epochs=1, steps_per_epoch=1)
-    assert isinstance(tracker, Tracker)
+
+def test_compile():
+    model1 = Model(cnn)
+    model1.compile("crossentropyloss", "adam", metrics="accuracy")
+    model1.compile("crossentropyloss", "adam", metrics=Accuracy())
 
     def cal_accuracy(pred, target):
         return 1
 
     with pytest.raises(NotImplementedError):
-        model.compile("crossentropyloss", "adam", metrics=cal_accuracy)
+        model1.compile("crossentropyloss", "adam", metrics=cal_accuracy)
