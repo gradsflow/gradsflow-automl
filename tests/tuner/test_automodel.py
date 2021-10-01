@@ -18,14 +18,12 @@ from gradsflow.data.image import get_fake_data
 from gradsflow.tuner import AutoModelV2, Tuner
 
 image_size = (128, 128)
-fake_data = get_fake_data(image_size, num_workers=0)
-train_ds, train_dl = fake_data["ds"], fake_data["dl"]
+train_data = get_fake_data(image_size, num_workers=0)
 
-fake_data = get_fake_data(image_size, num_workers=0)
-val_ds, val_dl = fake_data["ds"], fake_data["dl"]
+val_data = get_fake_data(image_size, num_workers=0)
 
-num_classes = train_ds.num_classes
-autodataset = AutoDataset(train_dl, val_dl, num_classes=num_classes)
+num_classes = train_data.dataset.num_classes
+autodataset = AutoDataset(train_data.dataloader, val_data.dataloader, num_classes=num_classes)
 
 cnn1 = create_model("resnet18", pretrained=False, num_classes=num_classes)
 cnn2 = create_model("efficientnet_b0", pretrained=False, num_classes=num_classes)

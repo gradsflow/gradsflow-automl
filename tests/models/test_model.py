@@ -11,28 +11,23 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-from pathlib import Path
 
 import timm
 import torch
 from torch.utils.data import DataLoader
 from torchvision.datasets import FakeData
 
-from gradsflow import AutoDataset, Model
 from gradsflow.core.data import AutoDataset
-from gradsflow.data.image import get_augmentations, image_dataset_from_directory
+from gradsflow.data.image import get_augmentations, get_fake_data
 from gradsflow.models.model import Model
 from gradsflow.models.tracker import Tracker
 
 image_size = (96, 96)
-transform = get_augmentations(image_size)
-train_ds = FakeData(size=100, image_size=[3, *image_size], transform=transform)
-val_ds = FakeData(size=100, image_size=[3, *image_size], transform=transform)
-train_dl = DataLoader(train_ds)
-val_dl = DataLoader(val_ds)
+train_data = get_fake_data(image_size)
+val_data = get_fake_data(image_size)
 
-num_classes = train_ds.num_classes
-autodataset = AutoDataset(train_dl, val_dl, num_classes=num_classes)
+num_classes = train_data.dataset.num_classes
+autodataset = AutoDataset(train_data.dataloader, val_data.dataloader, num_classes=num_classes)
 
 cnn = timm.create_model("ssl_resnet18", pretrained=False, num_classes=num_classes).eval()
 model = Model(cnn)
@@ -51,5 +46,5 @@ def test_predict():
 
 
 def test_fit():
-    tracker = model.fit(autodataset, epochs=10, steps_per_epoch=1)
+    tracker = model.fit(autodataset, max_epochs=10, steps_per_epoch=1)
     assert isinstance(tracker, Tracker)

@@ -21,6 +21,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms as T
 from torchvision.datasets import ImageFolder
 
+from gradsflow.core.data import Data
 from gradsflow.data.ray_dataset import RayDataset, RayImageFolder
 
 logger = logging.getLogger("data.image")
@@ -80,15 +81,18 @@ def image_dataset_from_directory(
 def get_fake_data(image_size: Tuple[int, int], batch_size=1, pin_memory=False, shuffle=True, num_workers=0):
     from torchvision.datasets import FakeData
 
+    data = Data()
+
     transform = get_augmentations(
         image_size=image_size,
     )
-    ds = FakeData(size=100, image_size=[3, *image_size], transform=transform)
-    dl = DataLoader(
-        ds,
+    data.dataset = FakeData(size=100, image_size=[3, *image_size], transform=transform)
+    data.dataloader = DataLoader(
+        data.dataset,
         batch_size=batch_size,
         pin_memory=pin_memory,
         shuffle=shuffle,
         num_workers=num_workers,
     )
-    return {"ds": ds, "dl": dl}
+
+    return data

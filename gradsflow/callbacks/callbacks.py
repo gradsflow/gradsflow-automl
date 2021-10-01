@@ -11,95 +11,56 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-import os
 import typing
-from typing import Optional, Union
-
-import torch
-from ray import tune
-from ray.tune.integration.pytorch_lightning import TuneReportCheckpointCallback
 
 if typing.TYPE_CHECKING:
     from gradsflow.models.model import Model
 
-_METRICS = {
-    "val_accuracy": "val_accuracy",
-    "train_accuracy": "train_accuracy",
-}
-
-
-def report_checkpoint_callback(metrics: Optional[dict] = None, filename: Optional[str] = None):
-    metrics = metrics or _METRICS
-    filename = filename or "filename"
-    callback = TuneReportCheckpointCallback(metrics=metrics, filename=filename, on="validation_end")
-
-    return callback
-
 
 class Callback:
+    """Callback objects define events on which it will run during the model training cycle."""
+
     def __init__(self, model: "Model"):
         self.model = model
 
-    def on_training_start(self):
-        ...
+    def on_fit_start(self):
+        """Called on each `model.fit(...)`"""
 
-    def on_epoch_start(
+    def on_fit_end(
         self,
     ):
-        ...
+        """Called after `model.fit(...)`"""
 
-    def on_training_end(
+    def on_train_epoch_start(
         self,
     ):
-        ...
+        """Called on start of training epoch"""
 
-    def on_epoch_end(self):
-        ...
+    def on_train_epoch_end(self):
+        """Called after end of training epoch"""
 
+    def on_val_epoch_start(
+        self,
+    ):
+        """Called on start of validation epoch"""
 
-class TorchTuneCheckpointCallback(Callback):
-    def on_epoch_end(self):
-        epoch = self.model.tracker.epoch
-        model = self.model.learner
+    def on_val_epoch_end(self):
+        """called after validation epoch ends"""
 
-        with tune.checkpoint_dir(epoch) as checkpoint_dir:
-            path = os.path.join(checkpoint_dir, "filename")
-            torch.save((model.state_dict()), path)
+    def on_train_step_start(self):
+        """called before `train_step`"""
 
+    def on_train_step_end(self):
+        """Called after training step"""
 
-class TorchTuneReport(Callback):
-    def on_epoch_end(self):
-        val_loss = self.model.tracker.val.loss
-        train_loss = self.model.tracker.train.loss
-        val_accuracy = self.model.tracker.tune_metric
-        tune.report(val_loss=val_loss, val_accuracy=val_accuracy, train_loss=train_loss)
+    def on_val_step_start(self):
+        """Called on validation step"""
 
-
-class ComposeCallback(Callback):
-    _AVAILABLE_CALLBACKS = {
-        "tune_checkpoint": TorchTuneCheckpointCallback,
-        "tune_report": TorchTuneReport,
-    }
-
-    def __init__(self, model: "Model", *callbacks: Union[str, Callback]):
-        super().__init__(model)
-        self.callbacks = []
-        for callback in callbacks:
-            if isinstance(callback, str):
-                callback_fn = self._AVAILABLE_CALLBACKS[callback](model)
-                self.callbacks.append(callback_fn)
-            elif isinstance(callback, Callback):
-                self.callbacks.append(callback)
-            else:
-                raise NotImplementedError
-
-    def on_epoch_end(self):
-        for callback in self.callbacks:
-            callback.on_epoch_end()
+    def on_val_step_end(self):
+        """Called after validation step"""
 
     def on_epoch_start(self):
-        for callback in self.callbacks:
-            callback.on_epoch_start()
+        """Called Before each training Epoch"""
 
-    def available_callbacks(self):
-        return list(self._AVAILABLE_CALLBACKS.keys())
+    def on_epoch_end(self):
+        """Called after each training epoch"""

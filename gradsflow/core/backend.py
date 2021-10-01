@@ -20,7 +20,7 @@ from typing import Callable, Dict, Optional
 import pytorch_lightning as pl
 import torch
 
-from gradsflow.callbacks.callbacks import report_checkpoint_callback
+from gradsflow.callbacks import report_checkpoint_callback
 from gradsflow.core.data import AutoDataset
 from gradsflow.utility.common import module_to_cls_index
 
@@ -63,11 +63,11 @@ class AutoBackend:
 
         autodataset = self.autodataset
         model = self.model_builder(search_space)
-        epochs = trainer_config.get("epochs", 1)
+        epochs = trainer_config.get("max_epochs", 1)
         tracker = model.fit(
             autodataset=autodataset,
-            epochs=epochs,
-            callbacks=trainer_config.get("callbacks", ("tune_checkpoint", "tune_report")),
+            max_epochs=epochs,
+            callbacks=trainer_config.get("callback_runner", ("tune_checkpoint", "tune_report")),
         )
         return tracker.__dict__[self.optimization_metric]
 

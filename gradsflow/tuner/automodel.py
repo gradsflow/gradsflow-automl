@@ -36,7 +36,7 @@ class AutoModelV2:
             optimizers = tuner.choice("optimizer", "adam", "sgd")
             loss = "crossentropyloss"
             model = AutoModelV2(cnns)
-            model.hp_tune(tuner, autodataset, epochs=10)
+            model.hp_tune(tuner, autodataset, max_epochs=10)
         ```
 
     Args:
@@ -87,7 +87,7 @@ class AutoModelV2:
         model = self._build(search_space)
         tracker = model.fit(
             autodataset,
-            epochs=epochs,
+            max_epochs=epochs,
             callbacks=["tune_checkpoint", "tune_report"],
         )
         return tracker.val.loss

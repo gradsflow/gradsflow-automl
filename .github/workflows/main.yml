@@ -20,7 +20,7 @@ jobs:
             path: ~/Library/Caches/pip
     env:
       OS: ${{ matrix.os }}
-      PYTHON: '3.7'
+      PYTHON: '3.8'
 
 
     steps:
