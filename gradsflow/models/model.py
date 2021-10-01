@@ -136,7 +136,7 @@ class Model(BaseModel):
         for _, (inputs, target) in enumerate(val_dataloader):
             with torch.no_grad():
                 self.tracker.callback_runner.on_val_step_start()
-                outputs = self.train_step(inputs, target)
+                outputs = self.val_step(inputs, target)
                 self.tracker.callback_runner.on_val_step_end()
                 loss = outputs["loss"]
                 self.metrics.update(outputs["logits"], target)
