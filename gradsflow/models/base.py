@@ -110,27 +110,6 @@ class BaseModel(Base):
     def __call__(self, x):
         return self.forward(x)
 
-    @staticmethod
-    def to_item(x):
-        if torch.is_tensor(x):
-            x = x.item()
-        return x
-
-    @staticmethod
-    def data_to_item(data: Union[Dict[str, torch.Tensor], torch.Tensor, List[torch.Tensor]]):
-        to_item = BaseModel.to_item
-        if isinstance(data, (list, tuple)):
-            for i, e in enumerate(data):
-                data[i] = to_item(e)
-        elif isinstance(data, torch.Tensor):
-            data = to_item(data)
-
-        elif isinstance(data, dict):
-            for k in data.keys():
-                data[k] = to_item(data[k])
-
-        return data
-
     @torch.no_grad()
     def predict(self, x):
         return self.learner(x)

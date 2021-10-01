@@ -90,8 +90,7 @@ class Model(BaseModel):
     def val_step(self, inputs: torch.Tensor, target: torch.Tensor) -> Dict[str, torch.Tensor]:
         logits = self._forward_once(inputs)
         loss = self.loss(logits, target)
-        _, predictions = torch.max(logits.data, 1)
-        return {"loss": loss, "logits": logits, "predictions": predictions}
+        return {"loss": loss, "logits": logits}
 
     def train_one_epoch(self):
         self.tracker.callback_runner.on_train_epoch_start()
