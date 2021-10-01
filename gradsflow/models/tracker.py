@@ -11,6 +11,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+from typing import Optional
 
 from rich.table import Table
 
@@ -26,18 +27,32 @@ class Tracker(BaseTracker):
     def __init__(self):
         self.learner = None
         self.autodataset = None
-        self.callback_runner: CallbackRunner = None
+        self.callback_runner: Optional[CallbackRunner] = None
+        self.train.metrics = {}
+        self.val.metrics = {}
 
     def create_table(self) -> Table:
         headings = ["epoch", "train/loss"]
+        row = [self.epoch, self.train.loss]
         if self.val.loss:
             headings.append("val/loss")
-        table = Table(*headings)
 
-        row = [self.epoch, self.train.loss]
+        for metric_name, _ in self.train.metrics.items():
+            headings.append("train/" + metric_name)
+
+        for metric_name, _ in self.val.metrics.items():
+            headings.append("val/" + metric_name)
+
         if self.val.loss:
             row.append(self.val.loss)
 
+        for _, value in self.train.metrics.items():
+            row.append(value)
+
+        for _, value in self.val.metrics.items():
+            row.append(value)
+
         row = list(map(lambda x: f"{x: .3f}" if isinstance(x, float) else str(x), row))
+        table = Table(*headings, expand=False)
         table.add_row(*row)
         return table

@@ -13,7 +13,7 @@
 #  limitations under the License.
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 import torch
 
@@ -44,6 +44,7 @@ class TrackingValues:
     loss: Optional[float] = None
     steps: Optional[int] = None
     step_loss: Optional[float] = None
+    metrics: Union[None, Dict[str, float]] = None
 
 
 @dataclass(init=False)

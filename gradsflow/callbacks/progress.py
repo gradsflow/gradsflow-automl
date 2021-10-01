@@ -12,31 +12,34 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 from rich.progress import BarColumn, Progress, RenderableColumn, TimeRemainingColumn
+from rich.table import Column
 
 from .callbacks import Callback
 
 
 class ProgressCallback(Callback):
-    def __init__(self, model):
+    def __init__(self, model, **kwargs):
         super().__init__(model)
         tracker = self.model.tracker
-        self.bar_column = BarColumn()
-        self.table_column = RenderableColumn(tracker.create_table())
+        self.bar_column = BarColumn(table_column=Column(ratio=1))
+        self.table_column = RenderableColumn(tracker.create_table(), table_column=Column(ratio=2))
+
         self.progress = Progress(
             "[progress.description]{task.description}",
             self.bar_column,
             "[progress.percentage]{task.percentage:>3.0f}%",
             TimeRemainingColumn(),
             self.table_column,
-            expand=True,
+            refresh_per_second=kwargs.get("refresh_per_second", 10),
+            expand=kwargs.get("expand", True),
         )
-        self.progress.start()
         tracker.progress = self.progress
         self.fit_prog = None
         self.train_prog_bar = None
         self.val_prog_bar = None
 
     def on_fit_start(self):
+        self.progress.start()
         epochs = self.model.tracker.max_epochs
         completed = self.model.tracker.epoch
         self.fit_prog = self.progress.add_task("[red]Progress...", total=epochs, completed=completed)
@@ -45,39 +48,33 @@ class ProgressCallback(Callback):
         self.progress.stop()
 
     def on_epoch_end(self):
-        with self.progress:
-            self.progress.update(self.fit_prog, advance=1)
+        self.progress.update(self.fit_prog, advance=1)
 
     def on_train_epoch_start(self):
         n = len(self.model.tracker.autodataset.train_dataloader)
-        with self.progress:
-            self.train_prog_bar = self.progress.add_task("[green]Learning...", total=n)
+        self.train_prog_bar = self.progress.add_task("[green]Learning...", total=n)
 
     def on_train_epoch_end(self):
-        with self.progress:
-            self.progress.remove_task(self.train_prog_bar)
-            self.table_column.renderable = self.model.tracker.create_table()
+        self.progress.remove_task(self.train_prog_bar)
+        self.table_column.renderable = self.model.tracker.create_table()
 
     def on_train_step_end(self):
-        with self.progress:
-            self.progress.update(self.train_prog_bar, advance=1)
+        self.progress.update(self.train_prog_bar, advance=1)
+        self.table_column.renderable = self.model.tracker.create_table()
 
     def on_val_epoch_start(self):
         val_dl = self.model.tracker.autodataset.val_dataloader
         if not val_dl:
             return
         n = len(val_dl)
-        with self.progress:
-            self.val_prog_bar = self.progress.add_task("[green]Validating...", total=n)
+        self.val_prog_bar = self.progress.add_task("[green]Validating...", total=n)
 
     def on_val_epoch_end(self):
         val_dl = self.model.tracker.autodataset.val_dataloader
         if not val_dl:
             return
-        with self.progress:
-            self.table_column.renderable = self.model.tracker.create_table()
-            self.progress.remove_task(self.val_prog_bar)
+        self.table_column.renderable = self.model.tracker.create_table()
+        self.progress.remove_task(self.val_prog_bar)
 
     def on_val_step_end(self):
-        with self.progress:
-            self.progress.update(self.val_prog_bar, advance=1)
+        self.progress.update(self.val_prog_bar, advance=1)

@@ -12,24 +12,22 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 from timm import create_model
-from torch.utils.data import DataLoader
-from torchvision.datasets import FakeData
 
 from gradsflow import AutoDataset, Model
-from gradsflow.data.image import get_augmentations
+from gradsflow.data.image import get_fake_data
 
-image_size = (128, 128)
-transform = get_augmentations(image_size)
-train_ds = FakeData(size=100, image_size=[3, *image_size], transform=transform)
-val_ds = FakeData(size=100, image_size=[3, *image_size], transform=transform)
-train_dl = DataLoader(train_ds)
-val_dl = DataLoader(val_ds)
+# Replace dataloaders with your custom dataset and you are all set to train your model
+image_size = (64, 64)
+num_classes = 2
+train_dl = get_fake_data(image_size, num_classes=num_classes).dataloader
+val_dl = get_fake_data(image_size, num_classes=num_classes).dataloader
 
-num_classes = train_ds.num_classes
 autodataset = AutoDataset(train_dl, val_dl, num_classes=num_classes)
 
-cnn = create_model("resnet18", pretrained=False, num_classes=num_classes)
 
-model = Model(cnn)
-model.compile("crossentropyloss", "adam")
-model.fit(autodataset, max_epochs=10)
+if __name__ == "__main__":
+    cnn = create_model("resnet18", pretrained=False, num_classes=num_classes)
+
+    model = Model(cnn)
+    model.compile("crossentropyloss", "adam", metrics="accuracy")
+    model.fit(autodataset, max_epochs=10, steps_per_epoch=50)
