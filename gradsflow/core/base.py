@@ -55,10 +55,3 @@ class BaseTracker:
     steps_per_epoch: Optional[int] = None
     train: TrackingValues = TrackingValues()
     val: TrackingValues = TrackingValues()
-
-    def reset(self):
-        self.max_epochs = 0
-        self.epoch = 0
-        self.steps_per_epoch = None
-        self.train = TrackingValues()
-        self.val = TrackingValues()

@@ -36,7 +36,7 @@ class Model(BaseModel):
     Examples:
     ```python
         model = Model(cnn)
-        model.compile("crossentropyloss", "adam", learning_rate=1e-3)
+        model.compile("crossentropyloss", "adam", learning_rate=1e-3, metrics="accuracy")
         model.fit(autodataset)
     ```
 
@@ -85,13 +85,13 @@ class Model(BaseModel):
         self.optimizer.zero_grad()
         logits = self._forward_once(inputs)
         loss = self.loss(logits, target)
-        self.accelerator.backward(loss)
-        self.optimizer.step()
+        self.tracker.track("train/step_loss", loss, render=True)
         return {"loss": loss, "logits": logits}
 
     def val_step(self, inputs: torch.Tensor, target: torch.Tensor) -> Dict[str, torch.Tensor]:
         logits = self._forward_once(inputs)
         loss = self.loss(logits, target)
+        self.tracker.track("val/step_loss", loss, render=True)
         return {"loss": loss, "logits": logits}
 
     def train_one_epoch(self):
@@ -104,13 +104,18 @@ class Model(BaseModel):
 
         self.learner.train()
         for step, (inputs, target) in enumerate(train_dataloader):
+
+            # ----- TRAIN STEP -----
             self.tracker.callback_runner.on_train_step_start()
             outputs = self.train_step(inputs, target)
+            self.accelerator.backward(outputs["loss"])
+            self.optimizer.step()
             self.tracker.callback_runner.on_train_step_end()
+
+            # ----- METRIC UPDATES -----
             loss = outputs["loss"].item()
-            self.tracker.track("train/step_loss", loss)
             self.metrics.update(outputs["logits"], target)
-            self.tracker.track_metrics(self.metrics.compute(), mode="train")
+            self.tracker.track_metrics(self.metrics.compute(), mode="train", render=True)
 
             running_train_loss += loss
             tracker.train.steps += 1
@@ -119,8 +124,7 @@ class Model(BaseModel):
                 break
             if steps_per_epoch and step >= steps_per_epoch:
                 break
-        running_train_loss = running_train_loss / (tracker.train.steps + 1e-9)
-        self.tracker.track_loss(running_train_loss, mode="train")
+        self.tracker.track_loss(running_train_loss / (tracker.train.steps + 1e-9), mode="train")
         self.tracker.callback_runner.on_train_epoch_end()
         self.metrics.reset()
 
@@ -139,20 +143,22 @@ class Model(BaseModel):
         self.learner.eval()
         for _, (inputs, target) in enumerate(val_dataloader):
             with torch.no_grad():
+                # ----- VAL STEP -----
                 self.tracker.callback_runner.on_val_step_start()
                 outputs = self.val_step(inputs, target)
                 self.tracker.callback_runner.on_val_step_end()
+
+                # ----- METRIC UPDATES -----
                 loss = outputs["loss"]
                 self.metrics.update(outputs["logits"], target)
-                self.tracker.track_metrics(self.metrics.compute(), mode="val")
+                self.tracker.track_metrics(self.metrics.compute(), mode="val", render=True)
 
                 tracker.total += target.size(0)
                 running_val_loss += loss.cpu().numpy()
                 tracker.val.steps += 1
             if self.TEST:
                 break
-        running_val_loss = running_val_loss / (tracker.val.steps + 1e-9)
-        tracker.track_loss(running_val_loss, "val")
+        tracker.track_loss(running_val_loss / (tracker.val.steps + 1e-9), "val")
         self.tracker.callback_runner.on_val_epoch_end()
         self.metrics.reset()
 
@@ -189,27 +195,27 @@ class Model(BaseModel):
 
         tracker = self.tracker
 
-        # ----- EVENT: ON_TRAINING_START
+        # ----- EVENT: ON_TRAINING_START -----
         tracker.callback_runner.on_fit_start()
 
         for epoch in range(tracker.epoch, max_epochs):
             tracker.epoch = epoch
 
-            # ----- EVENT: ON_EPOCH_START
+            # ----- EVENT: ON_EPOCH_START -----
             tracker.callback_runner.on_epoch_start()
 
             self.train_one_epoch()
 
-            # END OF TRAIN EPOCH
+            # ----- END OF TRAIN EPOCH -----
             self.val_one_epoch()
 
-            # ----- EVENT: ON_EPOCH_END
+            # ----- EVENT: ON_EPOCH_END -----
             tracker.callback_runner.on_epoch_end()
 
             if self.TEST:
                 break
 
-        # ----- EVENT: ON_TRAINING_END
+        # ----- EVENT: ON_TRAINING_END -----
         tracker.callback_runner.on_fit_end()
 
         return tracker

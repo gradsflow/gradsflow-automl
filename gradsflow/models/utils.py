@@ -12,8 +12,10 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from typing import Callable, Dict
+from typing import Any, Callable, Dict, Union
 
+import numpy as np
+import torch
 import torchmetrics
 from torch import nn
 from torchmetrics import Metric
@@ -27,3 +29,17 @@ losses: Dict[str, Callable] = {k: v for k, v in _nn_classes.items() if "loss" in
 
 metrics: Dict[str, Metric] = {k: v for k, v in _tm_classes.items() if 65 <= ord(k[0]) <= 90}
 metrics = {k.lower(): v for k, v in metrics.items()}
+
+
+def to_item(data: Union[torch.Tensor, Any]) -> Union[int, float, str, np.ndarray]:
+    if torch.is_tensor(data):
+        if data.requires_grad:
+            data = data.detach()
+        data.cpu()
+
+        if len(data.shape) > 1:
+            data = data.numpy()
+        else:
+            data = data.item()
+
+    return data
