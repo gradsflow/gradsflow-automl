@@ -11,3 +11,11 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+from gradsflow.models.tracker import Tracker
+
+
+def test_reset():
+    tracker = Tracker()
+    tracker.max_epochs = 5
+    tracker.reset()
+    assert tracker.max_epochs == 0

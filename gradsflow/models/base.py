@@ -13,7 +13,7 @@
 #  limitations under the License.
 import os
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Optional, Union
 
 import torch
 from accelerate import Accelerator
