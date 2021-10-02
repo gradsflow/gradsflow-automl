@@ -34,36 +34,36 @@ class Callback:
     def on_train_epoch_start(
         self,
     ):
-        """Called on start of training current_epoch"""
+        """Called on start of training epoch"""
 
     def on_train_epoch_end(self):
-        """Called after end of training current_epoch"""
+        """Called after end of training epoch"""
 
     def on_val_epoch_start(
         self,
     ):
-        """Called on start of validation current_epoch"""
+        """Called on start of validation epoch"""
 
     def on_val_epoch_end(self):
-        """called after validation current_epoch ends"""
+        """called after validation epoch ends"""
 
     def on_train_step_start(self):
         """called before `train_step`"""
 
     def on_train_step_end(self):
-        """Called after training current_step"""
+        """Called after training step"""
 
     def on_val_step_start(self):
-        """Called on validation current_step"""
+        """Called on validation step"""
 
     def on_val_step_end(self):
-        """Called after validation current_step"""
+        """Called after validation step"""
 
     def on_epoch_start(self):
         """Called Before each training Epoch"""
 
     def on_epoch_end(self):
-        """Called after each training current_epoch"""
+        """Called after each training epoch"""
 
     def on_forward_start(self):
         """Called before model.forward(...)"""
