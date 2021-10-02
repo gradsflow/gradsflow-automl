@@ -24,10 +24,10 @@ datamodule = ImageClassificationData.from_folders(
 data_dir = Path.cwd() / "data"
 
 train_data = image_dataset_from_directory(f"{data_dir}/hymenoptera_data/train/", transform=True)
-train_dl = train_data["dl"]
+train_dl = train_data.dataloader
 
 val_data = image_dataset_from_directory(f"{data_dir}/hymenoptera_data/val/", transform=True)
-val_dl = val_data["dl"]
+val_dl = val_data.dataloader
 
 
 def test_build_model():

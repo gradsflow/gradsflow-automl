@@ -17,6 +17,7 @@ import os
 from flash.image import ImageClassificationData
 
 from gradsflow import AutoImageClassifier
+from gradsflow.data.image import image_dataset_from_directory
 
 # 1. Create the DataModule
 data_dir = os.getcwd() + "/data"
@@ -26,11 +27,18 @@ datamodule = ImageClassificationData.from_folders(
     train_folder=f"{data_dir}/hymenoptera_data/train/",
     val_folder=f"{data_dir}/hymenoptera_data/val/",
 )
+image_size = (64, 64)
+train_data = image_dataset_from_directory(f"{data_dir}/hymenoptera_data/train/", image_size=image_size, transform=True)
 
+val_data = image_dataset_from_directory(f"{data_dir}/hymenoptera_data/val/", image_size=image_size, transform=True)
+
+num_classes = len(train_data.dataset.classes)
 model = AutoImageClassifier(
-    datamodule,
+    train_dataloader=train_data.dataloader,
+    val_dataloader=val_data.dataloader,
+    num_classes=num_classes,
     max_epochs=2,
-    optimization_metric="train/accuracy",
+    optimization_metric="train_accuracy",
     max_steps=2,
     n_trials=2,
 )

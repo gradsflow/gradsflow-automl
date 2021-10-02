@@ -18,13 +18,15 @@ from typing import Optional
 import pytorch_lightning as pl
 from torch.utils.data import DataLoader, Dataset
 
+from gradsflow.data.ray_dataset import RayDataset
+
 logger = logging.getLogger("core.data")
 
 
 @dataclasses.dataclass(init=False)
 class Data:
     dataloader: DataLoader
-    dataset: Dataset
+    dataset: [RayDataset, Dataset]
 
 
 class AutoDataset:

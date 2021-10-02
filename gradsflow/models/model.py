@@ -108,11 +108,13 @@ class Model(BaseModel):
             outputs = self.train_step(inputs, target)
             self.tracker.callback_runner.on_train_step_end()
             loss = outputs["loss"].item()
+            self.tracker.track("train/step_loss", loss)
             self.metrics.update(outputs["logits"], target)
             self.tracker.track_metrics(self.metrics.compute(), mode="train")
 
             running_train_loss += loss
             tracker.train.steps += 1
+            tracker.step += 1
             if self.TEST:
                 break
             if steps_per_epoch and step >= steps_per_epoch:

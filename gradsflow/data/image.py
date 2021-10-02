@@ -15,14 +15,14 @@
 import logging
 import os
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 from torch.utils.data import DataLoader
 from torchvision import transforms as T
 from torchvision.datasets import ImageFolder
 
 from gradsflow.core.data import Data
-from gradsflow.data.ray_dataset import RayDataset, RayImageFolder
+from gradsflow.data.ray_dataset import RayImageFolder
 
 logger = logging.getLogger("data.image")
 
@@ -44,7 +44,7 @@ def image_dataset_from_directory(
     pin_memory: bool = True,
     num_workers: Optional[int] = None,
     ray_data: bool = False,
-) -> Dict[str, Union[RayDataset, DataLoader]]:
+) -> Data:
     """
     Create Dataset and Dataloader for image folder dataset.
     Args:
@@ -59,23 +59,23 @@ def image_dataset_from_directory(
     Returns:
         A dictionary containing dataset and dataloader.
     """
-
+    data = Data()
     num_workers = num_workers or os.cpu_count()
     if transform is True:
         transform = get_augmentations(image_size)
     if ray_data:
-        ds = RayImageFolder(directory, transform=transform)
+        data.dataset = RayImageFolder(directory, transform=transform)
     else:
-        ds = ImageFolder(directory, transform=transform)
+        data.dataset = ImageFolder(directory, transform=transform)
     logger.info("ds created")
-    dl = DataLoader(
-        ds,
+    data.dataloader = DataLoader(
+        data.dataset,
         batch_size=batch_size,
         pin_memory=pin_memory,
         shuffle=shuffle,
         num_workers=num_workers,
     )
-    return {"ds": ds, "dl": dl}
+    return data
 
 
 def get_fake_data(

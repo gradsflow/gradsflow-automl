@@ -31,10 +31,10 @@ warnings.filterwarnings("ignore")
 data_dir = Path.cwd() / "data"
 
 train_data = image_dataset_from_directory(f"{data_dir}/hymenoptera_data/train/", transform=True)
-train_dl = train_data["dl"]
+train_dl = train_data.dataloader
 
 val_data = image_dataset_from_directory(f"{data_dir}/hymenoptera_data/val/", transform=True)
-val_dl = val_data["dl"]
+val_dl = val_data.dataloader
 
 
 def test_forward():
@@ -72,7 +72,7 @@ def test_hp_tune():
         max_steps=2,
         timeout=30,
         suggested_backbones="ssl_resnet18",
-        optimization_metric="val/accuracy",
+        optimization_metric="val_accuracy",
         n_trials=1,
     )
     model.hp_tune(name="pytest-experiment", mode="max", gpu=0)
