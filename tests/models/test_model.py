@@ -62,3 +62,9 @@ def test_compile():
         model1.compile("crossentropyloss", "adam", metrics="random_val")
 
     model1.compile("crossentropyloss", "adam", metrics="accuracy")
+
+
+def test_set_accelerator():
+    model2 = Model(cnn, accelerator_config={"fp16": True})
+    model2.compile()
+    assert model2.accelerator

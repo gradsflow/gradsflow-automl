@@ -87,7 +87,7 @@ class Model(BaseModel):
         self.optimizer.zero_grad()
         logits = self.forward_once(inputs)
         loss = self.loss(logits, target)
-        self.accelerator.backward(loss)
+        self.backward(loss)
         self.optimizer.step()
         self.tracker.track("train/step_loss", loss, render=True)
         return {"loss": loss, "logits": logits}
@@ -131,10 +131,12 @@ class Model(BaseModel):
         self.metrics.reset()
 
     def eval(self):
+        """Set learner to eval mode for validation"""
         self.learner.requires_grad_(False)
         self.learner.eval()
 
     def train(self):
+        """Set learner to training mode"""
         self.learner.requires_grad_(True)
         self.learner.train()
 
@@ -152,21 +154,20 @@ class Model(BaseModel):
 
         self.eval()
         for _, (inputs, target) in enumerate(val_dataloader):
-            with torch.no_grad():
-                # ----- VAL STEP -----
-                self.tracker.callback_runner.on_val_step_start()
-                outputs = self.val_step(inputs, target)
-                self.tracker.callback_runner.on_val_step_end()
+            # ----- VAL STEP -----
+            self.tracker.callback_runner.on_val_step_start()
+            outputs = self.val_step(inputs, target)
+            self.tracker.callback_runner.on_val_step_end()
 
-                # ----- METRIC UPDATES -----
-                loss = outputs["loss"]
-                self.metrics.update(outputs.get("logits"), target)
-                self.tracker.track_metrics(self.metrics.compute(), mode="val", render=True)
-                self.tracker.val.step_loss = loss
+            # ----- METRIC UPDATES -----
+            loss = outputs["loss"]
+            self.metrics.update(outputs.get("logits"), target)
+            self.tracker.track_metrics(self.metrics.compute(), mode="val", render=True)
+            self.tracker.val.step_loss = loss
 
-                tracker.total += target.size(0)
-                running_val_loss += loss.cpu().numpy()
-                tracker.val.steps += 1
+            tracker.total += target.size(0)
+            running_val_loss += loss.cpu().numpy()
+            tracker.val.steps += 1
             if self.TEST:
                 break
         tracker.track_loss(running_val_loss / (tracker.val.steps + 1e-9), "val")

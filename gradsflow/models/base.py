@@ -35,17 +35,30 @@ class Base:
 
 
 class BaseModel(Base):
+    """Base Class of Model API"""
+
     TEST = os.environ.get("GF_CI", "false").lower() == "true"
     _OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
 
-    def __init__(self, learner: Union[nn.Module, Any], accelerator_config: dict = None):
-        self.accelerator = Accelerator(**accelerator_config)
+    def __init__(self, learner: Union[nn.Module, Any], device: Optional[str] = None, accelerator_config: dict = None):
+        self.accelerator = None
+        self.device = device
+        self._set_accelerator(device, accelerator_config)
         self.learner = self.prepare_model(learner)
-        self.device = self.accelerator.device
         self.metrics: MetricCollection = MetricCollection([])
+
+    def _set_accelerator(self, device: Optional[str], accelerator_config: dict):
+        self.accelerator = None
+        self.device = "cpu"
+        if accelerator_config:
+            self.accelerator = Accelerator(cpu=(device == "cpu"), **accelerator_config)
+            self.device = self.accelerator.device
 
     def prepare_model(self, learner: Union[nn.Module, List[nn.Module]]):
         """Inplace ops for preparing model via HF Accelerator. Automatically sends to device."""
+        if not self.accelerator:
+            learner = learner.to(self.device)
+            return learner
         if isinstance(learner, (list, tuple)):
             self.learner = list(map(self.accelerator.prepare_model, learner))
         elif isinstance(learner, nn.Module):
@@ -59,9 +72,13 @@ class BaseModel(Base):
         return self.learner
 
     def prepare_optimizer(self, optimizer) -> torch.optim.Optimizer:
+        if not self.accelerator:
+            return optimizer
         return self.accelerator.prepare_optimizer(optimizer)
 
     def prepare_data(self, autodataset: AutoDataset = None) -> AutoDataset:
+        if not self.accelerator:
+            return autodataset
         autodataset.train_dataloader = self.accelerator.prepare_data_loader(autodataset.train_dataloader)
         if autodataset.val_dataloader:
             autodataset.val_dataloader = self.accelerator.prepare_data_loader(autodataset.val_dataloader)
@@ -120,3 +137,9 @@ class BaseModel(Base):
 
     def load_from_checkpoint(self, checkpoint):
         self.learner = torch.load(checkpoint)
+
+    def backward(self, loss: torch.Tensor):
+        if not self.accelerator:
+            loss.backward()
+        else:
+            self.accelerator.backward(loss)
