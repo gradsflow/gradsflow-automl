@@ -26,6 +26,8 @@ from gradsflow.models.base import BaseModel
 from gradsflow.models.tracker import Tracker
 from gradsflow.utility.common import listify, module_to_cls_index
 
+METRICS_TYPE = Union[str, Metric, List[Union[str, Metric]], None]
+
 
 class Model(BaseModel):
     """
@@ -66,7 +68,7 @@ class Model(BaseModel):
         loss=None,
         optimizer="adam",
         learning_rate=3e-4,
-        metrics: Union[List[Union[str, Metric]], None] = None,
+        metrics: METRICS_TYPE = None,
         loss_config: Optional[dict] = None,
         optimizer_config: Optional[dict] = None,
     ) -> None:

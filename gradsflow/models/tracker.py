@@ -34,10 +34,10 @@ class Tracker(BaseTracker):
     def mode(self, mode):
         if mode == "train":
             return self.train
-        elif mode == "val":
+        if mode == "val":
             return self.val
-        else:
-            raise NotImplementedError(f"mode {mode} is not implemented!")
+
+        raise NotImplementedError(f"mode {mode} is not implemented!")
 
     def track_loss(self, loss: float, mode: str):
         value_tracker = self.mode(mode)
