@@ -13,7 +13,7 @@
 #  limitations under the License.
 import os
 from dataclasses import dataclass
-from typing import Any, Callable, Optional, Union
+from typing import Any, Callable, List, Optional, Union
 
 import torch
 from accelerate import Accelerator
@@ -45,14 +45,16 @@ class BaseModel(Base):
         self.prepare_model(learner)
         self.metrics: MetricCollection = MetricCollection([])
 
-    def prepare_model(self, learner) -> None:
+    def prepare_model(self, learner: Union[nn.Module, List[nn.Module]]) -> None:
+        """Inplace ops for preparing model via HF Accelerator. Automatically sends to device."""
         if isinstance(learner, (list, tuple)):
             self.learner = self.accelerator.prepare_model(*learner)
         elif isinstance(learner, nn.Module):
             self.learner = self.accelerator.prepare_model(learner)
         else:
             raise NotImplementedError(
-                f"prepare_model is not implemented for model of type {type(learner)}! Please implement prepare_model or raise an issue."
+                f"prepare_model is not implemented for model of type {type(learner)}! Please implement prepare_model "
+                f"or raise an issue."
             )
 
     def prepare_optimizer(self, optimizer) -> None:

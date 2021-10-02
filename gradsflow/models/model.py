@@ -85,6 +85,8 @@ class Model(BaseModel):
         self.optimizer.zero_grad()
         logits = self._forward_once(inputs)
         loss = self.loss(logits, target)
+        self.accelerator.backward(loss)
+        self.optimizer.step()
         self.tracker.track("train/step_loss", loss, render=True)
         return {"loss": loss, "logits": logits}
 
@@ -108,8 +110,6 @@ class Model(BaseModel):
             # ----- TRAIN STEP -----
             self.tracker.callback_runner.on_train_step_start()
             outputs = self.train_step(inputs, target)
-            self.accelerator.backward(outputs["loss"])
-            self.optimizer.step()
             self.tracker.callback_runner.on_train_step_end()
 
             # ----- METRIC UPDATES -----
