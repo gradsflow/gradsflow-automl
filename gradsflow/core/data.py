@@ -45,22 +45,16 @@ class AutoDataset:
             raise UserWarning("Both datamodule and train_dataloader can't be None!")
 
         if all((datamodule, train_dataloader)):
-            logger.warning("Both datamodule and train_dataloader is set!" "Using datamodule over train_dataloader.")
+            logger.warning("Both datamodule and train_dataloader is set! Using datamodule over train_dataloader.")
 
         if not datamodule:
-            datamodule = pl.LightningDataModule()
-            datamodule.train_dataloader = train_dataloader
-            datamodule.val_dataloader = val_dataloader
-            datamodule.num_classes = num_classes
+            self.train_dataloader = train_dataloader
+            self.val_dataloader = val_dataloader
+            self.num_classes = num_classes
 
-        if datamodule:
+        elif isinstance(datamodule, pl.LightningDataModule):
             self.datamodule = datamodule
+            self.train_dataloader = datamodule.train_dataloader()
+            self.val_dataloader = datamodule.val_dataloader()
             if hasattr(datamodule, "num_classes"):
-                num_classes = datamodule.num_classes
-            if num_classes is None:
-                raise UserWarning("num_classes is None!")
-
-        self.datamodule = datamodule
-        self.train_dataloader = datamodule.train_dataloader
-        self.val_dataloader = datamodule.val_dataloader
-        self.num_classes = num_classes
+                self.num_classes = datamodule.num_classes

@@ -72,7 +72,7 @@ def test_hp_tune():
         max_steps=2,
         timeout=30,
         suggested_backbones="ssl_resnet18",
-        optimization_metric="val_accuracy",
+        optimization_metric="val/accuracy",
         n_trials=1,
     )
     model.hp_tune(name="pytest-experiment", mode="max", gpu=0)

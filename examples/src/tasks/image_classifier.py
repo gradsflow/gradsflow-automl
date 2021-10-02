@@ -30,8 +30,9 @@ datamodule = ImageClassificationData.from_folders(
 model = AutoImageClassifier(
     datamodule,
     max_epochs=2,
-    optimization_metric="train_accuracy",
+    optimization_metric="train/accuracy",
     max_steps=2,
+    n_trials=2,
 )
 print("AutoImageClassifier initialised!")
 
