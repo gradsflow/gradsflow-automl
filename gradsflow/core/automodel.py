@@ -37,7 +37,7 @@ class AutoModel(BaseAutoModel, ABC):
     Args:
         datamodule flash.DataModule: DataModule from Flash or PyTorch Lightning
         max_epochs [int]: Maximum number of epochs for which model will train
-        max_steps Optional[int]: Maximum number of steps for each epoch. Defaults None.
+        max_steps Optional[int]: Maximum number of steps for each current_epoch. Defaults None.
         optimization_metric str: Value on which hyperparameter search will run.
         By default, it is `val_accuracy`.
         n_trials int: Number of trials for HPO

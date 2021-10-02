@@ -11,7 +11,6 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-
 import os
 from typing import Any, Dict, List, Optional, Union
 
@@ -57,7 +56,7 @@ class Model(BaseModel):
         super().__init__(learner=learner, accelerator_config=accelerator_config)
         self.tracker = Tracker()
 
-    def _forward_once(self, x) -> torch.Tensor:
+    def forward_once(self, x) -> torch.Tensor:
         self.tracker.callback_runner.on_forward_start()
         x = self.forward(x)
         self.tracker.callback_runner.on_forward_end()
@@ -83,7 +82,7 @@ class Model(BaseModel):
 
     def train_step(self, inputs: torch.Tensor, target: torch.Tensor) -> Dict[str, torch.Tensor]:
         self.optimizer.zero_grad()
-        logits = self._forward_once(inputs)
+        logits = self.forward_once(inputs)
         loss = self.loss(logits, target)
         self.accelerator.backward(loss)
         self.optimizer.step()
@@ -91,7 +90,7 @@ class Model(BaseModel):
         return {"loss": loss, "logits": logits}
 
     def val_step(self, inputs: torch.Tensor, target: torch.Tensor) -> Dict[str, torch.Tensor]:
-        logits = self._forward_once(inputs)
+        logits = self.forward_once(inputs)
         loss = self.loss(logits, target)
         self.tracker.track("val/step_loss", loss, render=True)
         return {"loss": loss, "logits": logits}
@@ -104,7 +103,7 @@ class Model(BaseModel):
         tracker.train.steps = 0
         steps_per_epoch = tracker.steps_per_epoch
 
-        self.learner.train()
+        self.train()
         for step, (inputs, target) in enumerate(train_dataloader):
 
             # ----- TRAIN STEP -----
@@ -113,13 +112,13 @@ class Model(BaseModel):
             self.tracker.callback_runner.on_train_step_end()
 
             # ----- METRIC UPDATES -----
-            loss = outputs["loss"].item()
-            self.metrics.update(outputs["logits"], target)
+            self.tracker.train.step_loss = outputs["loss"].item()
+            self.metrics.update(outputs.get("logits"), target)
             self.tracker.track_metrics(self.metrics.compute(), mode="train", render=True)
 
-            running_train_loss += loss
+            running_train_loss += self.tracker.train.step_loss
             tracker.train.steps += 1
-            tracker.step += 1
+            tracker.current_step += 1
             if self.TEST:
                 break
             if steps_per_epoch and step >= steps_per_epoch:
@@ -127,6 +126,14 @@ class Model(BaseModel):
         self.tracker.track_loss(running_train_loss / (tracker.train.steps + 1e-9), mode="train")
         self.tracker.callback_runner.on_train_epoch_end()
         self.metrics.reset()
+
+    def eval(self):
+        self.learner.requires_grad_(False)
+        self.learner.eval()
+
+    def train(self):
+        self.learner.requires_grad_(True)
+        self.learner.train()
 
     def val_one_epoch(self):
         self.tracker.callback_runner.on_val_epoch_start()
@@ -140,7 +147,7 @@ class Model(BaseModel):
         running_val_loss = 0.0
         tracker.val.steps = 0
 
-        self.learner.eval()
+        self.eval()
         for _, (inputs, target) in enumerate(val_dataloader):
             with torch.no_grad():
                 # ----- VAL STEP -----
@@ -150,8 +157,9 @@ class Model(BaseModel):
 
                 # ----- METRIC UPDATES -----
                 loss = outputs["loss"]
-                self.metrics.update(outputs["logits"], target)
+                self.metrics.update(outputs.get("logits"), target)
                 self.tracker.track_metrics(self.metrics.compute(), mode="val", render=True)
+                self.tracker.val.step_loss = loss
 
                 tracker.total += target.size(0)
                 running_val_loss += loss.cpu().numpy()
@@ -169,6 +177,7 @@ class Model(BaseModel):
         steps_per_epoch: Optional[int] = None,
         callbacks: Union[List[str], Callback] = None,
         resume: bool = True,
+        show_progress: bool = True,
         progress_kwargs=None,
     ) -> Tracker:
         """
@@ -176,19 +185,21 @@ class Model(BaseModel):
         Args:
             autodataset: AutoDataset object encapsulate dataloader and datamodule
             max_epochs: number of epochs to train
-            steps_per_epoch: Number of steps trained in a single epoch
+            steps_per_epoch: Number of steps trained in a single current_epoch
             callbacks: Callback object or string
-            resume: Resume training from the last epoch
+            resume: Resume training from the last current_epoch
+            show_progress: Enable to show training progress
             progress_kwargs: Arguments for rich.progress
 
         Returns:
             Tracker object
         """
-        progress_kwargs = progress_kwargs or {}
         if not resume:
             self.tracker.reset()
         self.assert_compiled()
-        callback_list = listify(callbacks) + [ProgressCallback(self, **progress_kwargs)]
+        callback_list = listify(callbacks)
+        if show_progress:
+            callback_list.append(ProgressCallback(self, progress_kwargs))
         self.tracker.callback_runner = CallbackRunner(self, *callback_list)
         self.tracker.autodataset = self.prepare_data(autodataset)
         self.tracker.steps_per_epoch = steps_per_epoch
@@ -198,8 +209,8 @@ class Model(BaseModel):
         # ----- EVENT: ON_TRAINING_START -----
         tracker.callback_runner.on_fit_start()
 
-        for epoch in range(tracker.epoch, max_epochs):
-            tracker.epoch = epoch
+        for epoch in range(tracker.current_epoch, max_epochs):
+            tracker.current_epoch = epoch
 
             # ----- EVENT: ON_EPOCH_START -----
             tracker.callback_runner.on_epoch_start()

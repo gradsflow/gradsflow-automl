@@ -40,15 +40,14 @@ class BaseModel(Base):
 
     def __init__(self, learner: Union[nn.Module, Any], accelerator_config: dict = None):
         self.accelerator = Accelerator(**accelerator_config)
-        self.learner = None
+        self.learner = self.prepare_model(learner)
         self.device = self.accelerator.device
-        self.prepare_model(learner)
         self.metrics: MetricCollection = MetricCollection([])
 
-    def prepare_model(self, learner: Union[nn.Module, List[nn.Module]]) -> None:
+    def prepare_model(self, learner: Union[nn.Module, List[nn.Module]]):
         """Inplace ops for preparing model via HF Accelerator. Automatically sends to device."""
         if isinstance(learner, (list, tuple)):
-            self.learner = self.accelerator.prepare_model(*learner)
+            self.learner = list(map(self.accelerator.prepare_model, learner))
         elif isinstance(learner, nn.Module):
             self.learner = self.accelerator.prepare_model(learner)
         else:
@@ -57,8 +56,10 @@ class BaseModel(Base):
                 f"or raise an issue."
             )
 
-    def prepare_optimizer(self, optimizer) -> None:
-        self.optimizer = self.accelerator.prepare_optimizer(optimizer)
+        return self.learner
+
+    def prepare_optimizer(self, optimizer) -> torch.optim.Optimizer:
+        return self.accelerator.prepare_optimizer(optimizer)
 
     def prepare_data(self, autodataset: AutoDataset = None) -> AutoDataset:
         autodataset.train_dataloader = self.accelerator.prepare_data_loader(autodataset.train_dataloader)
