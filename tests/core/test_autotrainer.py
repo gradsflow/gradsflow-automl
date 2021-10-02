@@ -17,6 +17,8 @@ import pytest
 
 from gradsflow.core.backend import AutoBackend
 
+trainer_config = {"show_progress": False}
+
 
 @patch("gradsflow.core.backend.pl")
 def test_optimization_objective(mock_pl: Mock):
@@ -25,7 +27,7 @@ def test_optimization_objective(mock_pl: Mock):
 
     # backend is pl
     autotrainer = AutoBackend(dm, model_builder, optimization_metric="val_accuracy", backend="pl")
-    autotrainer.optimization_objective({}, {})
+    autotrainer.optimization_objective({}, trainer_config)
     mock_pl.Trainer.assert_called()
 
     # wrong backend is passed
@@ -36,4 +38,4 @@ def test_optimization_objective(mock_pl: Mock):
             optimization_metric="val_accuracy",
             backend="error",
         )
-        autotrainer.optimization_objective({}, {})
+        autotrainer.optimization_objective({}, trainer_config)

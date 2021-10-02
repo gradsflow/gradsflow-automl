@@ -65,7 +65,7 @@ class Model(BaseModel):
     def compile(
         self,
         loss=None,
-        optimizer="adam",
+        optimizer=None,
         learning_rate=3e-4,
         metrics: METRICS_TYPE = None,
         loss_config: Optional[dict] = None,
@@ -73,11 +73,14 @@ class Model(BaseModel):
     ) -> None:
         loss_config = loss_config or {}
         optimizer_config = optimizer_config or {}
-        optimizer_fn = self._get_optimizer(optimizer)
-        optimizer = optimizer_fn(self.learner.parameters(), lr=learning_rate, **optimizer_config)
-        self.loss = self._get_loss(loss)(**loss_config)
+
+        if optimizer:
+            optimizer_fn = self._get_optimizer(optimizer)
+            optimizer = optimizer_fn(self.learner.parameters(), lr=learning_rate, **optimizer_config)
+            self.optimizer = self.prepare_optimizer(optimizer)
+        if loss:
+            self.loss = self._get_loss(loss)(**loss_config)
         self.add_metrics(*listify(metrics))
-        self.prepare_optimizer(optimizer)
         self._compiled = True
 
     def train_step(self, inputs: torch.Tensor, target: torch.Tensor) -> Dict[str, torch.Tensor]:

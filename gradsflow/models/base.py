@@ -91,12 +91,12 @@ class BaseModel(Base):
 
         return loss_fn
 
-    def _get_optimizer(self, optimizer) -> Callable:
+    def _get_optimizer(self, optimizer: Union[str, torch.optim.Optimizer]) -> Callable:
         if isinstance(optimizer, str):
             optimizer_fn = self._OPTIMIZER_INDEX.get(optimizer)
-            assert (
-                optimizer_fn is not None
-            ), f"optimizer {optimizer} is not available! Available optimizers are {tuple(self._OPTIMIZER_INDEX.keys())}"
+            assert optimizer_fn, f"optimizer {optimizer} is not available! Available optimizers are"
+            "{tuple(self._OPTIMIZER_INDEX.keys())}"
+
         elif isinstance(optimizer, torch.optim.Optimizer):
             optimizer_fn = optimizer
         else:
