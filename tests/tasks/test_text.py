@@ -30,6 +30,7 @@ def test_build_model():
     datamodule.num_classes = 2
     model = AutoTextClassifier(
         datamodule,
+        num_classes=datamodule.num_classes,
         suggested_backbones=["sgugger/tiny-distilbert-classification"],
         suggested_conf=suggested_conf,
         max_epochs=1,

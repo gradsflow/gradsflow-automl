@@ -38,6 +38,7 @@ class AutoDataset:
         num_classes: Optional[int] = None,
     ):
 
+        self.meta = {}
         self.datamodule = None
         self.train_dataloader = train_dataloader
         self.val_dataloader = val_dataloader
@@ -60,3 +61,7 @@ class AutoDataset:
             self.val_dataloader = datamodule.val_dataloader()
             if hasattr(datamodule, "num_classes"):
                 self.num_classes = datamodule.num_classes
+            if hasattr(datamodule, "num_labels"):
+                self.meta["num_labels"] = datamodule.num_labels
+
+        self.meta["num_classes"] = self.num_classes
