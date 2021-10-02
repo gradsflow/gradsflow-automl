@@ -65,6 +65,12 @@ class AutoTextClassifier(AutoClassifier):
         "sgugger/tiny-distilbert-classification",
     ]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        meta = self.auto_dataset.meta
+        self.num_classes = meta.get("num_labels") or meta.get("num_classes")
+        print("num_classes = ", self.num_classes)
+
     def build_model(self, config: dict) -> torch.nn.Module:
         """Build TextClassifier model from `ray.tune` hyperparameter configs
         or via _search_space dictionary arguments
@@ -76,7 +82,7 @@ class AutoTextClassifier(AutoClassifier):
             optimizer [str]: PyTorch Optimizers. Check `AutoImageClassification._OPTIMIZER_INDEX`
             learning_rate [float]: Learning rate for the model.
         """
-        self.num_classes = self.auto_dataset.num_classes
+
         backbone = config["backbone"]
         optimizer = config["optimizer"]
         learning_rate = config["lr"]

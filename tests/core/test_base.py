@@ -11,11 +11,3 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-from gradsflow.core.base import BaseTracker
-
-
-def test_reset():
-    tracker = BaseTracker()
-    tracker.max_epochs = 5
-    tracker.reset()
-    assert tracker.max_epochs == 0

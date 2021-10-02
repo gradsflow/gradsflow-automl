@@ -11,23 +11,31 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+import torchvision
 from timm import create_model
+from torch.utils.data import DataLoader
+from torchvision import transforms as T
 
 from gradsflow import AutoDataset, Model
-from gradsflow.data.image import get_fake_data
+from gradsflow.data.common import random_split_dataset
 
 # Replace dataloaders with your custom dataset and you are all set to train your model
 image_size = (64, 64)
-num_classes = 2
-train_dl = get_fake_data(image_size, num_classes=num_classes).dataloader
-val_dl = get_fake_data(image_size, num_classes=num_classes).dataloader
+batch_size = 4
 
-autodataset = AutoDataset(train_dl, val_dl, num_classes=num_classes)
+to_rgb = lambda x: x.convert("RGB")
 
+augs = T.Compose([to_rgb, T.AutoAugment(), T.Resize(image_size), T.ToTensor()])
+data = torchvision.datasets.Caltech101("~/", download=True, transform=augs)
+train_data, val_data = random_split_dataset(data, 0.99)
+train_dl = DataLoader(train_data, batch_size=batch_size)
+val_dl = DataLoader(val_data, batch_size=batch_size)
+num_classes = len(data.categories)
 
 if __name__ == "__main__":
+    autodataset = AutoDataset(train_dl, val_dl, num_classes=num_classes)
     cnn = create_model("resnet18", pretrained=False, num_classes=num_classes)
 
     model = Model(cnn)
     model.compile("crossentropyloss", "adam", metrics="accuracy")
-    model.fit(autodataset, max_epochs=10, steps_per_epoch=50)
+    model.fit(autodataset, max_epochs=10, steps_per_epoch=5)

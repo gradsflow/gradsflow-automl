@@ -26,6 +26,8 @@ from gradsflow.models.base import BaseModel
 from gradsflow.models.tracker import Tracker
 from gradsflow.utility.common import listify, module_to_cls_index
 
+METRICS_TYPE = Union[str, Metric, List[Union[str, Metric]], None]
+
 
 class Model(BaseModel):
     """
@@ -34,7 +36,7 @@ class Model(BaseModel):
     Examples:
     ```python
         model = Model(cnn)
-        model.compile("crossentropyloss", "adam", learning_rate=1e-3)
+        model.compile("crossentropyloss", "adam", learning_rate=1e-3, metrics="accuracy")
         model.fit(autodataset)
     ```
 
@@ -55,12 +57,18 @@ class Model(BaseModel):
         super().__init__(learner=learner, accelerator_config=accelerator_config)
         self.tracker = Tracker()
 
+    def _forward_once(self, x) -> torch.Tensor:
+        self.tracker.callback_runner.on_forward_start()
+        x = self.forward(x)
+        self.tracker.callback_runner.on_forward_end()
+        return x
+
     def compile(
         self,
         loss=None,
         optimizer="adam",
         learning_rate=3e-4,
-        metrics: Union[str, Metric, None] = None,
+        metrics: METRICS_TYPE = None,
         loss_config: Optional[dict] = None,
         optimizer_config: Optional[dict] = None,
     ) -> None:
@@ -75,17 +83,16 @@ class Model(BaseModel):
 
     def train_step(self, inputs: torch.Tensor, target: torch.Tensor) -> Dict[str, torch.Tensor]:
         self.optimizer.zero_grad()
-        logits = self.learner(inputs)
+        logits = self._forward_once(inputs)
         loss = self.loss(logits, target)
-        self.accelerator.backward(loss)
-        self.optimizer.step()
+        self.tracker.track("train/step_loss", loss, render=True)
         return {"loss": loss, "logits": logits}
 
     def val_step(self, inputs: torch.Tensor, target: torch.Tensor) -> Dict[str, torch.Tensor]:
-        logits = self.learner(inputs)
+        logits = self._forward_once(inputs)
         loss = self.loss(logits, target)
-        _, predictions = torch.max(logits.data, 1)
-        return {"loss": loss, "logits": logits, "predictions": predictions}
+        self.tracker.track("val/step_loss", loss, render=True)
+        return {"loss": loss, "logits": logits}
 
     def train_one_epoch(self):
         self.tracker.callback_runner.on_train_epoch_start()
@@ -97,20 +104,27 @@ class Model(BaseModel):
 
         self.learner.train()
         for step, (inputs, target) in enumerate(train_dataloader):
+
+            # ----- TRAIN STEP -----
             self.tracker.callback_runner.on_train_step_start()
             outputs = self.train_step(inputs, target)
+            self.accelerator.backward(outputs["loss"])
+            self.optimizer.step()
             self.tracker.callback_runner.on_train_step_end()
+
+            # ----- METRIC UPDATES -----
             loss = outputs["loss"].item()
             self.metrics.update(outputs["logits"], target)
-            self.tracker.train.metrics = self.metrics.compute()
+            self.tracker.track_metrics(self.metrics.compute(), mode="train", render=True)
 
             running_train_loss += loss
             tracker.train.steps += 1
+            tracker.step += 1
             if self.TEST:
                 break
             if steps_per_epoch and step >= steps_per_epoch:
                 break
-        tracker.train.loss = running_train_loss / (tracker.train.steps + 1e-9)
+        self.tracker.track_loss(running_train_loss / (tracker.train.steps + 1e-9), mode="train")
         self.tracker.callback_runner.on_train_epoch_end()
         self.metrics.reset()
 
@@ -129,22 +143,22 @@ class Model(BaseModel):
         self.learner.eval()
         for _, (inputs, target) in enumerate(val_dataloader):
             with torch.no_grad():
+                # ----- VAL STEP -----
                 self.tracker.callback_runner.on_val_step_start()
                 outputs = self.val_step(inputs, target)
                 self.tracker.callback_runner.on_val_step_end()
+
+                # ----- METRIC UPDATES -----
                 loss = outputs["loss"]
-                predicted = outputs["predictions"]
                 self.metrics.update(outputs["logits"], target)
-                self.tracker.val.metrics = self.metrics.compute()
+                self.tracker.track_metrics(self.metrics.compute(), mode="val", render=True)
 
                 tracker.total += target.size(0)
-                tracker.correct += (predicted == target).sum().item()
                 running_val_loss += loss.cpu().numpy()
                 tracker.val.steps += 1
             if self.TEST:
                 break
-        tracker.val.loss = running_val_loss / (tracker.val.steps + 1e-9)
-        tracker.tune_metric = tracker.val_accuracy = tracker.correct / tracker.val.steps
+        tracker.track_loss(running_val_loss / (tracker.val.steps + 1e-9), "val")
         self.tracker.callback_runner.on_val_epoch_end()
         self.metrics.reset()
 
@@ -181,27 +195,27 @@ class Model(BaseModel):
 
         tracker = self.tracker
 
-        # ----- EVENT: ON_TRAINING_START
+        # ----- EVENT: ON_TRAINING_START -----
         tracker.callback_runner.on_fit_start()
 
         for epoch in range(tracker.epoch, max_epochs):
             tracker.epoch = epoch
 
-            # ----- EVENT: ON_EPOCH_START
+            # ----- EVENT: ON_EPOCH_START -----
             tracker.callback_runner.on_epoch_start()
 
             self.train_one_epoch()
 
-            # END OF TRAIN EPOCH
+            # ----- END OF TRAIN EPOCH -----
             self.val_one_epoch()
 
-            # ----- EVENT: ON_EPOCH_END
+            # ----- EVENT: ON_EPOCH_END -----
             tracker.callback_runner.on_epoch_end()
 
             if self.TEST:
                 break
 
-        # ----- EVENT: ON_TRAINING_END
+        # ----- EVENT: ON_TRAINING_END -----
         tracker.callback_runner.on_fit_end()
 
         return tracker

@@ -69,7 +69,7 @@ class AutoBackend:
             max_epochs=epochs,
             callbacks=trainer_config.get("callback_runner", ("tune_checkpoint", "tune_report")),
         )
-        return tracker.__dict__[self.optimization_metric]
+        return tracker
 
     # noinspection PyTypeChecker
     def _lightning_objective(

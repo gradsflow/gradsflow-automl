@@ -24,5 +24,3 @@ dataloader = DataLoader(dataset)
 def test_auto_dataset():
     with pytest.raises(UserWarning):
         AutoDataset()
-    with pytest.raises(UserWarning):
-        AutoDataset(train_dataloader=dataloader)

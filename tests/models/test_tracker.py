@@ -11,18 +11,11 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-from pathlib import Path
-
-from gradsflow.core.data import Data
-from gradsflow.data.image import image_dataset_from_directory
-
-data_dir = Path.cwd()
+from gradsflow.models.tracker import Tracker
 
 
-# todo: remote dataset test
-def test_image_dataset_from_directory():
-    folder = f"{data_dir}/data/test-data-cat-dog-v0/cat-dog/"
-    res1 = image_dataset_from_directory(folder, transform=True, ray_data=True)
-    assert isinstance(res1, Data)
-    res2 = image_dataset_from_directory(folder, transform=True, ray_data=False)
-    assert isinstance(res2, Data)
+def test_reset():
+    tracker = Tracker()
+    tracker.max_epochs = 5
+    tracker.reset()
+    assert tracker.max_epochs == 0

@@ -95,3 +95,11 @@ class CallbackRunner(Callback):
     def on_epoch_end(self):
         for callback in self.callbacks:
             callback.on_epoch_end()
+
+    def on_forward_start(self):
+        for callback in self.callbacks:
+            callback.on_forward_start()
+
+    def on_forward_end(self):
+        for callback in self.callbacks:
+            callback.on_forward_end()
