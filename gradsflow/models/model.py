@@ -107,7 +107,7 @@ class Model(BaseModel):
             self.tracker.callback_runner.on_train_step_end()
             loss = outputs["loss"].item()
             self.metrics.update(outputs["logits"], target)
-            self.tracker.train.metrics = self.metrics.compute()
+            self.tracker.track_metrics(self.metrics.compute(), mode="train")
 
             running_train_loss += loss
             tracker.train.steps += 1
@@ -115,7 +115,8 @@ class Model(BaseModel):
                 break
             if steps_per_epoch and step >= steps_per_epoch:
                 break
-        tracker.train.loss = running_train_loss / (tracker.train.steps + 1e-9)
+        running_train_loss = running_train_loss / (tracker.train.steps + 1e-9)
+        self.tracker.track_loss(running_train_loss, mode="train")
         self.tracker.callback_runner.on_train_epoch_end()
         self.metrics.reset()
 
@@ -139,15 +140,15 @@ class Model(BaseModel):
                 self.tracker.callback_runner.on_val_step_end()
                 loss = outputs["loss"]
                 self.metrics.update(outputs["logits"], target)
-                self.tracker.val.metrics = self.metrics.compute()
+                self.tracker.track_metrics(self.metrics.compute(), mode="val")
 
                 tracker.total += target.size(0)
                 running_val_loss += loss.cpu().numpy()
                 tracker.val.steps += 1
             if self.TEST:
                 break
-        tracker.val.loss = running_val_loss / (tracker.val.steps + 1e-9)
-        tracker.tune_metric = tracker.val_accuracy = tracker.correct / tracker.val.steps
+        running_val_loss = running_val_loss / (tracker.val.steps + 1e-9)
+        tracker.track_loss(running_val_loss, "val")
         self.tracker.callback_runner.on_val_epoch_end()
         self.metrics.reset()
 

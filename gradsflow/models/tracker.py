@@ -11,7 +11,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-from typing import Optional
+from typing import Dict, Optional
 
 from rich.table import Table
 
@@ -30,6 +30,30 @@ class Tracker(BaseTracker):
         self.callback_runner: Optional[CallbackRunner] = None
         self.train.metrics = {}
         self.val.metrics = {}
+
+    def mode(self, mode):
+        if mode == "train":
+            return self.train
+        elif mode == "val":
+            return self.val
+        else:
+            raise NotImplementedError(f"mode {mode} is not implemented!")
+
+    def track_loss(self, loss: float, mode: str):
+        value_tracker = self.mode(mode)
+        value_tracker.loss = loss
+
+    def track_metrics(self, metric: Dict[str, float], mode: str):
+        value_tracker = self.mode(mode)
+        value_tracker.metrics = metric
+
+    def get_metrics(self, mode: str):
+        value_tracker = self.mode(mode)
+        return value_tracker.metrics
+
+    def get_loss(self, mode: str):
+        value_tracker = self.mode(mode)
+        return value_tracker.loss
 
     def create_table(self) -> Table:
         headings = ["epoch", "train/loss"]
