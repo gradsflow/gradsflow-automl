@@ -50,8 +50,8 @@ class TrackingValues:
 @dataclass(init=False)
 class BaseTracker:
     max_epochs: int = 0
-    epoch: int = 0  # current train epoch
-    step: int = 0  # current step
+    current_epoch: int = 0  # current train current_epoch
+    current_step: int = 0  # current current_step
     steps_per_epoch: Optional[int] = None
     train: TrackingValues = TrackingValues()
     val: TrackingValues = TrackingValues()

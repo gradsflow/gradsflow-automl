@@ -36,7 +36,7 @@ def report_checkpoint_callback(metrics: Optional[dict] = None, filename: Optiona
 
 class TorchTuneCheckpointCallback(Callback):
     def on_epoch_end(self):
-        epoch = self.model.tracker.epoch
+        epoch = self.model.tracker.current_epoch
         model = self.model.learner
 
         with tune.checkpoint_dir(epoch) as checkpoint_dir:

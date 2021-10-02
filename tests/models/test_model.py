@@ -45,18 +45,18 @@ def test_predict():
 
 def test_fit():
     model.TEST = True
-    tracker = model.fit(autodataset, max_epochs=1, steps_per_epoch=1)
+    tracker = model.fit(autodataset, max_epochs=1, steps_per_epoch=1, show_progress=False)
     assert isinstance(tracker, Tracker)
 
 
 def test_compile():
     model1 = Model(cnn)
 
-    def cal_accuracy(pred, target):
+    def compute_accuracy(*_, **__):
         return 1
 
     with pytest.raises(NotImplementedError):
-        model1.compile("crossentropyloss", "adam", metrics=cal_accuracy)
+        model1.compile("crossentropyloss", "adam", metrics=compute_accuracy)
 
     with pytest.raises(AssertionError):
         model1.compile("crossentropyloss", "adam", metrics="random_val")

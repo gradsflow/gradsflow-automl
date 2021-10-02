@@ -22,18 +22,10 @@ from gradsflow.core.base import BaseTracker, TrackingValues
 from gradsflow.models.utils import to_item
 
 
-@dataclasses.dataclass
-class Events:
-    step = "step"
-    epoch = "epoch"
-
-
 class Tracker(BaseTracker):
     """
     Tracks loss, accuracy and model weights during model.fit()
     """
-
-    _EVENTS = Events()
 
     def __init__(self):
         self.learner = None
@@ -53,9 +45,9 @@ class Tracker(BaseTracker):
         raise NotImplementedError(f"mode {mode} is not implemented!")
 
     def track(self, key, value, render=False):
-        epoch = self.epoch
-        step = self.step
-        data = {"epoch": epoch, "step": step, key: to_item(value)}
+        epoch = self.current_epoch
+        step = self.current_step
+        data = {"current_epoch": epoch, "current_step": step, key: to_item(value)}
         if render:
             self.logs.append(data)
         else:
@@ -87,8 +79,8 @@ class Tracker(BaseTracker):
         return value_tracker.loss
 
     def create_table(self) -> Table:
-        headings = ["epoch", "train/loss"]
-        row = [self.epoch, to_item(self.train.loss)]
+        headings = ["current_epoch", "train/loss"]
+        row = [self.current_epoch, to_item(self.train.loss)]
         if self.val.loss:
             headings.append("val/loss")
 
@@ -114,8 +106,8 @@ class Tracker(BaseTracker):
 
     def reset(self):
         self.max_epochs = 0
-        self.epoch = 0
-        self.step = 0
+        self.current_epoch = 0
+        self.current_step = 0
         self.steps_per_epoch = None
         self.train = TrackingValues()
         self.val = TrackingValues()

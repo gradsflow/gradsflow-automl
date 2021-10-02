@@ -11,6 +11,8 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+from typing import Dict, Optional
+
 from rich.progress import BarColumn, Progress, RenderableColumn, TimeRemainingColumn
 from rich.table import Column
 
@@ -18,8 +20,9 @@ from .callbacks import Callback
 
 
 class ProgressCallback(Callback):
-    def __init__(self, model, **kwargs):
+    def __init__(self, model, progress_kwargs: Optional[Dict] = None):
         super().__init__(model)
+        progress_kwargs = progress_kwargs or {}
         tracker = self.model.tracker
         self.bar_column = BarColumn(table_column=Column(ratio=1))
         self.table_column = RenderableColumn(tracker.create_table(), table_column=Column(ratio=2))
@@ -30,8 +33,7 @@ class ProgressCallback(Callback):
             "[progress.percentage]{task.percentage:>3.0f}%",
             TimeRemainingColumn(),
             self.table_column,
-            refresh_per_second=kwargs.get("refresh_per_second", 10),
-            expand=kwargs.get("expand", True),
+            **progress_kwargs,
         )
         tracker.progress = self.progress
         self.fit_prog = None
@@ -41,7 +43,7 @@ class ProgressCallback(Callback):
     def on_fit_start(self):
         self.progress.start()
         epochs = self.model.tracker.max_epochs
-        completed = self.model.tracker.epoch
+        completed = self.model.tracker.current_epoch
         self.fit_prog = self.progress.add_task("[red]Progress...", total=epochs, completed=completed)
 
     def on_fit_end(self):
