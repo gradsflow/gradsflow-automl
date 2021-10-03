@@ -39,6 +39,7 @@
 
 
 ## 0.0.6 - UNRELEASED
+* ✨ refactor data handling 📝 docs update. PR [#91](https://github.com/gradsflow/gradsflow/pull/91)
 * integrate torchmetrics. PR [#80](https://github.com/gradsflow/gradsflow/pull/80)
 * callbacks & 🤑 ProgressCallback. PR [#76](https://github.com/gradsflow/gradsflow/pull/76)
 * 🔥 Add AutoModel Tuner. PR [#74](https://github.com/gradsflow/gradsflow/pull/74)

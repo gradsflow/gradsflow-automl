@@ -24,6 +24,7 @@ from gradsflow.core.data import AutoDataset
 from gradsflow.data.base import DataMixin
 from gradsflow.models.base import BaseModel
 from gradsflow.models.tracker import Tracker
+from gradsflow.models.utils import to_item
 from gradsflow.utility.common import listify, module_to_cls_index
 
 METRICS_TYPE = Union[str, Metric, List[Union[str, Metric]], None]
@@ -149,7 +150,7 @@ class Model(BaseModel, DataMixin):
 
             # ----- METRIC UPDATES -----
             self.tracker.train.step_loss = outputs["loss"].item()
-            self.metrics.update(outputs.get("logits"), outputs.get("target"))
+            self.metrics.update(*list(map(to_item, outputs.get("logits"), outputs.get("target"))))
             self.tracker.track_metrics(self.metrics.compute(), mode="train", render=True)
 
             running_train_loss += self.tracker.train.step_loss
@@ -183,7 +184,7 @@ class Model(BaseModel, DataMixin):
 
             # ----- METRIC UPDATES -----
             loss = outputs["loss"]
-            self.metrics.update(outputs.get("logits"), outputs.get("target"))
+            self.metrics.update(*list(map(to_item, outputs.get("logits"), outputs.get("target"))))
             self.tracker.track_metrics(self.metrics.compute(), mode="val", render=True)
             self.tracker.val.step_loss = loss
 

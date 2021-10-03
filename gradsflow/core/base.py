@@ -39,12 +39,15 @@ class BaseAutoModel(ABC):
         raise NotImplementedError
 
 
-@dataclass(init=True)
+@dataclass(init=False)
 class TrackingValues:
     loss: Optional[float] = None
     steps: Optional[int] = None
     step_loss: Optional[float] = None
     metrics: Union[None, Dict[str, float]] = None
+
+    def __init__(self):
+        self.metrics = {}
 
 
 @dataclass(init=False)
