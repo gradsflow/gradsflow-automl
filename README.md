@@ -32,20 +32,16 @@
 ## What is GradsFlow?
 
 !!! attention
-    🚨 GradsFlow is changing fast. There will be lot of breaking changes until we reach `0.1.0`. Feel free to try and give your feedback by creating an issue or join our [Slack](https://join.slack.com/t/gradsflow/shared_invite/zt-ulc0m0ef-xstzyowuTgYceVmFbJlBmg) group.
+    🚨 GradsFlow is changing fast. There will be a lot of breaking changes until we reach `0.1.0`.
+    Feel free to give your feedback by creating an issue or join our [Slack](https://join.slack.com/t/gradsflow/shared_invite/zt-ulc0m0ef-xstzyowuTgYceVmFbJlBmg) group.
 
-GradsFlow is an open-source AutoML Library for PyTorch that can train Deep Learning Models on your laptop or
+GradsFlow is an open-source AutoML Library based on PyTorch that can train Deep Learning Models on your laptop or
 to a remote cluster directly from your laptop.
-Our aim is to democratize AI by enabling non ML expert to train and build AI Products.
-GradsFlow leverages the power of PyTorch Lightning ⚡️ and Ray️.
-You don't have to write any PyTorch or Hyperparameter optimization code.
-
-GradsFlow [Model API](https://docs.gradsflow.com/en/latest/gradsflow/model) provides a simple
-[Keras like](https://keras.io) model training interface 🔥.
-You can train any PyTorch model using `model.fit(...)` and it is easily customizable for more complex tasks.
-
-You might want to train a custom model and search hyperparameters,
-You can easily integrate any PyTorch Model with GradsFlow [AutoModel](https://docs.gradsflow.com/en/latest/gradsflow/core/) ✨
+It also provides you a powerful Model Training API that can be used to train almost any PyTorch model.
+Our aim is to democratize AI by enabling non ML expert to train & build AI Products
+and helping ML experts in training their models quickly by
+GradsFlow leverages some cool OSS library including [Ray️](https://ray.io) and [PyTorch Lightning](https://https://pytorchlightning.ai/).
+You don't have to write any PyTorch or hyperparameter optimization code.
 
 
 - `gradsflow.core`: [Core](https://docs.gradsflow.com/en/latest/gradsflow/core/) defines the building blocks
@@ -54,16 +50,18 @@ of AutoML tasks.
 - `gradsflow.autotasks`: [AutoTasks](https://docs.gradsflow.com/en/latest/gradsflow/tasks/) defines
 different ML/DL tasks which is provided by gradsflow AutoML API.
 
-- `gradsflow.model`: [Model](https://docs.gradsflow.com/en/latest/gradsflow/model/) defines the model training functionality.
+- `gradsflow.model`: GradsFlow [Model](https://docs.gradsflow.com/en/latest/gradsflow/model) provides a simple and
+  yet customizable Model Training API.
+  You can train any PyTorch model using `model.fit(...)` and it is easily customizable for more complex tasks.
 
-- `gradsflow.tuner`: [Model](https://docs.gradsflow.com/en/latest/gradsflow/tuner/) HyperParameter search with minimal code changes.
+- `gradsflow.tuner`: [AutoModel](https://docs.gradsflow.com/en/latest/gradsflow/tuner/) HyperParameter search with minimal code changes.
 
 
-📑 Check out [notebooks examples](https://github.com/gradsflow/gradsflow/tree/main/examples/nbs).
+📑 Check out [notebooks examples](https://github.com/gradsflow/gradsflow/tree/main/examples/nbs) to learn more.
 
 💬 Join the [Slack](https://join.slack.com/t/gradsflow/shared_invite/zt-ulc0m0ef-xstzyowuTgYceVmFbJlBmg) group to chat with us.
 
-💙 Sponsor us on [ko-fi](https://ko-fi.com/aniketmaurya)
+💙 Sponsor on [ko-fi](https://ko-fi.com/aniketmaurya)
 
 📧 Do you need support? Contact us at <admin@gradsflow.com>
 
