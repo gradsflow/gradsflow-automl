@@ -74,7 +74,13 @@ class AutoDataset:
     def sent_to_device(self, value: bool = True):
         self.meta["sent_to_device"] = value
 
-    def _fetch(self, data, device_mapper: Optional[Callable] = None):
+    def fetch(self, data, device_mapper: Optional[Callable] = None):
+        """
+        If data is not sent to `device` then will attempt to map the `device_mapper` function on data.
+        Args:
+            data: Data Batch
+            device_mapper: Function to move data to device
+        """
         if self.sent_to_device:
             return data
         if device_mapper:
@@ -82,7 +88,7 @@ class AutoDataset:
         return data
 
     def get_train_dl(self, mapper_fn: Optional[Callable]):
-        return self._fetch(self.train_dataloader, mapper_fn)
+        return self.fetch(self.train_dataloader, mapper_fn)
 
     def get_val_dl(self, mapper_fn: Optional[Callable]):
-        return self._fetch(self.val_dataloader, mapper_fn)
+        return self.fetch(self.val_dataloader, mapper_fn)
