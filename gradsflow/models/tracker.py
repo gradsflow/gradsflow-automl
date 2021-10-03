@@ -29,7 +29,6 @@ class Tracker(BaseTracker):
     def __init__(self):
         self.learner = None
         self.autodataset: Optional[AutoDataset] = None
-        self.callback_runner: Optional[CallbackRunner] = None
         self.train.metrics = {}
         self.val.metrics = {}
         self.logs: List[Dict] = []
