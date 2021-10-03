@@ -12,3 +12,4 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 from .model import Model
+from .utils import available_losses, available_metrics

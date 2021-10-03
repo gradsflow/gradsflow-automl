@@ -38,6 +38,9 @@
 * ✨ Add AutoTrainer to support plain torch training loop and other torch frameworks. PR [#53](https://github.com/gradsflow/gradsflow/pull/53)
 
 
-## 0.0.6
-* refactor APIs - Simplify API & add `model.compile(...)` #73
-* 🤗 integrate HF Accelerator #71
+## 0.0.6 - UNRELEASED
+* integrate torchmetrics. PR [#80](https://github.com/gradsflow/gradsflow/pull/80)
+* callbacks & 🤑 ProgressCallback. PR [#76](https://github.com/gradsflow/gradsflow/pull/76)
+* 🔥 Add AutoModel Tuner. PR [#74](https://github.com/gradsflow/gradsflow/pull/74)
+* refactor APIs - Simplify API & add `model.compile(...)`. PR [#73](https://github.com/gradsflow/gradsflow/pull/73)
+* 🤗 integrate HF Accelerator. PR [#71](https://github.com/gradsflow/gradsflow/pull/71)

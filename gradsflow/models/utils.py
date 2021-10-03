@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from typing import Any, Callable, Dict, Union
+from typing import Any, Callable, Dict, List, Union
 
 import numpy as np
 import torch
@@ -31,6 +31,10 @@ metrics: Dict[str, Metric] = {k: v for k, v in _tm_classes.items() if 65 <= ord(
 metrics = {k.lower(): v for k, v in metrics.items()}
 
 
+def get_device():
+    return "cuda" if torch.cuda.is_available() else "cpu"
+
+
 def to_item(data: Union[torch.Tensor, Any]) -> Union[int, float, str, np.ndarray]:
     if torch.is_tensor(data):
         if data.requires_grad:
@@ -43,3 +47,11 @@ def to_item(data: Union[torch.Tensor, Any]) -> Union[int, float, str, np.ndarray
             data = data.item()
 
     return data
+
+
+def available_losses() -> List[str]:
+    return list(losses.keys())
+
+
+def available_metrics() -> List[str]:
+    return list(metrics.keys())

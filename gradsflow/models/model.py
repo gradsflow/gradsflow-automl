@@ -21,6 +21,7 @@ from torchmetrics import Metric
 from gradsflow.callbacks import Callback, CallbackRunner
 from gradsflow.callbacks.progress import ProgressCallback
 from gradsflow.core.data import AutoDataset
+from gradsflow.data.base import DataMixin
 from gradsflow.models.base import BaseModel
 from gradsflow.models.tracker import Tracker
 from gradsflow.utility.common import listify, module_to_cls_index
@@ -28,15 +29,15 @@ from gradsflow.utility.common import listify, module_to_cls_index
 METRICS_TYPE = Union[str, Metric, List[Union[str, Metric]], None]
 
 
-class Model(BaseModel):
+class Model(BaseModel, DataMixin):
     """
     Model provide training functionality with `model.fit(...)` inspired from Keras
 
     Examples:
     ```python
-        model = Model(cnn)
-        model.compile("crossentropyloss", "adam", learning_rate=1e-3, metrics="accuracy")
-        model.fit(autodataset)
+    model = Model(cnn)
+    model.compile("crossentropyloss", "adam", learning_rate=1e-3, metrics="accuracy")
+    model.fit(autodataset)
     ```
 
     Args:
@@ -50,11 +51,24 @@ class Model(BaseModel):
     def __init__(
         self,
         learner: Union[nn.Module, Any],
+        device: Optional[str] = None,
+        use_accelerate: bool = True,
         accelerator_config: dict = None,
     ):
         accelerator_config = accelerator_config or {}
-        super().__init__(learner=learner, accelerator_config=accelerator_config)
-        self.tracker = Tracker()
+        super().__init__(
+            learner=learner, device=device, use_accelerate=use_accelerate, accelerator_config=accelerator_config
+        )
+
+    def eval(self):
+        """Set learner to eval mode for validation"""
+        self.learner.requires_grad_(False)
+        self.learner.eval()
+
+    def train(self):
+        """Set learner to training mode"""
+        self.learner.requires_grad_(True)
+        self.learner.train()
 
     def forward_once(self, x) -> torch.Tensor:
         self.tracker.callback_runner.on_forward_start()
@@ -64,13 +78,28 @@ class Model(BaseModel):
 
     def compile(
         self,
-        loss=None,
-        optimizer=None,
-        learning_rate=3e-4,
+        loss: Union[str, nn.modules.loss._Loss] = None,
+        optimizer: Union[str, torch.optim.Optimizer] = None,
+        learning_rate: float = 3e-4,
         metrics: METRICS_TYPE = None,
         loss_config: Optional[dict] = None,
         optimizer_config: Optional[dict] = None,
     ) -> None:
+        """
+        Examples:
+            ```python
+            model = Model(net)
+            model.compile(loss="crossentropyloss", optimizer="adam", learning_rate=1e-3, metrics="accuracy")
+            ```
+        Args:
+            loss: name of loss or torch Loss class object. See `available_losses()`
+            optimizer: optimizer name or `torch.optim.Optimizer` object
+            learning_rate: defaults to 1e-3
+            metrics: list of metrics to calculate. See `available_metrics()`
+            loss_config: Dict config if any to pass to loss function
+            optimizer_config: Dict config if any to pass to Optimizer
+
+        """
         loss_config = loss_config or {}
         optimizer_config = optimizer_config or {}
 
@@ -83,40 +112,44 @@ class Model(BaseModel):
         self.add_metrics(*listify(metrics))
         self._compiled = True
 
-    def train_step(self, inputs: torch.Tensor, target: torch.Tensor) -> Dict[str, torch.Tensor]:
+    def train_step(self, batch: Union[List[torch.Tensor], Dict[Any, torch.Tensor]]) -> Dict[str, torch.Tensor]:
+        inputs = self.fetch_inputs(batch)
+        target = self.fetch_target(batch)
         self.optimizer.zero_grad()
         logits = self.forward_once(inputs)
         loss = self.loss(logits, target)
         self.backward(loss)
         self.optimizer.step()
         self.tracker.track("train/step_loss", loss, render=True)
-        return {"loss": loss, "logits": logits}
+        return {"loss": loss, "logits": logits, "target": target}
 
-    def val_step(self, inputs: torch.Tensor, target: torch.Tensor) -> Dict[str, torch.Tensor]:
+    def val_step(self, batch: Union[List[torch.Tensor], Dict[Any, torch.Tensor]]) -> Dict[str, torch.Tensor]:
+        inputs = self.fetch_inputs(batch)
+        target = self.fetch_target(batch)
         logits = self.forward_once(inputs)
         loss = self.loss(logits, target)
         self.tracker.track("val/step_loss", loss, render=True)
-        return {"loss": loss, "logits": logits}
+        return {"loss": loss, "logits": logits, "target": target}
 
     def train_one_epoch(self):
         self.tracker.callback_runner.on_train_epoch_start()
-        train_dataloader = self.tracker.autodataset.train_dataloader
+        train_dataloader = self.tracker.autodataset.get_train_dl(self.send_to_device)
         tracker = self.tracker
         running_train_loss = 0.0
         tracker.train.steps = 0
         steps_per_epoch = tracker.steps_per_epoch
 
         self.train()
-        for step, (inputs, target) in enumerate(train_dataloader):
+        for step, batch in enumerate(train_dataloader):
 
             # ----- TRAIN STEP -----
             self.tracker.callback_runner.on_train_step_start()
-            outputs = self.train_step(inputs, target)
+            outputs = self.train_step(batch)
             self.tracker.callback_runner.on_train_step_end()
 
             # ----- METRIC UPDATES -----
             self.tracker.train.step_loss = outputs["loss"].item()
-            self.metrics.update(outputs.get("logits"), target)
+            self.metrics.update(outputs.get("logits"), outputs.get("target"))
             self.tracker.track_metrics(self.metrics.compute(), mode="train", render=True)
 
             running_train_loss += self.tracker.train.step_loss
@@ -130,42 +163,30 @@ class Model(BaseModel):
         self.tracker.callback_runner.on_train_epoch_end()
         self.metrics.reset()
 
-    def eval(self):
-        """Set learner to eval mode for validation"""
-        self.learner.requires_grad_(False)
-        self.learner.eval()
-
-    def train(self):
-        """Set learner to training mode"""
-        self.learner.requires_grad_(True)
-        self.learner.train()
-
     def val_one_epoch(self):
         self.tracker.callback_runner.on_val_epoch_start()
         autodataset = self.tracker.autodataset
         if not autodataset.val_dataloader:
             return
-        val_dataloader = autodataset.val_dataloader
+
+        val_dataloader = self.tracker.autodataset.get_val_dl(self.send_to_device)
         tracker = self.tracker
-        tracker.total = 0
-        tracker.correct = 0
         running_val_loss = 0.0
         tracker.val.steps = 0
 
         self.eval()
-        for _, (inputs, target) in enumerate(val_dataloader):
+        for _, batch in enumerate(val_dataloader):
             # ----- VAL STEP -----
             self.tracker.callback_runner.on_val_step_start()
-            outputs = self.val_step(inputs, target)
+            outputs = self.val_step(batch)
             self.tracker.callback_runner.on_val_step_end()
 
             # ----- METRIC UPDATES -----
             loss = outputs["loss"]
-            self.metrics.update(outputs.get("logits"), target)
+            self.metrics.update(outputs.get("logits"), outputs.get("target"))
             self.tracker.track_metrics(self.metrics.compute(), mode="val", render=True)
             self.tracker.val.step_loss = loss
 
-            tracker.total += target.size(0)
             running_val_loss += loss.cpu().numpy()
             tracker.val.steps += 1
             if self.TEST:
@@ -186,6 +207,15 @@ class Model(BaseModel):
     ) -> Tracker:
         """
         Similar to Keras model.fit(...) it trains the model for specified epochs and returns Tracker object
+
+        Examples:
+            ```python
+            autodataset = AutoDataset(train_dataloader, val_dataloader)
+            model = Model(cnn)
+            model.compile("crossentropyloss", "adam", learning_rate=1e-3, metrics="accuracy")
+            model.fit(autodataset)
+            ```
+
         Args:
             autodataset: AutoDataset object encapsulate dataloader and datamodule
             max_epochs: number of epochs to train
