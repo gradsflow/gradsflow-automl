@@ -27,7 +27,7 @@
 ## Highlights
 
 - 2021-8-25: [Released first version 0.0.1](https://pypi.org/project/gradsflow/) ✨ :tada:
-- 2021-8-29: Migrated from Optuna to Ray Tune. [Read more...](https://github.com/gradsflow/gradsflow/issues/35)
+- 2021-8-29: Migrated from Optuna to Ray Tune.
 
 ## What is GradsFlow?
 
@@ -36,11 +36,10 @@
     Feel free to give your feedback by creating an issue or join our [Slack](https://join.slack.com/t/gradsflow/shared_invite/zt-ulc0m0ef-xstzyowuTgYceVmFbJlBmg) group.
 
 GradsFlow is an open-source AutoML Library based on PyTorch.
-It provides automatic model training for different Deep Learning tasks.
 The goal of GradsFlow is to democratize AI and make it available to everyone.
 
-It can automatically train Deep Learning Models on your laptop or to a remote cluster directly from your laptop.
-It also provides you a powerful Model Training API that can be used to train almost any PyTorch model.
+It can automatically train Deep Learning Models for different tasks on your laptop or to a remote cluster directly from your laptop.
+It also provides a powerful [Model Training API](https://docs.gradsflow.com/en/latest/gradsflow/models/model/) that can be used to train almost any PyTorch model.
 GradsFlow leverages some cool OSS library including [Ray️](https://ray.io) and [PyTorch Lightning](https://https://pytorchlightning.ai/).
 You don't have to write any PyTorch or hyperparameter optimization code.
 
@@ -51,7 +50,7 @@ of AutoML tasks.
 - `gradsflow.autotasks`: [AutoTasks](https://docs.gradsflow.com/en/latest/gradsflow/tasks/) defines
 different ML/DL tasks which is provided by gradsflow AutoML API.
 
-- `gradsflow.model`: GradsFlow [Model](https://docs.gradsflow.com/en/latest/gradsflow/model) provides a simple and
+- `gradsflow.model`: GradsFlow [Model](https://docs.gradsflow.com/en/latest/gradsflow/models/model/) provides a simple and
   yet customizable Model Training API.
   You can train any PyTorch model using `model.fit(...)` and it is easily customizable for more complex tasks.
 
