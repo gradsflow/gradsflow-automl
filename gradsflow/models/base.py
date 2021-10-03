@@ -152,3 +152,13 @@ class BaseModel(Base):
             loss.backward()
         else:
             self.accelerator.backward(loss)
+
+    def eval(self):
+        """Set learner to eval mode for validation"""
+        self.learner.requires_grad_(False)
+        self.learner.eval()
+
+    def train(self):
+        """Set learner to training mode"""
+        self.learner.requires_grad_(True)
+        self.learner.train()
