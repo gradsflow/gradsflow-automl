@@ -17,6 +17,7 @@ from rich.table import Table
 
 from gradsflow.callbacks import CallbackRunner
 from gradsflow.core.base import BaseTracker, TrackingValues
+from gradsflow.core.data import AutoDataset
 from gradsflow.models.utils import to_item
 
 
@@ -27,7 +28,7 @@ class Tracker(BaseTracker):
 
     def __init__(self):
         self.learner = None
-        self.autodataset = None
+        self.autodataset: AutoDataset = None
         self.callback_runner: Optional[CallbackRunner] = None
         self.train.metrics = {}
         self.val.metrics = {}

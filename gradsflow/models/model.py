@@ -51,10 +51,14 @@ class Model(BaseModel, DataMixin):
     def __init__(
         self,
         learner: Union[nn.Module, Any],
+        device: Optional[str] = None,
+        use_accelerate: bool = True,
         accelerator_config: dict = None,
     ):
         accelerator_config = accelerator_config or {}
-        super(BaseModel).__init__(learner=learner, accelerator_config=accelerator_config)
+        super().__init__(
+            learner=learner, device=device, use_accelerate=use_accelerate, accelerator_config=accelerator_config
+        )
 
     def eval(self):
         """Set learner to eval mode for validation"""
@@ -129,7 +133,7 @@ class Model(BaseModel, DataMixin):
 
     def train_one_epoch(self):
         self.tracker.callback_runner.on_train_epoch_start()
-        train_dataloader = self.tracker.autodataset.train_dataloader
+        train_dataloader = self.tracker.autodataset.get_train_dl(self.send_to_device)
         tracker = self.tracker
         running_train_loss = 0.0
         tracker.train.steps = 0
@@ -165,7 +169,7 @@ class Model(BaseModel, DataMixin):
         if not autodataset.val_dataloader:
             return
 
-        val_dataloader = autodataset.val_dataloader
+        val_dataloader = self.tracker.autodataset.get_val_dl(self.send_to_device)
         tracker = self.tracker
         running_val_loss = 0.0
         tracker.val.steps = 0

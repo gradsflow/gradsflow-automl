@@ -13,7 +13,7 @@
 #  limitations under the License.
 import dataclasses
 import logging
-from typing import Optional
+from typing import Callable, Optional
 
 import pytorch_lightning as pl
 from torch.utils.data import DataLoader, Dataset
@@ -65,3 +65,24 @@ class AutoDataset:
                 self.meta["num_labels"] = datamodule.num_labels
 
         self.meta["num_classes"] = self.num_classes
+
+    @property
+    def sent_to_device(self):
+        return self.meta.get("sent_to_device")
+
+    @sent_to_device.setter
+    def sent_to_device(self, value: bool = True):
+        self.meta["sent_to_device"] = value
+
+    def _fetch(self, data, device_mapper: Optional[Callable] = None):
+        if self.sent_to_device:
+            return data
+        if device_mapper:
+            data = map(device_mapper, data)
+        return data
+
+    def get_train_dl(self, mapper_fn: Optional[Callable]):
+        return self._fetch(self.train_dataloader, mapper_fn)
+
+    def get_val_dl(self, mapper_fn: Optional[Callable]):
+        return self._fetch(self.val_dataloader, mapper_fn)

@@ -22,3 +22,13 @@ class DataMixin:
     @staticmethod
     def fetch_target(data: Union[List, Dict]):
         return data[1]
+
+    def send_to_device(self, batch: Union[List, Dict], device):
+        if isinstance(batch, (list, tuple)):
+            return list(map(lambda x: x.to(device), batch))
+        elif isinstance(batch, dict):
+            return {k: v.to(device) for k, v in batch.items()}
+        else:
+            raise NotImplementedError(
+                f"send_to_device is not implemented for data of type {type(batch)}" f"Please raise an issue/pr"
+            )

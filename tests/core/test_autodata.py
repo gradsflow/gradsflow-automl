@@ -24,3 +24,10 @@ dataloader = DataLoader(dataset)
 def test_auto_dataset():
     with pytest.raises(UserWarning):
         AutoDataset()
+
+
+def test_sent_to_device():
+    data = AutoDataset(dataloader)
+    assert data.sent_to_device is None
+    data.sent_to_device = True
+    assert data.sent_to_device

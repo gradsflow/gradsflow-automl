@@ -22,7 +22,7 @@ from torchmetrics import Metric, MetricCollection
 
 from gradsflow.core.data import AutoDataset
 from gradsflow.models.tracker import Tracker
-from gradsflow.models.utils import losses
+from gradsflow.models.utils import get_device, losses
 from gradsflow.models.utils import metrics as metrics_classes
 from gradsflow.utility.common import module_to_cls_index
 
@@ -41,20 +41,26 @@ class BaseModel(Base):
     TEST = os.environ.get("GF_CI", "false").lower() == "true"
     _OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
 
-    def __init__(self, learner: Union[nn.Module, Any], device: Optional[str] = None, accelerator_config: dict = None):
+    def __init__(
+        self,
+        learner: Union[nn.Module, Any],
+        device: Optional[str] = None,
+        use_accelerate: bool = True,
+        accelerator_config: dict = None,
+    ):
         self.tracker = Tracker()
         self.accelerator = None
-        self.device = device
-        self._set_accelerator(device, accelerator_config)
+        self.device = None
+        self._set_accelerator(device, use_accelerate, accelerator_config)
         self.learner = self.prepare_model(learner)
         self.metrics: MetricCollection = MetricCollection([])
 
-    def _set_accelerator(self, device: Optional[str], accelerator_config: dict):
-        self.accelerator = None
-        self.device = "cpu"
-        if accelerator_config:
+    def _set_accelerator(self, device: Optional[str], use_accelerate: bool, accelerator_config: dict):
+        if use_accelerate:
             self.accelerator = Accelerator(cpu=(device == "cpu"), **accelerator_config)
             self.device = self.accelerator.device
+        else:
+            self.device = device or get_device()
 
     def prepare_model(self, learner: Union[nn.Module, List[nn.Module]]):
         """Inplace ops for preparing model via HF Accelerator. Automatically sends to device."""
@@ -84,6 +90,7 @@ class BaseModel(Base):
         autodataset.train_dataloader = self.accelerator.prepare_data_loader(autodataset.train_dataloader)
         if autodataset.val_dataloader:
             autodataset.val_dataloader = self.accelerator.prepare_data_loader(autodataset.val_dataloader)
+        autodataset.sent_to_device = True
         return autodataset
 
     def add_metrics(self, *metrics: Union[str, Metric]) -> None:

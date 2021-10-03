@@ -31,6 +31,10 @@ metrics: Dict[str, Metric] = {k: v for k, v in _tm_classes.items() if 65 <= ord(
 metrics = {k.lower(): v for k, v in metrics.items()}
 
 
+def get_device():
+    return "cuda" if torch.cuda.is_available() else "cpu"
+
+
 def to_item(data: Union[torch.Tensor, Any]) -> Union[int, float, str, np.ndarray]:
     if torch.is_tensor(data):
         if data.requires_grad:
