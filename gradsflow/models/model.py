@@ -21,6 +21,7 @@ from torchmetrics import Metric
 from gradsflow.callbacks import Callback, CallbackRunner
 from gradsflow.callbacks.progress import ProgressCallback
 from gradsflow.core.data import AutoDataset
+from gradsflow.data.base import DataMixin
 from gradsflow.models.base import BaseModel
 from gradsflow.models.tracker import Tracker
 from gradsflow.utility.common import listify, module_to_cls_index
@@ -28,7 +29,7 @@ from gradsflow.utility.common import listify, module_to_cls_index
 METRICS_TYPE = Union[str, Metric, List[Union[str, Metric]], None]
 
 
-class Model(BaseModel):
+class Model(BaseModel, DataMixin):
     """
     Model provide training functionality with `model.fit(...)` inspired from Keras
 
@@ -83,20 +84,24 @@ class Model(BaseModel):
         self.add_metrics(*listify(metrics))
         self._compiled = True
 
-    def train_step(self, inputs: torch.Tensor, target: torch.Tensor) -> Dict[str, torch.Tensor]:
+    def train_step(self, batch: Union[List[torch.Tensor], Dict[torch.Tensor]]) -> Dict[str, torch.Tensor]:
+        inputs = self.fetch_inputs(batch)
+        target = self.fetch_target(batch)
         self.optimizer.zero_grad()
         logits = self.forward_once(inputs)
         loss = self.loss(logits, target)
         self.backward(loss)
         self.optimizer.step()
         self.tracker.track("train/step_loss", loss, render=True)
-        return {"loss": loss, "logits": logits}
+        return {"loss": loss, "logits": logits, "target": target}
 
-    def val_step(self, inputs: torch.Tensor, target: torch.Tensor) -> Dict[str, torch.Tensor]:
+    def val_step(self, batch: Union[List[torch.Tensor], Dict[torch.Tensor]]) -> Dict[str, torch.Tensor]:
+        inputs = self.fetch_inputs(batch)
+        target = self.fetch_target(batch)
         logits = self.forward_once(inputs)
         loss = self.loss(logits, target)
         self.tracker.track("val/step_loss", loss, render=True)
-        return {"loss": loss, "logits": logits}
+        return {"loss": loss, "logits": logits, "target": target}
 
     def train_one_epoch(self):
         self.tracker.callback_runner.on_train_epoch_start()
@@ -107,16 +112,16 @@ class Model(BaseModel):
         steps_per_epoch = tracker.steps_per_epoch
 
         self.train()
-        for step, (inputs, target) in enumerate(train_dataloader):
+        for step, batch in enumerate(train_dataloader):
 
             # ----- TRAIN STEP -----
             self.tracker.callback_runner.on_train_step_start()
-            outputs = self.train_step(inputs, target)
+            outputs = self.train_step(batch)
             self.tracker.callback_runner.on_train_step_end()
 
             # ----- METRIC UPDATES -----
             self.tracker.train.step_loss = outputs["loss"].item()
-            self.metrics.update(outputs.get("logits"), target)
+            self.metrics.update(outputs.get("logits"), outputs.get("target"))
             self.tracker.track_metrics(self.metrics.compute(), mode="train", render=True)
 
             running_train_loss += self.tracker.train.step_loss
