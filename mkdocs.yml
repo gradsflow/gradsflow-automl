@@ -73,6 +73,7 @@ nav:
       - Model Training: 'examples/nbs/05-model_fit.ipynb'
       - AutoModel - HyperParameter Search: 'examples/nbs/06-AutoModel_fit.ipynb'
       - Pix2Pix GAN Code Explanation: 'examples/nbs/Pix2Pix_explained_with_code.ipynb'
+      - 🤗 HuggingFace Training Example: 'examples/nbs/2021-10-3-huggingface-training.ipynb'
   - API References:
       - Core: gradsflow/core
       - Model:
