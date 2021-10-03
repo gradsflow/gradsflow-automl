@@ -20,8 +20,25 @@ if typing.TYPE_CHECKING:
 class Callback:
     """Callback objects define events on which it will run during the model training cycle."""
 
+    _events = ("forward", "step", "epoch", "fit")
+
     def __init__(self, model: "Model"):
         self.model = model
+
+    def with_event(self, event_type: str, func: typing.Callable, exception):
+        """Calls a function with event wrapped around. Inspired from FastAI.
+        Ref: https://github.com/fastai/fastai/blob/6e44b354f4d12bdfa2c9530f38f851c54a05764d/fastai/learner.py#L162
+        """
+        assert event_type in self._events, f"event_type is {event_type} but should be {self._events}"
+        start_event = f"on_{event_type}_start"
+        end_event = f"on_{event_type}_end"
+        cancel_event = f"on_{event_type}_cancel"
+        try:
+            getattr(self, start_event)()
+            func()
+        except exception:
+            getattr(self, cancel_event)()
+        getattr(self, end_event)()
 
     def on_fit_start(self):
         """Called on each `model.fit(...)`"""
@@ -31,6 +48,11 @@ class Callback:
     ):
         """Called after `model.fit(...)`"""
 
+    def on_fit_cancel(
+        self,
+    ):
+        """Called after `model.fit(...)`is cancelled"""
+
     def on_train_epoch_start(
         self,
     ):
@@ -38,6 +60,9 @@ class Callback:
 
     def on_train_epoch_end(self):
         """Called after end of training epoch"""
+
+    def on_train_epoch_cancel(self):
+        """Called after training epoch is cancelled"""
 
     def on_val_epoch_start(
         self,
@@ -47,11 +72,17 @@ class Callback:
     def on_val_epoch_end(self):
         """called after validation epoch ends"""
 
+    def on_val_epoch_cancel(self):
+        """called after validation epoch cancelled"""
+
     def on_train_step_start(self):
         """called before `train_step`"""
 
     def on_train_step_end(self):
         """Called after training step"""
+
+    def on_train_step_cancel(self):
+        """Called after training step is cancelled"""
 
     def on_val_step_start(self):
         """Called on validation step"""
@@ -59,14 +90,23 @@ class Callback:
     def on_val_step_end(self):
         """Called after validation step"""
 
+    def on_val_step_cancel(self):
+        """Called after validation step is cancelled"""
+
     def on_epoch_start(self):
-        """Called Before each training Epoch"""
+        """Called Before each Epoch"""
 
     def on_epoch_end(self):
-        """Called after each training epoch"""
+        """Called after each epoch"""
+
+    def on_epoch_cancel(self):
+        """Called after epoch is cancelled"""
 
     def on_forward_start(self):
         """Called before model.forward(...)"""
 
     def on_forward_end(self):
         """Called after model.forward(...)"""
+
+    def on_forward_cancel(self):
+        """Called after model.forward(...) is cancelled"""
