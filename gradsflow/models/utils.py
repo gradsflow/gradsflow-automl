@@ -39,13 +39,7 @@ def to_item(data: Union[torch.Tensor, Any]) -> Union[int, float, str, np.ndarray
     if torch.is_tensor(data):
         if data.requires_grad:
             data = data.detach()
-        data.cpu()
-
-        if len(data.shape) > 1:
-            data = data.numpy()
-        else:
-            data = data.item()
-
+        data = data.cpu().numpy()
     return data
 
 

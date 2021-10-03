@@ -80,3 +80,6 @@ class ProgressCallback(Callback):
 
     def on_val_step_end(self):
         self.progress.update(self.val_prog_bar, advance=1)
+
+    def clean(self):
+        self.progress.stop()

@@ -38,4 +38,4 @@ if __name__ == "__main__":
 
     model = Model(cnn)
     model.compile("crossentropyloss", "adam", metrics="accuracy")
-    model.fit(autodataset, max_epochs=10, steps_per_epoch=5)
+    model.fit(autodataset, max_epochs=10, steps_per_epoch=10)
