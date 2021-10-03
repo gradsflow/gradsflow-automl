@@ -21,6 +21,7 @@ from torch import nn
 from torchmetrics import Metric, MetricCollection
 
 from gradsflow.core.data import AutoDataset
+from gradsflow.models.tracker import Tracker
 from gradsflow.models.utils import losses
 from gradsflow.models.utils import metrics as metrics_classes
 from gradsflow.utility.common import module_to_cls_index
@@ -41,6 +42,7 @@ class BaseModel(Base):
     _OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
 
     def __init__(self, learner: Union[nn.Module, Any], device: Optional[str] = None, accelerator_config: dict = None):
+        self.tracker = Tracker()
         self.accelerator = None
         self.device = device
         self._set_accelerator(device, accelerator_config)

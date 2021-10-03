@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from typing import Any, Callable, Dict, Union
+from typing import Any, Callable, Dict, List, Union
 
 import numpy as np
 import torch
@@ -43,3 +43,11 @@ def to_item(data: Union[torch.Tensor, Any]) -> Union[int, float, str, np.ndarray
             data = data.item()
 
     return data
+
+
+def available_losses() -> List[str]:
+    return list(losses.keys())
+
+
+def available_metrics() -> List[str]:
+    return list(metrics.keys())

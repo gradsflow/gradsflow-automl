@@ -54,8 +54,17 @@ class Model(BaseModel, DataMixin):
         accelerator_config: dict = None,
     ):
         accelerator_config = accelerator_config or {}
-        super().__init__(learner=learner, accelerator_config=accelerator_config)
-        self.tracker = Tracker()
+        super(BaseModel).__init__(learner=learner, accelerator_config=accelerator_config)
+
+    def eval(self):
+        """Set learner to eval mode for validation"""
+        self.learner.requires_grad_(False)
+        self.learner.eval()
+
+    def train(self):
+        """Set learner to training mode"""
+        self.learner.requires_grad_(True)
+        self.learner.train()
 
     def forward_once(self, x) -> torch.Tensor:
         self.tracker.callback_runner.on_forward_start()
@@ -65,13 +74,28 @@ class Model(BaseModel, DataMixin):
 
     def compile(
         self,
-        loss=None,
-        optimizer=None,
-        learning_rate=3e-4,
+        loss: Union[str, nn.modules.loss._Loss] = None,
+        optimizer: Union[str, torch.optim.Optimizer] = None,
+        learning_rate: float = 3e-4,
         metrics: METRICS_TYPE = None,
         loss_config: Optional[dict] = None,
         optimizer_config: Optional[dict] = None,
     ) -> None:
+        """
+        Examples:
+            ```python
+            model = Model(net)
+            model.compile(loss="crossentropyloss", optimizer="adam", learning_rate=1e-3, metrics="accuracy")
+            ```
+        Args:
+            loss: name of loss or torch Loss class object. See `available_losses()`
+            optimizer: optimizer name or `torch.optim.Optimizer` object
+            learning_rate: defaults to 1e-3
+            metrics: list of metrics to calculate. See `available_metrics()`
+            loss_config: Dict config if any to pass to loss function
+            optimizer_config: Dict config if any to pass to Optimizer
+
+        """
         loss_config = loss_config or {}
         optimizer_config = optimizer_config or {}
 
@@ -135,42 +159,30 @@ class Model(BaseModel, DataMixin):
         self.tracker.callback_runner.on_train_epoch_end()
         self.metrics.reset()
 
-    def eval(self):
-        """Set learner to eval mode for validation"""
-        self.learner.requires_grad_(False)
-        self.learner.eval()
-
-    def train(self):
-        """Set learner to training mode"""
-        self.learner.requires_grad_(True)
-        self.learner.train()
-
     def val_one_epoch(self):
         self.tracker.callback_runner.on_val_epoch_start()
         autodataset = self.tracker.autodataset
         if not autodataset.val_dataloader:
             return
+
         val_dataloader = autodataset.val_dataloader
         tracker = self.tracker
-        tracker.total = 0
-        tracker.correct = 0
         running_val_loss = 0.0
         tracker.val.steps = 0
 
         self.eval()
-        for _, (inputs, target) in enumerate(val_dataloader):
+        for _, batch in enumerate(val_dataloader):
             # ----- VAL STEP -----
             self.tracker.callback_runner.on_val_step_start()
-            outputs = self.val_step(inputs, target)
+            outputs = self.val_step(batch)
             self.tracker.callback_runner.on_val_step_end()
 
             # ----- METRIC UPDATES -----
             loss = outputs["loss"]
-            self.metrics.update(outputs.get("logits"), target)
+            self.metrics.update(outputs.get("logits"), outputs.get("target"))
             self.tracker.track_metrics(self.metrics.compute(), mode="val", render=True)
             self.tracker.val.step_loss = loss
 
-            tracker.total += target.size(0)
             running_val_loss += loss.cpu().numpy()
             tracker.val.steps += 1
             if self.TEST:
@@ -191,6 +203,15 @@ class Model(BaseModel, DataMixin):
     ) -> Tracker:
         """
         Similar to Keras model.fit(...) it trains the model for specified epochs and returns Tracker object
+
+        Examples:
+            ```python
+            autodataset = AutoDataset(train_dataloader, val_dataloader)
+            model = Model(cnn)
+            model.compile("crossentropyloss", "adam", learning_rate=1e-3, metrics="accuracy")
+            model.fit(autodataset)
+            ```
+
         Args:
             autodataset: AutoDataset object encapsulate dataloader and datamodule
             max_epochs: number of epochs to train
