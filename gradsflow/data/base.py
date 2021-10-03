@@ -23,7 +23,8 @@ class DataMixin:
     def fetch_target(data: Union[List, Dict]):
         return data[1]
 
-    def send_to_device(self, batch: Union[List, Dict], device):
+    @staticmethod
+    def send_to_device(batch: Union[List, Dict], device):
         """Send data to be device"""
         if isinstance(batch, (list, tuple)):
             return list(map(lambda x: x.to(device), batch))
