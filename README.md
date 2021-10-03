@@ -18,10 +18,12 @@
 
 ## Installation
 
-#### Recommended
+<bold>Recommended</bold>
+
 `pip install -U gradsflow`
 
-#### From source
+<bold>From Source</bold>
+
 `pip install git+https://github.com/gradsflow/gradsflow@main`
 
 ## Highlights
@@ -80,4 +82,4 @@ Read full [**Contributor Covenant Code of Conduct**](https://github.com/gradsflo
 
 **GradsFlow** is built with help of awesome open-source projects (including but not limited to) PyTorch Lightning and Ray 💜
 
-It takes inspiration from multiple APIs like Keras, FastAI.
+It takes inspiration from multiple APIs like [Keras](https://keras.io), [FastAI](https://docs.fast.ai).
