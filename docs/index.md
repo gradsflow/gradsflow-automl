@@ -18,11 +18,11 @@
 
 ## Installation
 
-<bold>Recommended</bold>
+**Recommended**
 
 `pip install -U gradsflow`
 
-<bold>From Source</bold>
+**From Source**
 
 `pip install git+https://github.com/gradsflow/gradsflow@main`
 
@@ -61,11 +61,19 @@ different ML/DL tasks which is provided by gradsflow AutoML API.
 
 📑 Check out [notebooks examples](https://github.com/gradsflow/gradsflow/tree/main/examples/nbs) to learn more.
 
-💬 Join the [Slack](https://join.slack.com/t/gradsflow/shared_invite/zt-ulc0m0ef-xstzyowuTgYceVmFbJlBmg) group to chat with us.
-
 💙 Sponsor on [ko-fi](https://ko-fi.com/aniketmaurya)
 
 📧 Do you need support? Contact us at <admin@gradsflow.com>
+
+
+## Community
+
+### Stay Up-to-Date
+**Social**: You can also follow us on Twitter [@gradsflow](https://twitter.com/gradsflow) and [Linkedin][https://www.linkedin.com/company/gradsflow] for the latest updates.
+
+### Questions & Discussion
+💬 Join the [Slack](https://join.slack.com/t/gradsflow/shared_invite/zt-ulc0m0ef-xstzyowuTgYceVmFbJlBmg) group to chat with us.
+
 
 ## 🤗 Contribute
 
