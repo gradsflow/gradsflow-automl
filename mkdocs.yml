@@ -1,5 +1,5 @@
 site_name: GradsFlow
-site_description: "An open-source AutoML Library in PyTorch"
+site_description: "An open-source AutoML Library based on PyTorch"
 site_author: Aniket Maurya
 copyright: 'Copyright &copy; 2021 GradsFlow'
 
@@ -12,17 +12,17 @@ theme:
   custom_dir: docs/overrides
   palette:
     - scheme: default
-      primary: black
-      accent: deep orange
+      primary: deep orange
+      accent: indigo
       toggle:
-        icon: material/lightbulb-outline
+        icon: material/weather-sunny
         name: Switch to dark mode
 
     - scheme: slate
-      primary: black
+      primary: indigo
       accent: deep orange
       toggle:
-        icon: material/lightbulb
+        icon: material/weather-night
         name: Switch to light mode
 
   logo: https://ik.imagekit.io/gradsflow/logo/logo-small_g2MxLWesD.png?updatedAt=1627716948296
@@ -64,7 +64,7 @@ extra:
   homepage: https://docs.gradsflow.com
 
 nav:
-  - Introduction: 'index.md'
+  - GradsFlow: 'index.md'
   - Examples:
       - Auto Image Classification: 'examples/nbs/01-ImageClassification.ipynb'
       - Auto Text Classification: 'examples/nbs/02-TextClassification.ipynb'
@@ -75,7 +75,10 @@ nav:
       - Pix2Pix GAN Code Explanation: 'examples/nbs/Pix2Pix_explained_with_code.ipynb'
   - API References:
       - Core: gradsflow/core
-      - Model: gradsflow/models
+      - Model:
+        - gradsflow/models/base.md
+        - gradsflow/models/model.md
+        - gradsflow/models/tracker.md
       - Tuner: gradsflow/tuner
       - AutoTasks: gradsflow/tasks
       - Data: gradsflow/data

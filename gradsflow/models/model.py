@@ -35,9 +35,9 @@ class Model(BaseModel, DataMixin):
 
     Examples:
     ```python
-        model = Model(cnn)
-        model.compile("crossentropyloss", "adam", learning_rate=1e-3, metrics="accuracy")
-        model.fit(autodataset)
+    model = Model(cnn)
+    model.compile("crossentropyloss", "adam", learning_rate=1e-3, metrics="accuracy")
+    model.fit(autodataset)
     ```
 
     Args:
@@ -108,7 +108,7 @@ class Model(BaseModel, DataMixin):
         self.add_metrics(*listify(metrics))
         self._compiled = True
 
-    def train_step(self, batch: Union[List[torch.Tensor], Dict[torch.Tensor]]) -> Dict[str, torch.Tensor]:
+    def train_step(self, batch: Union[List[torch.Tensor], Dict[Any, torch.Tensor]]) -> Dict[str, torch.Tensor]:
         inputs = self.fetch_inputs(batch)
         target = self.fetch_target(batch)
         self.optimizer.zero_grad()
@@ -119,7 +119,7 @@ class Model(BaseModel, DataMixin):
         self.tracker.track("train/step_loss", loss, render=True)
         return {"loss": loss, "logits": logits, "target": target}
 
-    def val_step(self, batch: Union[List[torch.Tensor], Dict[torch.Tensor]]) -> Dict[str, torch.Tensor]:
+    def val_step(self, batch: Union[List[torch.Tensor], Dict[Any, torch.Tensor]]) -> Dict[str, torch.Tensor]:
         inputs = self.fetch_inputs(batch)
         target = self.fetch_target(batch)
         logits = self.forward_once(inputs)

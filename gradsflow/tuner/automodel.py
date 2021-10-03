@@ -31,12 +31,12 @@ class AutoModelV2:
 
     Examples:
         ```python
-            tuner = Tuner()
-            cnns = tuner.suggest_complex("learner", cnn1, cnn2)
-            optimizers = tuner.choice("optimizer", "adam", "sgd")
-            loss = "crossentropyloss"
-            model = AutoModelV2(cnns)
-            model.hp_tune(tuner, autodataset, max_epochs=10)
+        tuner = Tuner()
+        cnns = tuner.suggest_complex("learner", cnn1, cnn2)
+        optimizers = tuner.choice("optimizer", "adam", "sgd")
+        loss = "crossentropyloss"
+        model = AutoModelV2(cnns)
+        model.hp_tune(tuner, autodataset, max_epochs=10)
         ```
 
     Args:

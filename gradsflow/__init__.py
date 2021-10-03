@@ -1,4 +1,4 @@
-"""An open-source AutoML Library in PyTorch"""
+"""An open-source AutoML Library based on PyTorch"""
 
 #  Copyright (c) 2021 GradsFlow. All rights reserved.
 #
