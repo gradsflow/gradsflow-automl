@@ -103,3 +103,7 @@ class CallbackRunner(Callback):
     def on_forward_end(self):
         for callback in self.callbacks:
             callback.on_forward_end()
+
+    def clean(self):
+        for callback in self.callbacks:
+            callback.clean()

@@ -12,9 +12,14 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import typing
+from typing import Callable
 
 if typing.TYPE_CHECKING:
     from gradsflow.models.model import Model
+
+
+def dummy(x=None, *_, **__):
+    return x
 
 
 class Callback:
@@ -25,7 +30,7 @@ class Callback:
     def __init__(self, model: "Model"):
         self.model = model
 
-    def with_event(self, event_type: str, func: typing.Callable, exception):
+    def with_event(self, event_type: str, func: Callable, exception, final_fn: Callable = dummy):
         """Calls a function with event wrapped around. Inspired from FastAI.
         Ref: https://github.com/fastai/fastai/blob/6e44b354f4d12bdfa2c9530f38f851c54a05764d/fastai/learner.py#L162
         """
@@ -39,6 +44,7 @@ class Callback:
         except exception:
             getattr(self, cancel_event)()
         getattr(self, end_event)()
+        final_fn()
 
     def on_fit_start(self):
         """Called on each `model.fit(...)`"""
@@ -110,3 +116,6 @@ class Callback:
 
     def on_forward_cancel(self):
         """Called after model.forward(...) is cancelled"""
+
+    def clean(self):
+        """Clean up"""
