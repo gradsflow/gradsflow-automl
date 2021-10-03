@@ -69,7 +69,7 @@ different ML/DL tasks which is provided by gradsflow AutoML API.
 ## Community
 
 ### Stay Up-to-Date
-**Social**: You can also follow us on Twitter [@gradsflow](https://twitter.com/gradsflow) and [Linkedin][https://www.linkedin.com/company/gradsflow] for the latest updates.
+**Social**: You can also follow us on Twitter [@gradsflow](https://twitter.com/gradsflow) and [Linkedin][https://www.linkedin.com/company/gradsflow) for the latest updates.
 
 ### Questions & Discussion
 💬 Join the [Slack](https://join.slack.com/t/gradsflow/shared_invite/zt-ulc0m0ef-xstzyowuTgYceVmFbJlBmg) group to chat with us.
