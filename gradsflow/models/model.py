@@ -58,13 +58,17 @@ class Model(BaseModel, DataMixin):
     ):
         accelerator_config = accelerator_config or {}
         super().__init__(
-            learner=learner, device=device, use_accelerate=use_accelerate, accelerator_config=accelerator_config
+            learner=learner,
+            device=device,
+            use_accelerate=use_accelerate,
+            accelerator_config=accelerator_config,
         )
+        self.callback_runner: Optional[CallbackRunner] = None
 
     def forward_once(self, x) -> torch.Tensor:
-        self.tracker.callback_runner.on_forward_start()
+        self.callback_runner.on_forward_start()
         x = self.forward(x)
-        self.tracker.callback_runner.on_forward_end()
+        self.callback_runner.on_forward_end()
         return x
 
     def compile(
@@ -132,9 +136,9 @@ class Model(BaseModel, DataMixin):
         for step, batch in enumerate(train_dataloader):
 
             # ----- TRAIN STEP -----
-            self.tracker.callback_runner.on_train_step_start()
+            self.callback_runner.on_train_step_start()
             outputs = self.train_step(batch)
-            self.tracker.callback_runner.on_train_step_end()
+            self.callback_runner.on_train_step_end()
 
             # ----- METRIC UPDATES -----
             self.tracker.train.step_loss = outputs["loss"].item()
@@ -149,6 +153,8 @@ class Model(BaseModel, DataMixin):
             if steps_per_epoch and step >= steps_per_epoch:
                 break
         self.tracker.track_loss(running_train_loss / (tracker.train.steps + 1e-9), mode="train")
+        self.callback_runner.on_train_epoch_end()
+        self.metrics.reset()
 
     def val_one_epoch(self, val_dataloader):
         tracker = self.tracker
@@ -156,9 +162,9 @@ class Model(BaseModel, DataMixin):
         tracker.val.steps = 0
         for _, batch in enumerate(val_dataloader):
             # ----- VAL STEP -----
-            self.tracker.callback_runner.on_val_step_start()
+            self.callback_runner.on_val_step_start()
             outputs = self.val_step(batch)
-            self.tracker.callback_runner.on_val_step_end()
+            self.callback_runner.on_val_step_end()
 
             # ----- METRIC UPDATES -----
             loss = outputs["loss"]
@@ -188,7 +194,7 @@ class Model(BaseModel, DataMixin):
         val_dataloader = self.tracker.autodataset.get_val_dl(self.send_to_device)
         self.eval()
         self.val_one_epoch(val_dataloader)
-        self.tracker.callback_runner.on_val_epoch_end()
+        self.callback_runner.on_val_epoch_end()
         self.metrics.reset()
 
     def fit(
@@ -230,31 +236,29 @@ class Model(BaseModel, DataMixin):
         callback_list = listify(callbacks)
         if show_progress:
             callback_list.append(ProgressCallback(self, progress_kwargs))
-        self.tracker.callback_runner = CallbackRunner(self, *callback_list)
+        self.callback_runner = CallbackRunner(self, *callback_list)
         self.tracker.autodataset = self.prepare_data(autodataset)
         self.tracker.steps_per_epoch = steps_per_epoch
 
-        tracker = self.tracker
-
         # ----- EVENT: ON_TRAINING_START -----
-        tracker.callback_runner.on_fit_start()
+        self.callback_runner.on_fit_start()
 
-        for epoch in range(tracker.current_epoch, max_epochs):
-            tracker.current_epoch = epoch
+        for epoch in range(self.tracker.current_epoch, max_epochs):
+            self.tracker.current_epoch = epoch
 
             # ----- EVENT: ON_EPOCH_START -----
-            tracker.callback_runner.on_epoch_start()
+            self.callback_runner.on_epoch_start()
 
             self._train_epoch()
             self._val_epoch()
 
             # ----- EVENT: ON_EPOCH_END -----
-            tracker.callback_runner.on_epoch_end()
+            self.callback_runner.on_epoch_end()
 
             if self.TEST:
                 break
 
         # ----- EVENT: ON_TRAINING_END -----
-        tracker.callback_runner.on_fit_end()
+        self.callback_runner.on_fit_end()
 
-        return tracker
+        return self.tracker
