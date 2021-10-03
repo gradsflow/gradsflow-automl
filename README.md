@@ -18,34 +18,32 @@
 
 ## Installation
 
-#### Recommended
+**Recommended**
+
 `pip install -U gradsflow`
 
-#### From source
+**From Source**
+
 `pip install git+https://github.com/gradsflow/gradsflow@main`
 
 ## Highlights
 
 - 2021-8-25: [Released first version 0.0.1](https://pypi.org/project/gradsflow/) ✨ :tada:
-- 2021-8-29: Migrated from Optuna to Ray Tune. [Read more...](https://github.com/gradsflow/gradsflow/issues/35)
+- 2021-8-29: Migrated from Optuna to Ray Tune.
 
 ## What is GradsFlow?
 
 !!! attention
-    🚨 GradsFlow is changing fast. There will be lot of breaking changes until we reach `0.1.0`. Feel free to try and give your feedback by creating an issue or join our [Slack](https://join.slack.com/t/gradsflow/shared_invite/zt-ulc0m0ef-xstzyowuTgYceVmFbJlBmg) group.
+    🚨 GradsFlow is changing fast. There will be a lot of breaking changes until we reach `0.1.0`.
+    Feel free to give your feedback by creating an issue or join our [Slack](https://join.slack.com/t/gradsflow/shared_invite/zt-ulc0m0ef-xstzyowuTgYceVmFbJlBmg) group.
 
-GradsFlow is an open-source AutoML Library for PyTorch that can train Deep Learning Models on your laptop or
-to a remote cluster directly from your laptop.
-Our aim is to democratize AI by enabling non ML expert to train and build AI Products.
-GradsFlow leverages the power of PyTorch Lightning ⚡️ and Ray️.
-You don't have to write any PyTorch or Hyperparameter optimization code.
+GradsFlow is an open-source AutoML Library based on PyTorch.
+The goal of GradsFlow is to democratize AI and make it available to everyone.
 
-GradsFlow [Model API](https://docs.gradsflow.com/en/latest/gradsflow/model) provides a simple
-[Keras like](https://keras.io) model training interface 🔥.
-You can train any PyTorch model using `model.fit(...)` and it is easily customizable for more complex tasks.
-
-You might want to train a custom model and search hyperparameters,
-You can easily integrate any PyTorch Model with GradsFlow [AutoModel](https://docs.gradsflow.com/en/latest/gradsflow/core/) ✨
+It can automatically train Deep Learning Models for different tasks on your laptop or to a remote cluster directly from your laptop.
+It also provides a powerful [Model Training API](https://docs.gradsflow.com/en/latest/gradsflow/models/model/) that can be used to train almost any PyTorch model.
+GradsFlow leverages some cool OSS library including [Ray️](https://ray.io) and [PyTorch Lightning](https://https://pytorchlightning.ai/).
+You don't have to write any PyTorch or hyperparameter optimization code.
 
 
 - `gradsflow.core`: [Core](https://docs.gradsflow.com/en/latest/gradsflow/core/) defines the building blocks
@@ -54,18 +52,28 @@ of AutoML tasks.
 - `gradsflow.autotasks`: [AutoTasks](https://docs.gradsflow.com/en/latest/gradsflow/tasks/) defines
 different ML/DL tasks which is provided by gradsflow AutoML API.
 
-- `gradsflow.model`: [Model](https://docs.gradsflow.com/en/latest/gradsflow/model/) defines the model training functionality.
+- `gradsflow.model`: GradsFlow [Model](https://docs.gradsflow.com/en/latest/gradsflow/models/model/) provides a simple and
+  yet customizable Model Training API.
+  You can train any PyTorch model using `model.fit(...)` and it is easily customizable for more complex tasks.
 
-- `gradsflow.tuner`: [Model](https://docs.gradsflow.com/en/latest/gradsflow/tuner/) HyperParameter search with minimal code changes.
+- `gradsflow.tuner`: [AutoModel](https://docs.gradsflow.com/en/latest/gradsflow/tuner/) HyperParameter search with minimal code changes.
 
 
-📑 Check out [notebooks examples](https://github.com/gradsflow/gradsflow/tree/main/examples/nbs).
+📑 Check out [notebooks examples](https://github.com/gradsflow/gradsflow/tree/main/examples/nbs) to learn more.
 
-💬 Join the [Slack](https://join.slack.com/t/gradsflow/shared_invite/zt-ulc0m0ef-xstzyowuTgYceVmFbJlBmg) group to chat with us.
-
-💙 Sponsor us on [ko-fi](https://ko-fi.com/aniketmaurya)
+💙 Sponsor on [ko-fi](https://ko-fi.com/aniketmaurya)
 
 📧 Do you need support? Contact us at <admin@gradsflow.com>
+
+
+## Community
+
+### Stay Up-to-Date
+**Social**: You can also follow us on Twitter [@gradsflow](https://twitter.com/gradsflow) and [Linkedin][https://www.linkedin.com/company/gradsflow) for the latest updates.
+
+### Questions & Discussion
+💬 Join the [Slack](https://join.slack.com/t/gradsflow/shared_invite/zt-ulc0m0ef-xstzyowuTgYceVmFbJlBmg) group to chat with us.
+
 
 ## 🤗 Contribute
 
@@ -82,4 +90,4 @@ Read full [**Contributor Covenant Code of Conduct**](https://github.com/gradsflo
 
 **GradsFlow** is built with help of awesome open-source projects (including but not limited to) PyTorch Lightning and Ray 💜
 
-It takes inspiration from multiple APIs like Keras, FastAI.
+It takes inspiration from multiple APIs like [Keras](https://keras.io), [FastAI](https://docs.fast.ai).
