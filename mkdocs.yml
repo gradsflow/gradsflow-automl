@@ -68,7 +68,6 @@ extra:
 nav:
   - Intro: 'index.md'
   - Examples:
-      - 'examples.md'
       - Auto Image Classification: 'examples/nbs/01-ImageClassification.ipynb'
       - Auto Text Classification: 'examples/nbs/02-TextClassification.ipynb'
       - Auto Summarization: 'examples/nbs/03-TextSummarization.ipynb'
