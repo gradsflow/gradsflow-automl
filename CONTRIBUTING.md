@@ -2,24 +2,31 @@
 
 👍🎉 First off, thanks for taking the time to contribute! 🎉👍
 
-The following is a set of guidelines for contributing to Gradsflow and its packages, which are hosted in the GradsFlow Organization on GitHub. These are mostly guidelines, not rules. Use your best judgment, and feel free to propose changes to this document in a pull request.
+The following is a set of guidelines for contributing to Gradsflow and its packages,
+which are hosted in the GradsFlow Organization on GitHub.
+These are mostly guidelines, not rules.
+Use your best judgment, and feel free to propose changes to this document in a pull request.
 
-We welcome any kind of contribution to our software, from simple comment or question to a full fledged [pull request](https://help.github.com/articles/about-pull-requests/). Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md).
+We welcome any kind of contribution to our software, from simple comment or question to a
+full fledged [pull request](https://help.github.com/articles/about-pull-requests/).
+Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md).
 
 A contribution can be one of the following cases:
 
 1. you have a question;
 1. you think you may have found a bug (including unexpected behavior);
-1. you want to make some kind of change to the code base (e.g. to fix a bug, to add a new feature, to update documentation);
+1. you want to make some kind of change to the code base
+   (e.g. to fix a bug, to add a new feature, to update documentation);
 1. you want to make a new release of the code base.
 
 The sections below outline the steps in each case.
 
 ## You have a question
 
-1. use the search functionality [here](https://github.com/gradsflow/gradsflow/issues) to see if someone already filed the same issue;
-2. if your issue search did not yield any relevant results, make a new issue;
-3. apply the "Question" label; apply other labels when relevant.
+1. Use the search functionality [here](https://github.com/gradsflow/gradsflow/issues) to see if someone already
+   filed the same issue or check out [Docs](https://docs.gradsflow.com).
+2. If your issue search did not yield any relevant results, make a new issue.
+3. Apply the "Question" label; apply other labels when relevant.
 4. You can join our Slack group as well.
 
 ## You think you may have found a bug
