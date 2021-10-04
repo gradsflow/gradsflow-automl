@@ -124,7 +124,8 @@ class BaseModel(Base):
                 optimizer_fn
             ), f"optimizer {optimizer} is not available! Available optimizers are {tuple(self._OPTIMIZER_INDEX.keys())}"
 
-        elif isinstance(optimizer, torch.optim.Optimizer):
+        elif callable(optimizer):
+            assert optimizer in tuple(self._OPTIMIZER_INDEX.values()), f"Unknown Optimizer {type(optimizer)}"
             optimizer_fn = optimizer
         else:
             raise NotImplementedError(f"Unknown optimizer {optimizer}")
