@@ -19,8 +19,8 @@ theme:
         name: Switch to dark mode
 
     - scheme: slate
-      primary: indigo
-      accent: deep orange
+      primary: deep orange
+      accent: indigo
       toggle:
         icon: material/weather-night
         name: Switch to light mode
