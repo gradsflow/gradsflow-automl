@@ -30,7 +30,7 @@
 * 🚀 feature/fix train arguments docs PR [#44](https://github.com/gradsflow/gradsflow/pull/44)
 * Publish Python 🐍 distributions 📦 to PyPI [#42](https://github.com/gradsflow/gradsflow/pull/42)
 
-## 0.0.5 - 2021-09-26
+## 0.0.5 - 2021-9-26
 * 🔥 Add custom training loop with `model.fit`. PR [#63](https://github.com/gradsflow/gradsflow/pull/63) Done by [@aniketmaurya](https://github.com/aniketmaurya)
 * ☁️ Add `ray.data` - remote dataset loader. PR [#61](https://github.com/gradsflow/gradsflow/pull/61) Done by [@aniketmaurya](https://github.com/aniketmaurya)
 * 🎉 Add AutoDataset - Encapsulate datamodule and dataloaders. PR [#59](https://github.com/gradsflow/gradsflow/pull/59) Done by [@aniketmaurya](https://github.com/aniketmaurya)
@@ -38,7 +38,8 @@
 * ✨ Add AutoTrainer to support plain torch training loop and other torch frameworks. PR [#53](https://github.com/gradsflow/gradsflow/pull/53)
 
 
-## 0.0.6 - UNRELEASED
+## 0.0.6 - 2021-10-4
+* 🎉 Revamp Callbacks and Training. PR [#94](https://github.com/gradsflow/gradsflow/pull/94)
 * ✨ refactor data handling 📝 docs update. PR [#91](https://github.com/gradsflow/gradsflow/pull/91)
 * integrate torchmetrics. PR [#80](https://github.com/gradsflow/gradsflow/pull/80)
 * callbacks & 🤑 ProgressCallback. PR [#76](https://github.com/gradsflow/gradsflow/pull/76)

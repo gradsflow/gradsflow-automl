@@ -1,4 +1,6 @@
-![logo](https://ik.imagekit.io/gradsflow/logo/logo-small_g2MxLWesD.png?updatedAt=1627716948296)
+<p align="center">
+  <img width="300" alt="logo" src="https://ik.imagekit.io/gradsflow/logo/logo-small_g2MxLWesD.png?updatedAt=1627716948296"/>
+</p>
 
 # An open-source AutoML Library in PyTorch
 
@@ -16,22 +18,20 @@
 [![Downloads](https://pepy.tech/badge/gradsflow/month)](https://pepy.tech/project/gradsflow)
 [![license](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/gradsflow/gradsflow/blob/master/LICENSE)
 
-## Installation
-
-**Recommended**
-
-`pip install -U gradsflow`
-
-**From Source**
-
-`pip install git+https://github.com/gradsflow/gradsflow@main`
 
 ## Highlights
 
 - 2021-8-25: [Released first version 0.0.1](https://pypi.org/project/gradsflow/) ✨ :tada:
-- 2021-8-29: Migrated from Optuna to Ray Tune.
+- 2021-8-29: Migrated to Ray Tune
+- 2021-10-4: [Model Training Support] with Auto Tuner support.
 
-## What is GradsFlow?
+## Installation
+
+**Recommended**: `pip install -U gradsflow`
+
+**Latest (Unstable)**: `pip install git+https://github.com/gradsflow/gradsflow@main`
+
+## About GradsFlow
 
 !!! attention
     🚨 GradsFlow is changing fast. There will be a lot of breaking changes until we reach `0.1.0`.
@@ -44,7 +44,6 @@ It can automatically train Deep Learning Models for different tasks on your lapt
 It also provides a powerful [Model Training API](https://docs.gradsflow.com/en/latest/gradsflow/models/model/) that can be used to train almost any PyTorch model.
 GradsFlow leverages some cool OSS library including [Ray️](https://ray.io) and [PyTorch Lightning](https://https://pytorchlightning.ai/).
 You don't have to write any PyTorch or hyperparameter optimization code.
-
 
 - `gradsflow.core`: [Core](https://docs.gradsflow.com/en/latest/gradsflow/core/) defines the building blocks
 of AutoML tasks.
@@ -69,7 +68,7 @@ different ML/DL tasks which is provided by gradsflow AutoML API.
 ## Community
 
 ### Stay Up-to-Date
-**Social**: You can also follow us on Twitter [@gradsflow](https://twitter.com/gradsflow) and [Linkedin][https://www.linkedin.com/company/gradsflow) for the latest updates.
+**Social**: You can also follow us on Twitter [@gradsflow](https://twitter.com/gradsflow) and [Linkedin](https://www.linkedin.com/company/gradsflow) for the latest updates.
 
 ### Questions & Discussion
 💬 Join the [Slack](https://join.slack.com/t/gradsflow/shared_invite/zt-ulc0m0ef-xstzyowuTgYceVmFbJlBmg) group to chat with us.
