@@ -25,8 +25,8 @@ theme:
         icon: material/weather-night
         name: Switch to light mode
 
-  logo: https://ik.imagekit.io/gradsflow/logo/logo-small_g2MxLWesD.png?updatedAt=1627716948296
-  favicon: https://ik.imagekit.io/gradsflow/favicon/favicon_7lEXKqKWxlD.ico?updatedAt=1627717083206
+  logo: https://ik.imagekit.io/gradsflow/logo/v2/gf-logo-gflow-black_9ZE8jOuKXTm.svg?updatedAt=1633488021249
+  favicon: https://ik.imagekit.io/gradsflow/logo/v2/gf-logo-gflow-white_vCxfpINvg.svg
   features:
     - search.suggest
     - search.highlight

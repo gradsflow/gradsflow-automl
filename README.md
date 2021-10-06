@@ -1,6 +1,6 @@
 <p align="center">
-  <img width="250" alt="logo" src="https://ik.imagekit.io/gradsflow/logo/logo-small_g2MxLWesD.png?updatedAt=1627716948296"/>
-  <br><br>
+  <img width="250" alt="logo" src="https://ik.imagekit.io/gradsflow/logo/v2/gf-logo-gradsflow-orange_bv-f7gJu-up.svg"/>
+  <br>
   <strong>An open-source AutoML & PyTorch Model Training Library</strong>
 </p>
 <p align="center">
