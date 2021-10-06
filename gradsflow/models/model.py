@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import os
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Union
 
 import torch
 from loguru import logger
@@ -75,7 +75,7 @@ class Model(BaseModel, DataMixin):
     def compile(
         self,
         loss: Union[str, nn.modules.loss._Loss] = None,
-        optimizer: Union[str, torch.optim.Optimizer] = None,
+        optimizer: Union[str, Callable] = None,
         learning_rate: float = 3e-4,
         metrics: METRICS_TYPE = None,
         loss_config: Optional[dict] = None,
@@ -89,7 +89,7 @@ class Model(BaseModel, DataMixin):
             ```
         Args:
             loss: name of loss or torch Loss class object. See `available_losses()`
-            optimizer: optimizer name or `torch.optim.Optimizer` object
+            optimizer: optimizer name or `torch.optim.Optimizer` Class
             learning_rate: defaults to 1e-3
             metrics: list of metrics to calculate. See `available_metrics()`
             loss_config: Dict config if any to pass to loss function

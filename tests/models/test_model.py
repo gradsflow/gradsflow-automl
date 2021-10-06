@@ -63,6 +63,11 @@ def test_compile():
 
     model1.compile("crossentropyloss", "adam", metrics="accuracy")
 
+    model2 = Model(cnn)
+    model2.compile("crossentropyloss", torch.optim.Adam)
+    model2.compile(torch.nn.CrossEntropyLoss, torch.optim.Adam, learning_rate=0.01)
+    assert model2.optimizer.param_groups[0]["lr"] == 0.01
+
 
 def test_set_accelerator():
     model2 = Model(cnn, accelerator_config={"fp16": True})
