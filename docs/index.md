@@ -22,13 +22,13 @@
 
 - 2021-8-25: [Released first version 0.0.1](https://pypi.org/project/gradsflow/) ✨ :tada:
 - 2021-8-29: Migrated to Ray Tune
-- 2021-10-4: [Model Training Support] with Auto Tuner support.
+- 2021-10-4: Model Trainer support
 
 ## Installation
 
 **Recommended**: `pip install -U gradsflow`
 
-**Latest** (Unstable): `pip install git+https://github.com/gradsflow/gradsflow@main`
+**Latest** (unstable): `pip install git+https://github.com/gradsflow/gradsflow@main`
 
 ## About GradsFlow
 
@@ -44,7 +44,7 @@ It provides a powerful and easy-to-extend [Model Training API](https://docs.grad
 that can be used to train almost any PyTorch model.
 Though GradsFlow has its own Model Training API it also supports [PyTorch Lightning Flash](https://lightning-flash.readthedocs.io/en/latest)
 to provide more rich features across different tasks.
-It takes inspiration & leverages some cool OSS library including Ray️, PyTorch Lightning, Keras & fast.ai.
+It takes inspiration & leverages some cool OSS library including Ray️, HuggingFace Accelerate, PyTorch Lightning, Keras & fast.ai.
 
 
 - `gradsflow.core`: [Core](https://docs.gradsflow.com/en/latest/gradsflow/core/) defines the building blocks
@@ -92,5 +92,6 @@ Read full [**Contributor Covenant Code of Conduct**](https://github.com/gradsflo
 
 ## Acknowledgement
 
-**GradsFlow** is built with help of awesome open-source projects (including but not limited to) PyTorch Lightning and Ray.
+**GradsFlow** is built with help of awesome open-source projects (including but not limited to) Ray,
+PyTorch Lightning, HuggingFace Accelerate, TorchMetrics.
 It takes inspiration from multiple projects [Keras](https://keras.io) & [FastAI](https://docs.fast.ai).
