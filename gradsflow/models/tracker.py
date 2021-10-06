@@ -15,7 +15,6 @@ from typing import Dict, List, Optional
 
 from rich.table import Table
 
-from gradsflow.callbacks import CallbackRunner
 from gradsflow.core.base import BaseTracker, TrackingValues
 from gradsflow.core.data import AutoDataset
 from gradsflow.models.utils import to_item
