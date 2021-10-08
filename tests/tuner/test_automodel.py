@@ -17,7 +17,7 @@ from gradsflow import AutoDataset
 from gradsflow.data.image import get_fake_data
 from gradsflow.tuner import AutoModelV2, Tuner
 
-image_size = (128, 128)
+image_size = (64, 64)
 train_data = get_fake_data(image_size, num_workers=0)
 
 val_data = get_fake_data(image_size, num_workers=0)

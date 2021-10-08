@@ -151,7 +151,7 @@ class Model(BaseModel, DataMixin):
 
             # ----- METRIC UPDATES -----
             self.tracker.train.step_loss = outputs["loss"].item()
-            self.tracker.track_metrics(outputs.get("metrics"), mode="train", render=True)
+            self.tracker.track_metrics(outputs.get("metrics", {}), mode="train", render=True)
 
             running_train_loss += self.tracker.train.step_loss
             tracker.train.steps += 1
@@ -175,8 +175,7 @@ class Model(BaseModel, DataMixin):
             # ----- METRIC UPDATES -----
             loss = outputs["loss"].item()
             self.tracker.val.step_loss = loss
-            self.tracker.track_metrics(outputs.get("metrics"), mode="val", render=True)
-
+            self.tracker.track_metrics(outputs.get("metrics", {}), mode="val", render=True)
             running_val_loss += self.tracker.val.step_loss
             tracker.val.steps += 1
             if self.TEST:

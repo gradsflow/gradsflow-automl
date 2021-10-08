@@ -48,10 +48,10 @@ class TorchTuneReport(Callback):
     def on_epoch_end(self):
         val_loss = self.model.tracker.val.loss
         train_loss = self.model.tracker.train.loss
-        val_tracker = self.model.tracker.get_metrics("val")
-        train_tracker = self.model.tracker.get_metrics("val")
-        val_accuracy = val_tracker.get("accuracy", 0)
-        train_accuracy = train_tracker.get("accuracy", 0)
-        print("train_accuracy", train_accuracy)
+        val_tracker = self.model.tracker.train.metrics
+        train_tracker = self.model.tracker.val.metrics
 
-        tune.report(val_loss=val_loss, train_accuracy=train_accuracy, val_accuracy=val_accuracy, train_loss=train_loss)
+        train_metrics = {"train_" + k.lower(): v for k, v in train_tracker.items()}
+        val_metrics = {"val_" + k.lower(): v for k, v in val_tracker.items()}
+
+        tune.report(val_loss=val_loss, train_loss=train_loss, **train_metrics, **val_metrics)

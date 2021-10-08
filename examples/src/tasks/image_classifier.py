@@ -33,14 +33,15 @@ train_data = image_dataset_from_directory(f"{data_dir}/hymenoptera_data/train/",
 val_data = image_dataset_from_directory(f"{data_dir}/hymenoptera_data/val/", image_size=image_size, transform=True)
 
 num_classes = len(train_data.dataset.classes)
+
 model = AutoImageClassifier(
     train_dataloader=train_data.dataloader,
     val_dataloader=val_data.dataloader,
     num_classes=num_classes,
-    max_epochs=2,
-    optimization_metric="train_accuracy",
-    max_steps=2,
-    n_trials=2,
+    max_epochs=1,
+    optimization_metric="val_loss",
+    max_steps=5,
+    n_trials=1,
 )
 print("AutoImageClassifier initialised!")
 
