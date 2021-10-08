@@ -71,8 +71,7 @@ class AutoModelV2:
         if isinstance(variable, (Domain, ComplexObject)):
             self.tuner.update_search_space(object_name, variable)
             return State.TUNER
-        else:
-            return ray.put(variable)
+        return ray.put(variable)
 
     def compile(
         self,
