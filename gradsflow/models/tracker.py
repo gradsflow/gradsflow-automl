@@ -76,8 +76,8 @@ class Tracker(BaseTracker):
         return value_tracker.loss
 
     def create_table(self) -> Table:
-        headings = ["current_epoch", "train/loss"]
-        row = [self.current_epoch, to_item(self.train.loss)]
+        headings = ["current_epoch", "loss", "train/loss"]
+        row = [self.current_epoch, to_item(self.train.step_loss), to_item(self.train.loss)]
         if self.val.loss:
             headings.append("val/loss")
 

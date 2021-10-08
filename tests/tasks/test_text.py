@@ -34,7 +34,7 @@ def test_build_model():
         suggested_backbones=["sgugger/tiny-distilbert-classification"],
         suggested_conf=suggested_conf,
         max_epochs=1,
-        optimization_metric="val_accuracy",
+        optimization_metric="val_loss",
         timeout=5,
         n_trials=1,
     )

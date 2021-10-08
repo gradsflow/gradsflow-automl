@@ -54,7 +54,8 @@ def test_build_model():
         val_dataloader=val_dl,
         num_classes=2,
         max_epochs=1,
-        timeout=5,
+        max_steps=5,
+        timeout=10,
         suggested_backbones="ssl_resnet18",
         n_trials=1,
     )
@@ -69,10 +70,10 @@ def test_hp_tune():
         val_dataloader=val_dl,
         num_classes=2,
         max_epochs=1,
-        max_steps=2,
-        timeout=30,
+        max_steps=5,
+        timeout=10,
         suggested_backbones="ssl_resnet18",
-        optimization_metric="val_accuracy",
+        optimization_metric="train_loss",
         n_trials=1,
     )
-    model.hp_tune(name="pytest-experiment", mode="max", gpu=0)
+    model.hp_tune(name="pytest-experiment", mode="min", gpu=0)

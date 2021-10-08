@@ -158,6 +158,7 @@ class AutoModel(BaseAutoModel, ABC):
             resources_per_trial=resources_per_trial,
             resume=resume,
             stop=timeout_stopper,
+            checkpoint_at_end=True,
             **ray_config,
         )
         self.analysis = analysis
