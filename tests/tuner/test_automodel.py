@@ -26,11 +26,10 @@ num_classes = train_data.dataset.num_classes
 autodataset = AutoDataset(train_data.dataloader, val_data.dataloader, num_classes=num_classes)
 
 cnn1 = create_model("resnet18", pretrained=False, num_classes=num_classes)
-cnn2 = create_model("efficientnet_b0", pretrained=False, num_classes=num_classes)
 
 tuner = Tuner()
 
-cnns = tuner.suggest_complex("learner", cnn1, cnn2)
+cnns = tuner.suggest_complex("learner", cnn1)
 optimizers = tuner.choice("optimizer", "adam", "sgd")
 loss = tuner.choice(
     "loss",
