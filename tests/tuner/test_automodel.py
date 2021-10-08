@@ -18,9 +18,8 @@ from gradsflow.data.image import get_fake_data
 from gradsflow.tuner import AutoModelV2, Tuner
 
 image_size = (64, 64)
-train_data = get_fake_data(image_size, num_workers=0)
-
-val_data = get_fake_data(image_size, num_workers=0)
+train_data = get_fake_data(image_size, num_classes=2)
+val_data = get_fake_data(image_size, num_classes=2)
 
 num_classes = train_data.dataset.num_classes
 autodataset = AutoDataset(train_data.dataloader, val_data.dataloader, num_classes=num_classes)
@@ -38,5 +37,5 @@ loss = tuner.scalar(
 
 
 def test_automodelv2():
-    model = AutoModelV2(cnns)
-    model.hp_tune(tuner, autodataset, epochs=1, fit_config={"steps_per_epoch": 2})
+    model = AutoModelV2(cnns, optimization_metric="val_loss")
+    model.hp_tune(tuner, autodataset, epochs=1, trainer_config={"steps_per_epoch": 2}, time=10)

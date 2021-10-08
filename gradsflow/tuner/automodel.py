@@ -130,17 +130,18 @@ class AutoModelV2:
             **fit_config,
         )
 
-    def hp_tune(self, tuner: Tuner, autodataset, epochs: int = 1, fit_config: Optional[dict] = None):
-        fit_config = fit_config or {}
+    def hp_tune(self, tuner: Tuner, autodataset, epochs: int = 1, time=600, trainer_config: Optional[dict] = None):
+        trainer_config = trainer_config or {}
         self.tuner.union(tuner)
         search_space = self.tuner.value
         analysis = tune.run(
             tune.with_parameters(
-                self.trainable, autodataset=autodataset, epochs=epochs, tuner=tuner, fit_config=fit_config
+                self.trainable, autodataset=autodataset, epochs=epochs, tuner=tuner, fit_config=trainer_config
             ),
             metric=self.optimization_metric,
             mode=self.mode,
             config=search_space,
+            time_budget_s=time,
         )
         self.analysis = analysis
         logger.info(f"🎉 Best HyperParameters found: {analysis.best_config}")
