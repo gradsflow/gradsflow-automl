@@ -108,24 +108,32 @@ class Model(BaseModel, DataMixin):
         self.add_metrics(*listify(metrics))
         self._compiled = True
 
+    def calculate_metrics(self, inputs, target) -> Dict[str, torch.Tensor]:
+        self.metrics.update(inputs, target)
+        return self.metrics.compute()
+
     def train_step(self, batch: Union[List[torch.Tensor], Dict[Any, torch.Tensor]]) -> Dict[str, torch.Tensor]:
         inputs = self.fetch_inputs(batch)
         target = self.fetch_target(batch)
+
         self.optimizer.zero_grad()
         logits = self.forward_once(inputs)
         loss = self.loss(logits, target)
         self.backward(loss)
         self.optimizer.step()
+
         self.tracker.track("train/step_loss", loss, render=True)
-        return {"loss": loss, "logits": logits, "target": target}
+        return {"loss": loss, "metrics": self.calculate_metrics(logits, target)}
 
     def val_step(self, batch: Union[List[torch.Tensor], Dict[Any, torch.Tensor]]) -> Dict[str, torch.Tensor]:
         inputs = self.fetch_inputs(batch)
         target = self.fetch_target(batch)
+
         logits = self.forward_once(inputs)
         loss = self.loss(logits, target)
+
         self.tracker.track("val/step_loss", loss, render=True)
-        return {"loss": loss, "logits": logits, "target": target}
+        return {"loss": loss, "metrics": self.calculate_metrics(logits, target)}
 
     def train_one_epoch(self, train_dataloader):
 
@@ -143,8 +151,7 @@ class Model(BaseModel, DataMixin):
 
             # ----- METRIC UPDATES -----
             self.tracker.train.step_loss = outputs["loss"].item()
-            self.metrics.update(outputs.get("logits"), outputs.get("target"))
-            self.tracker.track_metrics(self.metrics.compute(), mode="train", render=True)
+            self.tracker.track_metrics(outputs.get("metrics"), mode="train", render=True)
 
             running_train_loss += self.tracker.train.step_loss
             tracker.train.steps += 1
@@ -166,12 +173,11 @@ class Model(BaseModel, DataMixin):
             self.callback_runner.on_val_step_end()
 
             # ----- METRIC UPDATES -----
-            loss = outputs["loss"]
-            self.metrics.update(outputs.get("logits"), outputs.get("target"))
-            self.tracker.track_metrics(self.metrics.compute(), mode="val", render=True)
+            loss = outputs["loss"].item()
             self.tracker.val.step_loss = loss
+            self.tracker.track_metrics(outputs.get("metrics"), mode="val", render=True)
 
-            running_val_loss += loss.cpu().numpy()
+            running_val_loss += self.tracker.val.step_loss
             tracker.val.steps += 1
             if self.TEST:
                 break
