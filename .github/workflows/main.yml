@@ -9,6 +9,7 @@ on:
 jobs:
   pytest:
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
     strategy:
       matrix:
         os: [ ubuntu-latest, macos-latest ]
