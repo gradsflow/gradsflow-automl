@@ -30,8 +30,8 @@ cnn1 = create_model("resnet18", pretrained=False, num_classes=num_classes)
 tuner = Tuner()
 
 cnns = tuner.suggest_complex("learner", cnn1)
-optimizers = tuner.choice("optimizer", "adam", "sgd")
-loss = tuner.choice(
+optimizers = tuner.choice("optimizer", "sgd")
+loss = tuner.scalar(
     "loss",
     "crossentropyloss",
 )
@@ -39,4 +39,4 @@ loss = tuner.choice(
 
 def test_automodelv2():
     model = AutoModelV2(cnns)
-    model.hp_tune(tuner, autodataset, epochs=1)
+    model.hp_tune(tuner, autodataset, epochs=1, fit_config={"steps_per_epoch": 2})

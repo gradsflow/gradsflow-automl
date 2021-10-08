@@ -119,7 +119,7 @@ class AutoModelV2:
 
         return model
 
-    def trainable(self, search_space, autodataset, epochs, tuner):
+    def trainable(self, search_space, autodataset, epochs: int, tuner: Tuner, fit_config: dict):
         model: Model = self.build_model(search_space, tuner)
 
         model.fit(
@@ -127,18 +127,17 @@ class AutoModelV2:
             max_epochs=epochs,
             callbacks=["tune_checkpoint", "tune_report"],
             show_progress=False,
+            **fit_config,
         )
 
-    def hp_tune(
-        self,
-        tuner: Tuner,
-        autodataset,
-        epochs: int = 1,
-    ):
+    def hp_tune(self, tuner: Tuner, autodataset, epochs: int = 1, fit_config: Optional[dict] = None):
+        fit_config = fit_config or {}
         self.tuner.union(tuner)
         search_space = self.tuner.value
         analysis = tune.run(
-            tune.with_parameters(self.trainable, autodataset=autodataset, epochs=epochs, tuner=tuner),
+            tune.with_parameters(
+                self.trainable, autodataset=autodataset, epochs=epochs, tuner=tuner, fit_config=fit_config
+            ),
             metric=self.optimization_metric,
             mode=self.mode,
             config=search_space,
