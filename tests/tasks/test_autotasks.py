@@ -14,7 +14,7 @@ from gradsflow.tasks import autotask
 
 warnings.filterwarnings("ignore")
 
-ray.init(local_mode=True)
+ray.init(local_mode=True, ignore_reinit_error=True)
 
 data_dir = Path.cwd()
 datamodule = ImageClassificationData.from_folders(

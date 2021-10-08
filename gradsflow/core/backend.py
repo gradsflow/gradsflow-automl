@@ -65,6 +65,7 @@ class AutoBackend:
         model = self.model_builder(search_space)
         tracker = model.fit(
             autodataset=autodataset,
+            steps_per_epoch=self.max_steps,
             callbacks=trainer_config.get("callback_runner", ("tune_checkpoint", "tune_report")),
             show_progress=False,
             **trainer_config,
