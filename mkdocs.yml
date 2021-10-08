@@ -62,8 +62,6 @@ plugins:
 
 extra:
   homepage: https://docs.gradsflow.com
-  disqus: gradsflow
-
 
 nav:
   - Intro: 'index.md'

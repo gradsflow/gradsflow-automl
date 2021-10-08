@@ -11,13 +11,18 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Sequence, Union
 
+import ray
 from ray import tune
 from ray.tune.sample import Domain
 
 
 class ComplexObject:
+    """Class to store and retrieve large size objects and convert it to `ray.tune.Domain`.
+    Objects will be stored with `ray.put` and retrieved with `ray.get`.
+    """
+
     def __init__(self):
         self.values: List[Any] = []
 
@@ -25,10 +30,10 @@ class ComplexObject:
         return len(self.values)
 
     def append(self, value: Any):
-        self.values.append(value)
+        self.values.append(ray.put(value))
 
     def get_complex_object(self, idx):
-        return self.values[idx]
+        return ray.get(self.values[idx])
 
     def to_choice(self) -> Domain:
         """converts to ray.tune Domain"""
@@ -37,11 +42,21 @@ class ComplexObject:
 
 
 class Tuner:
+    """
+    Supports `ray.tune` methods and provide an easy way for tuning large size complex objects like Models.
+    """
+
     def __init__(self):
         self._search_space: Dict[str, Domain] = {}
         self._complex_objects: Dict[str, ComplexObject] = {}
 
     def update_search_space(self, k: str, v: Union[Domain, ComplexObject]):
+        """
+        Update search space with value `ray.tune(...)` or `gradsflow.tuner.ComplexObject`
+        Args:
+            k: hyperparameter name
+            v: hyperparameter value - `ray.tune(...)` or `gradsflow.tuner.ComplexObject` object.
+        """
         if isinstance(v, Domain):
             self._search_space[k] = v
         elif isinstance(v, ComplexObject):
@@ -50,8 +65,21 @@ class Tuner:
             self._complex_objects[k] = v
         else:
             raise UserWarning(f"Tuner Search space doesn't support {type(v)}")
+        assert isinstance(
+            self._search_space[k], Domain
+        ), "search space should only contain object of type `tune.Domain`"
 
-    def suggest_complex(self, key: str, *values: Any) -> ComplexObject:
+    def suggest_complex(self, key: str, *values: Sequence) -> ComplexObject:
+        """
+        Use this method when you want to search models or any large object.
+        It will also update search space with the provided key.
+        Args:
+            key: hyperparameter name
+            *values: values for the hyperparameter
+
+        Returns:
+
+        """
         complex_object = ComplexObject()
         for i, v in enumerate(values):
             complex_object.append(v)
@@ -60,6 +88,10 @@ class Tuner:
         self._search_space[key] = object_choice
         self._complex_objects[key] = complex_object
         return complex_object
+
+    def scalar(self, key: str, value):
+        """This sets a scalar value and will not be used for tuning"""
+        self._search_space[key] = value
 
     def choice(self, key: str, *values) -> Domain:
         """Tune for categorical values"""
@@ -92,3 +124,10 @@ class Tuner:
     def get_complex_object(self, key: str, idx: int):
         """Get registered complex object value from key at given index"""
         return self._complex_objects[key].get_complex_object(idx)
+
+    def get(self, key: str) -> Union[Domain, ComplexObject]:
+        if key in self._complex_objects:
+            return self._complex_objects[key]
+        if key in self._search_space:
+            return self._search_space[key]
+        raise KeyError(f"key={key} is not available in tuner! Available={tuple(self._search_space.keys())}")
