@@ -130,18 +130,40 @@ class AutoModelV2:
             **fit_config,
         )
 
-    def hp_tune(self, tuner: Tuner, autodataset, epochs: int = 1, time=600, trainer_config: Optional[dict] = None):
+    def hp_tune(
+        self,
+        tuner: Tuner,
+        autodataset,
+        epochs: int = 1,
+        n_trials=10,
+        time=600,
+        gpu=None,
+        cpu=None,
+        resume=False,
+        trainer_config: Optional[dict] = None,
+        ray_config: Optional[dict] = None,
+    ):
         trainer_config = trainer_config or {}
+        resources_per_trial = {}
+        ray_config = ray_config or {}
+        if gpu:
+            resources_per_trial["gpu"] = gpu
+        if cpu:
+            resources_per_trial["cpu"] = cpu
         self.tuner.union(tuner)
         search_space = self.tuner.value
         analysis = tune.run(
             tune.with_parameters(
                 self.trainable, autodataset=autodataset, epochs=epochs, tuner=tuner, fit_config=trainer_config
             ),
+            num_samples=n_trials,
             metric=self.optimization_metric,
             mode=self.mode,
             config=search_space,
-            time_budget_s=time,
+            resources_per_trial=resources_per_trial,
+            resume=resume,
+            checkpoint_at_end=True,
+            **ray_config,
         )
         self.analysis = analysis
         logger.info(f"🎉 Best HyperParameters found: {analysis.best_config}")

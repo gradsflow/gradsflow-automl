@@ -15,9 +15,6 @@
 import os
 import warnings
 
-import ray
-
 os.environ["GF_CI"] = "true"
 
 warnings.filterwarnings("ignore")
-ray.init(local_mode=True, ignore_reinit_error=True)

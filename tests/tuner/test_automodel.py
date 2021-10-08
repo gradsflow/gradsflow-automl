@@ -11,7 +11,6 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-import ray
 from timm import create_model
 
 from gradsflow import AutoDataset
@@ -25,8 +24,6 @@ val_data = get_fake_data(image_size, num_classes=2)
 num_classes = train_data.dataset.num_classes
 autodataset = AutoDataset(train_data.dataloader, val_data.dataloader, num_classes=num_classes)
 
-ray.init(local_mode=True, ignore_reinit_error=True)
-
 
 def test_automodelv2():
     tuner = Tuner()
@@ -39,4 +36,10 @@ def test_automodelv2():
         "crossentropyloss",
     )
     model = AutoModelV2(cnns, optimization_metric="val_loss")
-    model.hp_tune(tuner, autodataset, epochs=1, trainer_config={"steps_per_epoch": 2}, time=10)
+    model.hp_tune(
+        tuner,
+        autodataset,
+        n_trials=1,
+        epochs=1,
+        trainer_config={"steps_per_epoch": 2},
+    )
