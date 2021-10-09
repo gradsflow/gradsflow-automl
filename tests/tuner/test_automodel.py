@@ -32,10 +32,9 @@ autodataset = AutoDataset(train_data.dataloader, val_data.dataloader, num_classe
 
 def test_compile():
     tuner = Tuner()
-    cnn1 = create_model("resnet18", pretrained=False, num_classes=num_classes)
+    cnn = create_model("resnet18", pretrained=False, num_classes=num_classes)
 
-    cnns = tuner.suggest_complex("learner", cnn1)
-    model = AutoModelV2(cnns, optimization_metric="val_loss")
+    model = AutoModelV2(cnn, optimization_metric="val_loss")
     model.compile(
         loss="crossentropyloss", optimizer=tune.choice(("adam", "sgd")), learning_rate=tune.loguniform(1e-5, 1e-3)
     )

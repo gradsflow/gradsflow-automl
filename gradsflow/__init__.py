@@ -14,9 +14,9 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from os import environ
+from os import environ as _environ
 
-environ["LOGURU_LEVEL"] = environ.get("LOGURU_LEVEL") or environ.get("LOG_LEVEL", "ERROR")
+_environ["LOGURU_LEVEL"] = _environ.get("LOGURU_LEVEL") or _environ.get("LOG_LEVEL", "ERROR")
 
 from gradsflow.core.automodel import AutoModel
 from gradsflow.core.data import AutoDataset
@@ -28,4 +28,4 @@ from gradsflow.tasks.autotasks import autotask, available_tasks
 from gradsflow.tuner.automodel import AutoModelV2
 from gradsflow.tuner.tuner import Tuner
 
-__version__ = "0.0.6.post0"
+__version__ = "0.0.6.post1"

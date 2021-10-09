@@ -62,13 +62,13 @@ class AutoModelV2:
         mode: Optional[str] = None,
     ):
         self.tuner: Tuner = Tuner()
-        self.learner = self._register_object(LEARNER, learner)
+        self.learner = self._register_model(LEARNER, learner)
         self.optimization_metric = optimization_metric or "train_loss"
         self.mode = mode or "min"
         self.analysis = None
         self._non_domain_config = {"compile": {}}
 
-    def _register_object(self, object_name: str, variable: Any):
+    def _register_model(self, object_name: str, variable: Any):
         if isinstance(variable, (Domain, ComplexObject)):
             self.tuner.update_search_space(object_name, variable)
             return State.TUNER
