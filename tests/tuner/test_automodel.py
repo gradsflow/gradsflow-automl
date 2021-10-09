@@ -31,7 +31,7 @@ num_classes = train_data.dataset.num_classes
 autodataset = AutoDataset(train_data.dataloader, val_data.dataloader, num_classes=num_classes)
 
 
-def test_compile():
+def test_hp_tune():
     tuner = Tuner()
     cnn = create_model("resnet18", pretrained=False, num_classes=num_classes)
 
@@ -47,4 +47,15 @@ def test_compile():
         epochs=1,
         cpu=0.05,
         trainer_config={"steps_per_epoch": 2},
+    )
+
+
+def test_compile():
+    tuner = Tuner()
+    cnn = create_model("resnet18", pretrained=False, num_classes=num_classes)
+    complex_cnn = tuner.suggest_complex("learner", cnn)
+
+    model = AutoModel(complex_cnn, optimization_metric="val_loss")
+    model.compile(
+        loss="crossentropyloss", optimizer=tune.choice(("adam", "sgd")), learning_rate=tune.loguniform(1e-5, 1e-3)
     )
