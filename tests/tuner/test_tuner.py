@@ -63,3 +63,21 @@ def test_suggest_complex():
     tuner = Tuner()
     tuner.suggest_complex("test_complex", "val1", "val2")
     assert "test_complex" in tuner.value
+
+
+def test_scalar():
+    tuner = Tuner()
+    tuner.scalar("a", "b")
+    assert tuner.get("a") == "b"
+
+
+def test_get():
+    tuner = Tuner()
+    tuner.choice("optimizer", "val1", "val2")
+    assert isinstance(tuner.get("optimizer"), Domain)
+
+    tuner.suggest_complex("complex_opt", "val1")
+    assert tuner.get("complex_opt").get_complex_object(0) == "val1"
+
+    with pytest.raises(KeyError):
+        tuner.get("random_key")

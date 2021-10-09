@@ -20,7 +20,8 @@ from timm import create_model
 
 from gradsflow.core.data import AutoDataset
 from gradsflow.data.image import get_fake_data
-from gradsflow.tuner import AutoModelV2, Tuner
+from gradsflow.tuner import AutoModelV2 as AutoModel
+from gradsflow.tuner import Tuner
 
 image_size = (64, 64)
 train_data = get_fake_data(image_size, num_classes=2)
@@ -34,7 +35,7 @@ def test_compile():
     tuner = Tuner()
     cnn = create_model("resnet18", pretrained=False, num_classes=num_classes)
 
-    model = AutoModelV2(cnn, optimization_metric="val_loss")
+    model = AutoModel(cnn, optimization_metric="val_loss")
     model.compile(
         loss="crossentropyloss", optimizer=tune.choice(("adam", "sgd")), learning_rate=tune.loguniform(1e-5, 1e-3)
     )
