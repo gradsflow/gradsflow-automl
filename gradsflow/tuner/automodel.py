@@ -33,7 +33,7 @@ class State(Enum):
 
 
 class AutoModelV2:
-    """Searches Hyperparameter
+    """Search Hyperparameter for your `Model`
 
     Examples:
         ```python
@@ -136,9 +136,9 @@ class AutoModelV2:
         autodataset,
         epochs: int = 1,
         n_trials=10,
-        time=600,
         gpu=None,
         cpu=None,
+        time: int = None,
         resume=False,
         trainer_config: Optional[dict] = None,
         ray_config: Optional[dict] = None,
@@ -162,6 +162,7 @@ class AutoModelV2:
             config=search_space,
             resources_per_trial=resources_per_trial,
             resume=resume,
+            time_budget_s=time,
             checkpoint_at_end=True,
             **ray_config,
         )
