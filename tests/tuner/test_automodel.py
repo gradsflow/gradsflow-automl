@@ -11,32 +11,64 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+import os
+
+os.environ["GF_CI"] = "true"
+
+import torch.nn
+from ray import tune
 from timm import create_model
 
-from gradsflow import AutoDataset
+from gradsflow.core.data import AutoDataset
 from gradsflow.data.image import get_fake_data
-from gradsflow.tuner import AutoModelV2, Tuner
+from gradsflow.models.constants import LEARNER
+from gradsflow.tuner import AutoModelV2 as AutoModel
+from gradsflow.tuner import Tuner
 
 image_size = (64, 64)
-train_data = get_fake_data(image_size, num_workers=0)
-
-val_data = get_fake_data(image_size, num_workers=0)
+train_data = get_fake_data(image_size, num_classes=2)
+val_data = get_fake_data(image_size, num_classes=2)
 
 num_classes = train_data.dataset.num_classes
 autodataset = AutoDataset(train_data.dataloader, val_data.dataloader, num_classes=num_classes)
 
-cnn1 = create_model("resnet18", pretrained=False, num_classes=num_classes)
 
-tuner = Tuner()
+def test_hp_tune():
+    tuner = Tuner()
+    cnn = create_model("resnet18", pretrained=False, num_classes=num_classes)
 
-cnns = tuner.suggest_complex("learner", cnn1)
-optimizers = tuner.choice("optimizer", "adam", "sgd")
-loss = tuner.choice(
-    "loss",
-    "crossentropyloss",
-)
+    model = AutoModel(cnn, optimization_metric="val_loss")
+    model.compile(
+        loss="crossentropyloss", optimizer=tune.choice(("adam", "sgd")), learning_rate=tune.loguniform(1e-5, 1e-3)
+    )
+
+    model.hp_tune(
+        tuner,
+        autodataset,
+        n_trials=1,
+        epochs=1,
+        cpu=0.05,
+        gpu=0,
+        trainer_config={"steps_per_epoch": 2},
+    )
 
 
-def test_automodelv2():
-    model = AutoModelV2(cnns)
-    model.hp_tune(tuner, autodataset, epochs=1)
+def test_get_learner():
+    tuner = Tuner()
+    cnn = create_model("resnet18", pretrained=False, num_classes=num_classes)
+    complex_cnn = tuner.suggest_complex("learner", cnn)
+    automodel = AutoModel(complex_cnn, optimization_metric="val_loss")
+    hparams = {LEARNER: 0}
+    model = automodel._get_learner(hparams, tuner)
+    assert isinstance(model, torch.nn.Module)
+
+
+def test_compile():
+    tuner = Tuner()
+    cnn = create_model("resnet18", pretrained=False, num_classes=num_classes)
+    complex_cnn = tuner.suggest_complex("learner", cnn)
+
+    model = AutoModel(complex_cnn, optimization_metric="val_loss")
+    model.compile(
+        loss="crossentropyloss", optimizer=tune.choice(("adam", "sgd")), learning_rate=tune.loguniform(1e-5, 1e-3)
+    )

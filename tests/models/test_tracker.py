@@ -11,11 +11,34 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+import pytest
+from rich.table import Table
+
 from gradsflow.models.tracker import Tracker
+
+tracker = Tracker()
 
 
 def test_reset():
-    tracker = Tracker()
     tracker.max_epochs = 5
     tracker.reset()
     assert tracker.max_epochs == 0
+
+
+def test_mode():
+    tracker.mode("train")
+    tracker.mode("val")
+    with pytest.raises(NotImplementedError):
+        tracker.mode("test")
+
+
+def test_track():
+    tracker.track("val", 0.9, render=True)
+    tracker.track("score", 0.5, render=False)
+
+
+def test_create_table():
+    tracker.track_loss(0.1, "train")
+    tracker.track_loss(0.2, "val")
+    table = tracker.create_table()
+    assert isinstance(table, Table)

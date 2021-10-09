@@ -14,7 +14,7 @@ from gradsflow.tasks import autotask
 
 warnings.filterwarnings("ignore")
 
-ray.init(local_mode=True)
+ray.init(local_mode=True, ignore_reinit_error=True)
 
 data_dir = Path.cwd()
 datamodule = ImageClassificationData.from_folders(
@@ -53,7 +53,7 @@ def test_hp_tune():
         num_classes=2,
         max_epochs=1,
         max_steps=2,
-        timeout=30,
+        timeout=10,
         suggested_backbones="ssl_resnet18",
         optimization_metric="val_loss",
         n_trials=1,
