@@ -37,15 +37,35 @@
     Feel free to give your feedback by creating an issue or join our [Slack](https://join.slack.com/t/gradsflow/shared_invite/zt-ulc0m0ef-xstzyowuTgYceVmFbJlBmg) group.
 
 GradsFlow is an open-source AutoML Library based on PyTorch.
-The goal of GradsFlow is to democratize AI and make it available to everyone.
+Our goal is to democratize AI and make it available to everyone.
 
-It can automatically train Deep Learning Models for different tasks on your laptop or to a remote cluster directly from your laptop.
+It can automatically build & train Deep Learning Models for different tasks on your laptop or to a remote cluster
+directly from your laptop.
 It provides a powerful and easy-to-extend [Model Training API](https://docs.gradsflow.com/en/latest/gradsflow/models/model/)
 that can be used to train almost any PyTorch model.
 Though GradsFlow has its own Model Training API it also supports [PyTorch Lightning Flash](https://lightning-flash.readthedocs.io/en/latest)
 to provide more rich features across different tasks.
-It takes inspiration & leverages some cool OSS library including Ray️, HuggingFace Accelerate, PyTorch Lightning, Keras & fast.ai.
 
+
+!!! info
+    Gradsflow is built for both beginners and experts! `AutoTasks` provides zero-code AutoML while
+    `Model` and `Tuner` provides custom model training and Hyperparameter optimization.
+
+### Automatic Model Building and Training
+Are you a beginner or from non Machine Learning background? This section is for you. Gradsflow `AutoTask` provides
+automatic model building and training across various different tasks
+including Image Recognition, Sentiment Analysis, Text Summarization and more to come.
+
+![autotextsummarization](https://ik.imagekit.io/gradsflow/docs/gf/autotextsummarization_9vRXj5mWG9P)
+
+
+### Simplified Hyperparameter tuning API
+`Tuner` provides a simplified API to move from Model Training to Hyperparameter optimization.
+
+![model training image](https://ik.imagekit.io/gradsflow/docs/gf/gradsflow-model-training_B1HZpLFRv8.png)
+
+
+### Components
 
 - `gradsflow.core`: [Core](https://docs.gradsflow.com/en/latest/gradsflow/core/) defines the building blocks
 of AutoML tasks.
