@@ -53,7 +53,7 @@ def test_hp_tune():
         num_classes=2,
         max_epochs=1,
         max_steps=2,
-        timeout=30,
+        timeout=10,
         suggested_backbones="ssl_resnet18",
         optimization_metric="val_loss",
         n_trials=1,
