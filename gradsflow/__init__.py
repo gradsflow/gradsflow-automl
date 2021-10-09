@@ -14,6 +14,10 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from os import environ
+
+environ["LOGURU_LEVEL"] = environ.get("LOGURU_LEVEL") or environ.get("LOG_LEVEL", "ERROR")
+
 from gradsflow.core.automodel import AutoModel
 from gradsflow.core.data import AutoDataset
 from gradsflow.models.model import Model
