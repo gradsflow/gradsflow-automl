@@ -46,6 +46,7 @@ def test_hp_tune():
         n_trials=1,
         epochs=1,
         cpu=0.05,
+        gpu=0,
         trainer_config={"steps_per_epoch": 2},
     )
 
