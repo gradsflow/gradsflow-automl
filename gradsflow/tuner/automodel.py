@@ -22,7 +22,8 @@ from ray import tune
 from ray.tune.sample import Domain
 from torch import nn
 
-from gradsflow import Model
+from gradsflow.core.data import AutoDataset
+from gradsflow.models import Model
 from gradsflow.models.constants import LEARNER
 from gradsflow.models.model import METRICS_TYPE
 from gradsflow.tuner.tuner import ComplexObject, Tuner
@@ -119,7 +120,9 @@ class AutoModelV2:
 
         return model
 
-    def trainable(self, search_space, autodataset, epochs: int, tuner: Tuner, fit_config: dict):
+    def trainable(
+        self, search_space: Dict[str, Domain], autodataset: AutoDataset, epochs: int, tuner: Tuner, fit_config: dict
+    ):
         model: Model = self.build_model(search_space, tuner)
 
         model.fit(

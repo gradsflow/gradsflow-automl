@@ -41,6 +41,6 @@ def test_automodelv2():
         autodataset,
         n_trials=1,
         epochs=1,
-        cpu=1,
+        cpu=0.05,
         trainer_config={"steps_per_epoch": 2},
     )
