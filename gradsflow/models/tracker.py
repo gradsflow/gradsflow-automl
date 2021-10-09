@@ -13,6 +13,7 @@
 #  limitations under the License.
 from typing import Dict, List, Optional
 
+from loguru import logger
 from rich.table import Table
 
 from gradsflow.core.base import BaseTracker, TrackingValues
@@ -42,27 +43,25 @@ class Tracker(BaseTracker):
         raise NotImplementedError(f"mode {mode} is not implemented!")
 
     def track(self, key, value, render=False):
+        if render:
+            logger.warning("render is deprecated!")
         epoch = self.current_epoch
         step = self.current_step
         data = {"current_epoch": epoch, "current_step": step, key: to_item(value)}
-        if render:
-            self.logs.append(data)
-        else:
-            self.non_render_logs.append(data)
+        self.logs.append(data)
 
     def track_loss(self, loss: float, mode: str):
         """Update `TrackingValues` loss. mode can be train or val"""
         value_tracker = self.mode(mode)
         value_tracker.loss = loss
         key = mode + "/" + "loss"
-        self.track(key, loss, render=True)
+        self.track(key, loss)
 
     def track_metrics(self, metric: Dict[str, float], mode: str, render: bool = False):
         """Update `TrackingValues` metrics. mode can be train or val and will update logs if render is True"""
         value_tracker = self.mode(mode)
         value_tracker.metrics = metric
-        if not render:
-            return
+
         for k, v in metric.items():
             k = mode + "/" + k
             self.track(k, v, render=render)
