@@ -78,7 +78,7 @@ class Tuner:
             *values: values for the hyperparameter
 
         Returns:
-
+            `ComplexObject`
         """
         complex_object = ComplexObject()
         for i, v in enumerate(values):

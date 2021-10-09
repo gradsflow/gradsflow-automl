@@ -15,11 +15,13 @@ import os
 
 os.environ["GF_CI"] = "true"
 
+import torch.nn
 from ray import tune
 from timm import create_model
 
 from gradsflow.core.data import AutoDataset
 from gradsflow.data.image import get_fake_data
+from gradsflow.models.constants import LEARNER
 from gradsflow.tuner import AutoModelV2 as AutoModel
 from gradsflow.tuner import Tuner
 
@@ -49,6 +51,16 @@ def test_hp_tune():
         gpu=0,
         trainer_config={"steps_per_epoch": 2},
     )
+
+
+def test_get_learner():
+    tuner = Tuner()
+    cnn = create_model("resnet18", pretrained=False, num_classes=num_classes)
+    complex_cnn = tuner.suggest_complex("learner", cnn)
+    automodel = AutoModel(complex_cnn, optimization_metric="val_loss")
+    hparams = {LEARNER: 0}
+    model = automodel._get_learner(hparams, tuner)
+    assert isinstance(model, torch.nn.Module)
 
 
 def test_compile():
