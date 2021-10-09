@@ -13,7 +13,7 @@
 #  limitations under the License.
 from timm import create_model
 
-from gradsflow import AutoDataset
+from gradsflow.core.data import AutoDataset
 from gradsflow.data.image import get_fake_data
 from gradsflow.tuner import AutoModelV2, Tuner
 
@@ -25,22 +25,22 @@ num_classes = train_data.dataset.num_classes
 autodataset = AutoDataset(train_data.dataloader, val_data.dataloader, num_classes=num_classes)
 
 
-def test_automodelv2():
-    tuner = Tuner()
-    cnn1 = create_model("resnet18", pretrained=False, num_classes=num_classes)
-
-    cnns = tuner.suggest_complex("learner", cnn1)
-    tuner.choice("optimizer", "sgd")
-    tuner.scalar(
-        "loss",
-        "crossentropyloss",
-    )
-    model = AutoModelV2(cnns, optimization_metric="val_loss")
-    model.hp_tune(
-        tuner,
-        autodataset,
-        n_trials=1,
-        epochs=1,
-        cpu=0.05,
-        trainer_config={"steps_per_epoch": 2},
-    )
+# def test_automodelv2():
+#     tuner = Tuner()
+#     cnn1 = create_model("resnet18", pretrained=False, num_classes=num_classes)
+#
+#     cnns = tuner.suggest_complex("learner", cnn1)
+#     tuner.choice("optimizer", "sgd")
+#     tuner.scalar(
+#         "loss",
+#         "crossentropyloss",
+#     )
+#     model = AutoModelV2(cnns, optimization_metric="val_loss")
+#     model.hp_tune(
+#         tuner,
+#         autodataset,
+#         n_trials=1,
+#         epochs=1,
+#         cpu=0.05,
+#         trainer_config={"steps_per_epoch": 2},
+#     )

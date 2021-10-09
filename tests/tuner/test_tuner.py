@@ -12,6 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import pytest
+import ray
 from ray.tune.sample import Domain
 
 from gradsflow.tuner.tuner import ComplexObject, Tuner
@@ -21,7 +22,7 @@ complex_object = ComplexObject()
 
 def test_append():
     complex_object.append("test_append")
-    assert "test_append" in complex_object.values
+    assert "test_append" in ray.get(complex_object.values)
 
 
 def test_get_complex_object():
