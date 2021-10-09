@@ -74,6 +74,7 @@ class AutoModelV2:
             return State.TUNER
         return ray.put(variable)
 
+    # skipcq: PYL-W0613
     def compile(
         self,
         loss: Union[str, Domain] = None,
