@@ -14,21 +14,9 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import os
-import platform
 from os import environ as _environ
 
-from torch import multiprocessing
-
 _environ["LOGURU_LEVEL"] = _environ.get("LOGURU_LEVEL") or _environ.get("LOG_LEVEL", "ERROR")
-
-# Reference
-# https://github.com/fastai/fastai/blob/ab154927696338741e59e0ffc4774777c4a9781c/fastai/torch_basics.py
-if platform.system() == "Darwin":
-    # Python 3.8 changed to 'spawn' but that doesn't work with PyTorch DataLoader w n_workers>0
-    multiprocessing.set_start_method("fork", force=True)
-    # workaround "OMP: Error #15: Initializing libiomp5.dylib, but found libomp.dylib already initialized"
-    os.environ["KMP_DUPLICATE_LIB_OK"] = "True"
 
 from gradsflow.core.automodel import AutoModel
 from gradsflow.core.data import AutoDataset
