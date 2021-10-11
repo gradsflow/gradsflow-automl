@@ -52,7 +52,7 @@ class TrackingValues:
 
     def reset_metrics(self):
         self.loss.reset()
-        for _, metric in self.metrics:
+        for _, metric in self.metrics.items():
             metric.reset()
 
 
