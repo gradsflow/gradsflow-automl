@@ -15,7 +15,7 @@ import pytest
 import timm
 import torch
 
-from gradsflow.core.data import AutoDataset
+from gradsflow.data import AutoDataset
 from gradsflow.data.image import get_fake_data
 from gradsflow.models.model import Model
 from gradsflow.models.tracker import Tracker

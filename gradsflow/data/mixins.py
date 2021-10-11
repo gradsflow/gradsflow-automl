@@ -15,13 +15,14 @@ from typing import Dict, List, Union
 
 
 class DataMixin:
-    @staticmethod
-    def fetch_inputs(data: Union[List, Dict]):
-        return data[0]
+    INPUT_KEY = 0  # other common value - inputs, images, text
+    OUTPUT_KEY = 1  # other common values - target, ground
 
-    @staticmethod
-    def fetch_target(data: Union[List, Dict]):
-        return data[1]
+    def fetch_inputs(self, data: Union[List, Dict]):
+        return data[self.INPUT_KEY]
+
+    def fetch_target(self, data: Union[List, Dict]):
+        return data[self.OUTPUT_KEY]
 
     @staticmethod
     def send_to_device(batch: Union[List, Dict], device):

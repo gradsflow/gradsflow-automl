@@ -22,8 +22,8 @@ from torchmetrics import Metric
 from gradsflow.callbacks import Callback, CallbackRunner
 from gradsflow.callbacks.progress import ProgressCallback
 from gradsflow.callbacks.training import TrainEvalCallback
-from gradsflow.core.data import AutoDataset
-from gradsflow.data.base import DataMixin
+from gradsflow.data import AutoDataset
+from gradsflow.data.mixins import DataMixin
 from gradsflow.models.base import BaseModel
 from gradsflow.models.exceptions import EpochCancel, FitCancel
 from gradsflow.models.tracker import Tracker
@@ -186,7 +186,6 @@ class Model(BaseModel, DataMixin):
 
         for epoch in range(current_epoch, max_epochs):
             self.tracker.current_epoch = epoch
-
             # ----- EPOCH -----
             self.callback_runner.on_epoch_start()
             self._train_epoch_with_event()
@@ -238,8 +237,9 @@ class Model(BaseModel, DataMixin):
             self.tracker.reset()
         self.assert_compiled()
         callback_list = listify(callbacks)
+        callback_list.append(TrainEvalCallback(self))
         if show_progress:
-            callback_list.extend((TrainEvalCallback(self), ProgressCallback(self, progress_kwargs)))
+            callback_list.append(ProgressCallback(self, progress_kwargs))
         self.callback_runner = CallbackRunner(self, *callback_list)
         self.tracker.autodataset = self.prepare_data(autodataset)
         self.tracker.steps_per_epoch = steps_per_epoch

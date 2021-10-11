@@ -20,7 +20,7 @@ from accelerate import Accelerator
 from torch import nn
 from torchmetrics import Metric, MetricCollection
 
-from gradsflow.core.data import AutoDataset
+from gradsflow.data import AutoDataset
 from gradsflow.models.tracker import Tracker
 from gradsflow.models.utils import get_device, losses
 from gradsflow.models.utils import metrics as metrics_classes

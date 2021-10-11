@@ -18,7 +18,7 @@ from rich import box
 from rich.table import Table
 
 from gradsflow.core.base import BaseTracker, TrackingValues
-from gradsflow.core.data import AutoDataset
+from gradsflow.data import AutoDataset
 from gradsflow.models.utils import to_item
 from gradsflow.utility.common import AverageMeter
 

@@ -15,7 +15,7 @@ import pytest
 import torch
 from torch.utils.data import DataLoader, TensorDataset
 
-from gradsflow.core.data import AutoDataset
+from gradsflow.data import AutoDataset
 
 dataset = TensorDataset(torch.randn(8, 1, 32, 32))
 dataloader = DataLoader(dataset)

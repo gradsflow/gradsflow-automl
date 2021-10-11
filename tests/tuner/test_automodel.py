@@ -19,7 +19,7 @@ import torch.nn
 from ray import tune
 from timm import create_model
 
-from gradsflow.core.data import AutoDataset
+from gradsflow.data import AutoDataset
 from gradsflow.data.image import get_fake_data
 from gradsflow.models.constants import LEARNER
 from gradsflow.tuner import AutoModelV2 as AutoModel
