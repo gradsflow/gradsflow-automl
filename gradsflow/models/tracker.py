@@ -14,6 +14,7 @@
 import warnings
 from typing import Dict, List, Optional
 
+from rich import box
 from rich.table import Table
 
 from gradsflow.core.base import BaseTracker, TrackingValues
@@ -99,7 +100,7 @@ class Tracker(BaseTracker):
             row.append(to_item(value.avg))
 
         row = list(map(lambda x: f"{x: .3f}" if isinstance(x, float) else str(x), row))
-        table = Table(*headings, expand=False)
+        table = Table(*headings, expand=True, box=box.SIMPLE)
         table.add_row(*row)
         return table
 
