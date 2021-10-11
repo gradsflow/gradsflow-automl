@@ -111,3 +111,11 @@ class Tracker(BaseTracker):
         self.train = TrackingValues()
         self.val = TrackingValues()
         self.logs = []
+
+    @property
+    def train_loss(self):
+        return self.train.loss.avg
+
+    @property
+    def val_loss(self):
+        return self.val.loss.avg
