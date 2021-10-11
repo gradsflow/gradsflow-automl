@@ -11,7 +11,6 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-import inspect
 import os
 from typing import Any, Callable, Dict, List, Optional, Union
 
@@ -139,7 +138,6 @@ class Model(BaseModel, DataMixin):
     def train_one_epoch(self, train_dataloader):
 
         tracker = self.tracker
-        running_train_loss = 0.0
         tracker.train.steps = 0
         steps_per_epoch = tracker.steps_per_epoch
 
@@ -152,8 +150,9 @@ class Model(BaseModel, DataMixin):
 
             # ----- METRIC UPDATES -----
             loss = outputs["loss"].item()
-            self.tracker.track_loss(loss, mode="train")
-            self.tracker.track_metrics(outputs.get("metrics", {}), mode="train")
+            tracker.track_loss(loss, mode="train")
+            tracker.track_metrics(outputs.get("metrics", {}), mode="train")
+            tracker.train.steps = step
 
             if self.TEST:
                 break
@@ -163,7 +162,7 @@ class Model(BaseModel, DataMixin):
     def val_one_epoch(self, val_dataloader):
         tracker = self.tracker
         tracker.val.steps = 0
-        for _, batch in enumerate(val_dataloader):
+        for step, batch in enumerate(val_dataloader):
             # ----- VAL STEP -----
             self.callback_runner.on_val_step_start()
             outputs = self.val_step(batch)
@@ -171,8 +170,9 @@ class Model(BaseModel, DataMixin):
 
             # ----- METRIC UPDATES -----
             loss = outputs["loss"].item()
-            self.tracker.track_loss(loss, mode="val")
-            self.tracker.track_metrics(outputs.get("metrics", {}), mode="val")
+            tracker.track_loss(loss, mode="val")
+            tracker.track_metrics(outputs.get("metrics", {}), mode="val")
+            tracker.val.steps = step
             if self.TEST:
                 break
 
