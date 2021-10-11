@@ -87,7 +87,7 @@ class Tracker(BaseTracker):
         headings = ["i", "train/loss"]
         row = [self.current_epoch, to_item(self.train.loss.avg)]
 
-        if self.val.loss.count:
+        if self.val.loss.computed:
             headings.append("val/loss")
             row.append(to_item(self.val.loss.avg))
 
