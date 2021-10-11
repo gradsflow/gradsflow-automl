@@ -59,7 +59,7 @@ class Tracker(BaseTracker):
         key = mode + "/" + "loss"
         self.track(key, loss)
 
-    def track_metrics(self, metric: Dict[str, float], mode: str, render: bool = False):
+    def track_metrics(self, metric: Dict[str, float], mode: str):
         """Update `TrackingValues` metrics. mode can be train or val and will update logs if render is True"""
         value_tracker = self.mode(mode)
         # Track values that averages with epoch
@@ -73,7 +73,7 @@ class Tracker(BaseTracker):
         # track value for each step in a dict
         for k, v in metric.items():
             k = mode + "/" + k
-            self.track(k, v, render=render)
+            self.track(k, v)
 
     def get_metrics(self, mode: str):
         value_tracker = self.mode(mode)
