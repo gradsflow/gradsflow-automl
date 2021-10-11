@@ -11,7 +11,6 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-import inspect
 import os
 from typing import Any, Callable, Dict, List, Optional, Union
 
@@ -139,7 +138,6 @@ class Model(BaseModel, DataMixin):
     def train_one_epoch(self, train_dataloader):
 
         tracker = self.tracker
-        running_train_loss = 0.0
         tracker.train.steps = 0
         steps_per_epoch = tracker.steps_per_epoch
 
@@ -151,23 +149,20 @@ class Model(BaseModel, DataMixin):
             self.callback_runner.on_train_step_end()
 
             # ----- METRIC UPDATES -----
-            self.tracker.train.step_loss = outputs["loss"].item()
-            self.tracker.track_metrics(outputs.get("metrics", {}), mode="train", render=True)
+            loss = outputs["loss"].item()
+            tracker.track_loss(loss, mode="train")
+            tracker.track_metrics(outputs.get("metrics", {}), mode="train")
+            tracker.train.steps = step
 
-            running_train_loss += self.tracker.train.step_loss
-            tracker.train.steps += 1
-            tracker.current_step += 1
             if self.TEST:
                 break
             if steps_per_epoch and step >= steps_per_epoch:
                 break
-        self.tracker.track_loss(running_train_loss / (tracker.train.steps + 1e-9), mode="train")
 
     def val_one_epoch(self, val_dataloader):
         tracker = self.tracker
-        running_val_loss = 0.0
         tracker.val.steps = 0
-        for _, batch in enumerate(val_dataloader):
+        for step, batch in enumerate(val_dataloader):
             # ----- VAL STEP -----
             self.callback_runner.on_val_step_start()
             outputs = self.val_step(batch)
@@ -175,13 +170,11 @@ class Model(BaseModel, DataMixin):
 
             # ----- METRIC UPDATES -----
             loss = outputs["loss"].item()
-            self.tracker.val.step_loss = loss
-            self.tracker.track_metrics(outputs.get("metrics", {}), mode="val", render=True)
-            running_val_loss += self.tracker.val.step_loss
-            tracker.val.steps += 1
+            tracker.track_loss(loss, mode="val")
+            tracker.track_metrics(outputs.get("metrics", {}), mode="val")
+            tracker.val.steps = step
             if self.TEST:
                 break
-        tracker.track_loss(running_val_loss / (tracker.val.steps + 1e-9), "val")
 
     def _train_epoch_with_event(self):
         self.callback_runner.on_train_epoch_start()

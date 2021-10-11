@@ -17,7 +17,7 @@ from typing import Dict, Optional, Union
 
 import torch
 
-from gradsflow.utility.common import module_to_cls_index
+from gradsflow.utility.common import AverageMeter, module_to_cls_index
 
 
 class BaseAutoModel(ABC):
@@ -41,13 +41,14 @@ class BaseAutoModel(ABC):
 
 @dataclass(init=False)
 class TrackingValues:
-    loss: Optional[float] = None
+    loss: Optional[AverageMeter] = None
     steps: Optional[int] = None
     step_loss: Optional[float] = None
-    metrics: Union[None, Dict[str, float]] = None
+    metrics: Union[None, Dict[str, AverageMeter]] = None
 
     def __init__(self):
         self.metrics = {}
+        self.loss = AverageMeter(name="loss")
 
 
 @dataclass(init=False)
