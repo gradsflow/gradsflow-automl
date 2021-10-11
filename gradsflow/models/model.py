@@ -108,8 +108,8 @@ class Model(BaseModel, DataMixin):
         self.add_metrics(*listify(metrics))
         self._compiled = True
 
-    def calculate_metrics(self, inputs, target) -> Dict[str, torch.Tensor]:
-        self.metrics.update(inputs, target)
+    def calculate_metrics(self, preds, target) -> Dict[str, torch.Tensor]:
+        self.metrics.update(preds, target)
         return self.metrics.compute()
 
     def train_step(self, batch: Union[List[torch.Tensor], Dict[Any, torch.Tensor]]) -> Dict[str, torch.Tensor]:
@@ -202,6 +202,8 @@ class Model(BaseModel, DataMixin):
 
             self._train_epoch_with_event()
             self._val_epoch_with_event()
+
+            self.tracker.reset_metrics()
 
             if self.TEST:
                 break

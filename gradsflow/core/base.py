@@ -13,7 +13,7 @@
 #  limitations under the License.
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Dict, Optional, Union
+from typing import Dict, Optional
 
 import torch
 
@@ -44,11 +44,16 @@ class TrackingValues:
     loss: Optional[AverageMeter] = None
     steps: Optional[int] = None
     step_loss: Optional[float] = None
-    metrics: Union[None, Dict[str, AverageMeter]] = None
+    metrics: Optional[Dict[str, AverageMeter]] = None
 
     def __init__(self):
         self.metrics = {}
         self.loss = AverageMeter(name="loss")
+
+    def reset_metrics(self):
+        self.loss.reset()
+        for _, metric in self.metrics.items():
+            metric.reset()
 
 
 @dataclass(init=False)
