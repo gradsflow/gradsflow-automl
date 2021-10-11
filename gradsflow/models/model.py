@@ -21,8 +21,9 @@ from torchmetrics import Metric
 
 from gradsflow.callbacks import Callback, CallbackRunner
 from gradsflow.callbacks.progress import ProgressCallback
-from gradsflow.core.data import AutoDataset
-from gradsflow.data.base import DataMixin
+from gradsflow.callbacks.training import TrainEvalCallback
+from gradsflow.data import AutoDataset
+from gradsflow.data.mixins import DataMixin
 from gradsflow.models.base import BaseModel
 from gradsflow.models.exceptions import EpochCancel, FitCancel
 from gradsflow.models.tracker import Tracker
@@ -115,45 +116,30 @@ class Model(BaseModel, DataMixin):
     def train_step(self, batch: Union[List[torch.Tensor], Dict[Any, torch.Tensor]]) -> Dict[str, torch.Tensor]:
         inputs = self.fetch_inputs(batch)
         target = self.fetch_target(batch)
-
         self.optimizer.zero_grad()
         logits = self.forward_once(inputs)
         loss = self.loss(logits, target)
         self.backward(loss)
         self.optimizer.step()
-
-        self.tracker.track("train/step_loss", loss, render=True)
         return {"loss": loss, "metrics": self.calculate_metrics(logits, target)}
 
     def val_step(self, batch: Union[List[torch.Tensor], Dict[Any, torch.Tensor]]) -> Dict[str, torch.Tensor]:
         inputs = self.fetch_inputs(batch)
         target = self.fetch_target(batch)
-
         logits = self.forward_once(inputs)
         loss = self.loss(logits, target)
-
-        self.tracker.track("val/step_loss", loss, render=True)
         return {"loss": loss, "metrics": self.calculate_metrics(logits, target)}
 
     def train_one_epoch(self, train_dataloader):
-
         tracker = self.tracker
-        tracker.train.steps = 0
         steps_per_epoch = tracker.steps_per_epoch
 
         for step, batch in enumerate(train_dataloader):
-
+            tracker.train.steps = step
             # ----- TRAIN STEP -----
             self.callback_runner.on_train_step_start()
             outputs = self.train_step(batch)
-            self.callback_runner.on_train_step_end()
-
-            # ----- METRIC UPDATES -----
-            loss = outputs["loss"].item()
-            tracker.track_loss(loss, mode="train")
-            tracker.track_metrics(outputs.get("metrics", {}), mode="train")
-            tracker.train.steps = step
-
+            self.callback_runner.on_train_step_end(outputs=outputs)
             if self.TEST:
                 break
             if steps_per_epoch and step >= steps_per_epoch:
@@ -161,49 +147,42 @@ class Model(BaseModel, DataMixin):
 
     def val_one_epoch(self, val_dataloader):
         tracker = self.tracker
-        tracker.val.steps = 0
         for step, batch in enumerate(val_dataloader):
+            tracker.val.steps = step
             # ----- VAL STEP -----
             self.callback_runner.on_val_step_start()
             outputs = self.val_step(batch)
-            self.callback_runner.on_val_step_end()
-
-            # ----- METRIC UPDATES -----
-            loss = outputs["loss"].item()
-            tracker.track_loss(loss, mode="val")
-            tracker.track_metrics(outputs.get("metrics", {}), mode="val")
-            tracker.val.steps = step
+            self.callback_runner.on_val_step_end(outputs=outputs)
             if self.TEST:
                 break
 
     def _train_epoch_with_event(self):
-        self.callback_runner.on_train_epoch_start()
         train_dataloader = self.tracker.autodataset.get_train_dl(self.send_to_device)
-        self.train()
+        # ----- TRAIN -----
+        self.callback_runner.on_train_epoch_start()
         self.train_one_epoch(train_dataloader)
         self.callback_runner.on_train_epoch_end()
-        self.metrics.reset()
 
     def _val_epoch_with_event(self):
-        self.callback_runner.on_val_epoch_start()
         autodataset = self.tracker.autodataset
         if not autodataset.val_dataloader:
             return
         val_dataloader = self.tracker.autodataset.get_val_dl(self.send_to_device)
-        self.eval()
+        # ------ VALIDATE -----
+        self.callback_runner.on_val_epoch_start()
         self.val_one_epoch(val_dataloader)
         self.callback_runner.on_val_epoch_end()
-        self.metrics.reset()
 
     def epoch(self):
         current_epoch, max_epochs = self.tracker.current_epoch, self.tracker.max_epochs
+
         for epoch in range(current_epoch, max_epochs):
             self.tracker.current_epoch = epoch
-
+            # ----- EPOCH -----
+            self.callback_runner.on_epoch_start()
             self._train_epoch_with_event()
             self._val_epoch_with_event()
-
-            self.tracker.reset_metrics()
+            self.callback_runner.on_epoch_end()
 
             if self.TEST:
                 break
@@ -250,6 +229,7 @@ class Model(BaseModel, DataMixin):
             self.tracker.reset()
         self.assert_compiled()
         callback_list = listify(callbacks)
+        callback_list.append(TrainEvalCallback(self))
         if show_progress:
             callback_list.append(ProgressCallback(self, progress_kwargs))
         self.callback_runner = CallbackRunner(self, *callback_list)

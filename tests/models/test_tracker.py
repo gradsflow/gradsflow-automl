@@ -40,5 +40,6 @@ def test_track():
 def test_create_table():
     tracker.track_loss(0.1, "train")
     tracker.track_loss(0.2, "val")
+    tracker.track_metrics({"accuracy": 0.9}, mode="train")
     table = tracker.create_table()
     assert isinstance(table, Table)

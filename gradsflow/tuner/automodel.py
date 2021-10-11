@@ -22,7 +22,7 @@ from ray import tune
 from ray.tune.sample import Domain
 from torch import nn
 
-from gradsflow.core.data import AutoDataset
+from gradsflow.data import AutoDataset
 from gradsflow.models import Model
 from gradsflow.models.constants import LEARNER
 from gradsflow.models.model import METRICS_TYPE

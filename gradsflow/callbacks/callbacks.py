@@ -25,7 +25,7 @@ def dummy(x=None, *_, **__):
 class Callback:
     """Callback objects define events on which it will run during the model training cycle."""
 
-    _events = ("forward", "step", "epoch", "fit")
+    _events = ("forward", "step", "train_epoch", "val_epoch", "epoch", "fit")
 
     def __init__(self, model: "Model"):
         self.model = model
@@ -64,7 +64,7 @@ class Callback:
     ):
         """Called on start of training epoch"""
 
-    def on_train_epoch_end(self):
+    def on_train_epoch_end(self, *args, **kwargs):
         """Called after end of training epoch"""
 
     def on_train_epoch_cancel(self):
@@ -75,7 +75,7 @@ class Callback:
     ):
         """Called on start of validation epoch"""
 
-    def on_val_epoch_end(self):
+    def on_val_epoch_end(self, *args, **kwargs):
         """called after validation epoch ends"""
 
     def on_val_epoch_cancel(self):
@@ -84,7 +84,7 @@ class Callback:
     def on_train_step_start(self):
         """called before `train_step`"""
 
-    def on_train_step_end(self):
+    def on_train_step_end(self, *args, **kwargs):
         """Called after training step"""
 
     def on_train_step_cancel(self):
@@ -93,7 +93,7 @@ class Callback:
     def on_val_step_start(self):
         """Called on validation step"""
 
-    def on_val_step_end(self):
+    def on_val_step_end(self, *args, **kwargs):
         """Called after validation step"""
 
     def on_val_step_cancel(self):

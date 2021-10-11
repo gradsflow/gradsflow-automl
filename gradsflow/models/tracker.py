@@ -18,7 +18,7 @@ from rich import box
 from rich.table import Table
 
 from gradsflow.core.base import BaseTracker, TrackingValues
-from gradsflow.core.data import AutoDataset
+from gradsflow.data import AutoDataset
 from gradsflow.models.utils import to_item
 from gradsflow.utility.common import AverageMeter
 
@@ -59,7 +59,7 @@ class Tracker(BaseTracker):
         key = mode + "/" + "loss"
         self.track(key, loss)
 
-    def track_metrics(self, metric: Dict[str, float], mode: str, render: bool = False):
+    def track_metrics(self, metric: Dict[str, float], mode: str):
         """Update `TrackingValues` metrics. mode can be train or val and will update logs if render is True"""
         value_tracker = self.mode(mode)
         # Track values that averages with epoch
@@ -73,7 +73,7 @@ class Tracker(BaseTracker):
         # track value for each step in a dict
         for k, v in metric.items():
             k = mode + "/" + k
-            self.track(k, v, render=render)
+            self.track(k, v)
 
     def get_metrics(self, mode: str):
         value_tracker = self.mode(mode)
@@ -85,17 +85,17 @@ class Tracker(BaseTracker):
 
     def create_table(self) -> Table:
         headings = ["i", "train/loss"]
-        row = [self.current_epoch, to_item(self.train.loss.avg)]
+        row = [self.current_epoch, to_item(self.train_loss)]
 
         if self.val.loss.computed:
             headings.append("val/loss")
-            row.append(to_item(self.val.loss.avg))
+            row.append(to_item(self.val_loss))
 
-        for metric_name, value in self.train.metrics.items():
+        for metric_name, value in self.train_metrics.items():
             headings.append("train/" + metric_name)
             row.append(to_item(value.avg))
 
-        for metric_name, value in self.val.metrics.items():
+        for metric_name, value in self.val_metrics.items():
             headings.append("val/" + metric_name)
             row.append(to_item(value.avg))
 
@@ -103,10 +103,6 @@ class Tracker(BaseTracker):
         table = Table(*headings, expand=True, box=box.SIMPLE)
         table.add_row(*row)
         return table
-
-    def reset_metrics(self):
-        self.train.reset_metrics()
-        self.val.reset_metrics()
 
     def reset(self):
         self.max_epochs = 0
@@ -124,3 +120,11 @@ class Tracker(BaseTracker):
     @property
     def val_loss(self):
         return self.val.loss.avg
+
+    @property
+    def train_metrics(self):
+        return self.train.metrics
+
+    @property
+    def val_metrics(self):
+        return self.val.metrics

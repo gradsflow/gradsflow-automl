@@ -17,10 +17,10 @@ from loguru import logger
 class EpochCancel(Exception):
     def __init__(self):
         super().__init__()
-        logger.error("epoch cancelled")
+        logger.info("epoch cancelled")
 
 
 class FitCancel(Exception):
     def __init__(self):
         super().__init__()
-        logger.error("model.fit cancelled")
+        logger.info("model.fit cancelled")
