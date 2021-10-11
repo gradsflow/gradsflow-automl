@@ -53,7 +53,7 @@ class BaseModel(Base):
         self.device = None
         self._set_accelerator(device, use_accelerate, accelerator_config)
         self.learner = self.prepare_model(learner)
-        self.metrics: MetricCollection = MetricCollection([])
+        self.metrics: MetricCollection = MetricCollection([]).to(self.device)
 
     def _set_accelerator(self, device: Optional[str], use_accelerate: bool, accelerator_config: dict):
         if use_accelerate:
@@ -106,6 +106,7 @@ class BaseModel(Base):
             else:
                 raise NotImplementedError(f"metrics not implemented for {m}! Please see `torchmetrics`.")
             self.metrics.add_metrics(m_obj)
+        self.metrics.to(self.device)
 
     def _get_loss(self, loss: Union[str, Callable]) -> Optional[Callable]:
         loss_fn = None

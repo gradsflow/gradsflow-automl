@@ -104,6 +104,10 @@ class Tracker(BaseTracker):
         table.add_row(*row)
         return table
 
+    def reset_metrics(self):
+        self.train.reset_metrics()
+        self.val.reset_metrics()
+
     def reset(self):
         self.max_epochs = 0
         self.current_epoch = 0
