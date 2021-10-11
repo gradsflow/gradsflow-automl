@@ -76,17 +76,17 @@ class CallbackRunner(Callback):
         for callback in self.callbacks:
             callback.on_train_step_start()
 
-    def on_train_step_end(self):
+    def on_train_step_end(self, *args, **kwargs):
         for callback in self.callbacks:
-            callback.on_train_step_end()
+            callback.on_train_step_end(*args, **kwargs)
 
     def on_val_step_start(self):
         for callback in self.callbacks:
             callback.on_val_step_start()
 
-    def on_val_step_end(self):
+    def on_val_step_end(self, *args, **kwargs):
         for callback in self.callbacks:
-            callback.on_val_step_end()
+            callback.on_val_step_end(*args, **kwargs)
 
     def on_epoch_start(self):
         for callback in self.callbacks:

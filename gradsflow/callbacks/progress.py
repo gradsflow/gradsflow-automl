@@ -60,7 +60,7 @@ class ProgressCallback(Callback):
         self.progress.remove_task(self.train_prog_bar)
         self.table_column.renderable = self.model.tracker.create_table()
 
-    def on_train_step_end(self):
+    def on_train_step_end(self, *args, **kwargs):
         self.progress.update(self.train_prog_bar, advance=1)
         self.table_column.renderable = self.model.tracker.create_table()
 
@@ -78,8 +78,9 @@ class ProgressCallback(Callback):
         self.table_column.renderable = self.model.tracker.create_table()
         self.progress.remove_task(self.val_prog_bar)
 
-    def on_val_step_end(self):
+    def on_val_step_end(self, *args, **kwargs):
         self.progress.update(self.val_prog_bar, advance=1)
+        self.table_column.renderable = self.model.tracker.create_table()
 
     def clean(self):
         self.progress.stop()
