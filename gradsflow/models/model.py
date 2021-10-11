@@ -116,29 +116,22 @@ class Model(BaseModel, DataMixin):
     def train_step(self, batch: Union[List[torch.Tensor], Dict[Any, torch.Tensor]]) -> Dict[str, torch.Tensor]:
         inputs = self.fetch_inputs(batch)
         target = self.fetch_target(batch)
-
         self.optimizer.zero_grad()
         logits = self.forward_once(inputs)
         loss = self.loss(logits, target)
         self.backward(loss)
         self.optimizer.step()
-
-        self.tracker.track("train/step_loss", loss, render=True)
         return {"loss": loss, "metrics": self.calculate_metrics(logits, target)}
 
     def val_step(self, batch: Union[List[torch.Tensor], Dict[Any, torch.Tensor]]) -> Dict[str, torch.Tensor]:
         inputs = self.fetch_inputs(batch)
         target = self.fetch_target(batch)
-
         logits = self.forward_once(inputs)
         loss = self.loss(logits, target)
-
-        self.tracker.track("val/step_loss", loss, render=True)
         return {"loss": loss, "metrics": self.calculate_metrics(logits, target)}
 
     def train_one_epoch(self, train_dataloader):
         tracker = self.tracker
-        tracker.train.steps = 0
         steps_per_epoch = tracker.steps_per_epoch
 
         for step, batch in enumerate(train_dataloader):
@@ -154,7 +147,6 @@ class Model(BaseModel, DataMixin):
 
     def val_one_epoch(self, val_dataloader):
         tracker = self.tracker
-        tracker.val.steps = 0
         for step, batch in enumerate(val_dataloader):
             tracker.val.steps = step
             # ----- VAL STEP -----

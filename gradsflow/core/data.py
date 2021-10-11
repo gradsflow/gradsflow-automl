@@ -34,6 +34,8 @@ class BaseAutoDataset:
         self,
         train_dataloader: Optional[DataLoader] = None,
         val_dataloader: Optional[DataLoader] = None,
+        train_dataset: Optional[Dataset] = None,
+        val_dataset: Optional[Dataset] = None,
         datamodule: Optional[pl.LightningDataModule] = None,
         num_classes: Optional[int] = None,
     ):
@@ -42,6 +44,8 @@ class BaseAutoDataset:
         self.datamodule = None
         self.train_dataloader = train_dataloader
         self.val_dataloader = val_dataloader
+        self.train_dataset = train_dataset
+        self.val_dataset = val_dataset
         self.num_classes = num_classes
 
         if (datamodule or train_dataloader) is None:
@@ -50,12 +54,7 @@ class BaseAutoDataset:
         if all((datamodule, train_dataloader)):
             logger.warning("Both datamodule and train_dataloader is set! Using datamodule over train_dataloader.")
 
-        if not datamodule:
-            self.train_dataloader = train_dataloader
-            self.val_dataloader = val_dataloader
-            self.num_classes = num_classes
-
-        elif isinstance(datamodule, pl.LightningDataModule):
+        if isinstance(datamodule, pl.LightningDataModule):
             self.datamodule = datamodule
             self.train_dataloader = datamodule.train_dataloader()
             self.val_dataloader = datamodule.val_dataloader()
