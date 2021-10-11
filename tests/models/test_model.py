@@ -47,6 +47,9 @@ def test_fit():
     model.TEST = True
     tracker = model.fit(autodataset, max_epochs=1, steps_per_epoch=1, show_progress=True)
     assert isinstance(tracker, Tracker)
+    autodataset2 = AutoDataset(train_data.dataloader, num_classes=num_classes)
+    tracker2 = model.fit(autodataset2, max_epochs=1, steps_per_epoch=1, show_progress=False)
+    assert isinstance(tracker2, Tracker)
 
 
 def test_compile():

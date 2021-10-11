@@ -33,7 +33,6 @@ class ProgressCallback(Callback):
             "[progress.percentage]{task.percentage:>3.0f}%",
             TimeRemainingColumn(),
             self.table_column,
-            expand=True,
             **progress_kwargs,
         )
         tracker.progress = self.progress
