@@ -77,7 +77,7 @@ class AutoModel(BaseAutoModel, ABC):
         self.optimization_metric = optimization_metric or "val_accuracy"
         self.suggested_conf = suggested_conf or {}
 
-        self.auto_dataset = BaseAutoDataset(
+        self.auto_dataset = AutoDataset(
             train_dataloader=train_dataloader,
             val_dataloader=val_dataloader,
             datamodule=datamodule,
