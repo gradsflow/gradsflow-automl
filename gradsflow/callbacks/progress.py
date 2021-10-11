@@ -24,8 +24,8 @@ class ProgressCallback(Callback):
         super().__init__(model)
         progress_kwargs = progress_kwargs or {}
         tracker = self.model.tracker
-        self.bar_column = BarColumn(table_column=Column(ratio=1))
-        self.table_column = RenderableColumn(tracker.create_table(), table_column=Column(ratio=2))
+        self.bar_column = BarColumn()
+        self.table_column = RenderableColumn(tracker.create_table())
 
         self.progress = Progress(
             "[progress.description]{task.description}",
@@ -33,6 +33,7 @@ class ProgressCallback(Callback):
             "[progress.percentage]{task.percentage:>3.0f}%",
             TimeRemainingColumn(),
             self.table_column,
+            expand=True,
             **progress_kwargs,
         )
         tracker.progress = self.progress
@@ -69,7 +70,7 @@ class ProgressCallback(Callback):
         if not val_dl:
             return
         n = len(val_dl)
-        self.val_prog_bar = self.progress.add_task("[green]Validating...", total=n)
+        self.val_prog_bar = self.progress.add_task("[blue]Validating...", total=n)
 
     def on_val_epoch_end(self):
         val_dl = self.model.tracker.autodataset.val_dataloader

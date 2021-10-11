@@ -11,18 +11,11 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-import typing
 
 from .callbacks import Callback
 
-if typing.TYPE_CHECKING:
-    from gradsflow.models.model import Model
-
 
 class TrainEvalCallback(Callback):
-    def __init__(self, model: "Model"):
-        super().__init__(model)
-
     def on_train_step_end(self, *args, **kwargs):
         # ----- METRIC UPDATES -----
         tracker = self.model.tracker
