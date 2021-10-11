@@ -151,21 +151,17 @@ class Model(BaseModel, DataMixin):
             self.callback_runner.on_train_step_end()
 
             # ----- METRIC UPDATES -----
-            self.tracker.train.step_loss = outputs["loss"].item()
-            self.tracker.track_metrics(outputs.get("metrics", {}), mode="train", render=True)
+            loss = outputs["loss"].item()
+            self.tracker.track_loss(loss, mode="train")
+            self.tracker.track_metrics(outputs.get("metrics", {}), mode="train")
 
-            running_train_loss += self.tracker.train.step_loss
-            tracker.train.steps += 1
-            tracker.current_step += 1
             if self.TEST:
                 break
             if steps_per_epoch and step >= steps_per_epoch:
                 break
-        self.tracker.track_loss(running_train_loss / (tracker.train.steps + 1e-9), mode="train")
 
     def val_one_epoch(self, val_dataloader):
         tracker = self.tracker
-        running_val_loss = 0.0
         tracker.val.steps = 0
         for _, batch in enumerate(val_dataloader):
             # ----- VAL STEP -----
@@ -175,13 +171,10 @@ class Model(BaseModel, DataMixin):
 
             # ----- METRIC UPDATES -----
             loss = outputs["loss"].item()
-            self.tracker.val.step_loss = loss
-            self.tracker.track_metrics(outputs.get("metrics", {}), mode="val", render=True)
-            running_val_loss += self.tracker.val.step_loss
-            tracker.val.steps += 1
+            self.tracker.track_loss(loss, mode="val")
+            self.tracker.track_metrics(outputs.get("metrics", {}), mode="val")
             if self.TEST:
                 break
-        tracker.track_loss(running_val_loss / (tracker.val.steps + 1e-9), "val")
 
     def _train_epoch_with_event(self):
         self.callback_runner.on_train_epoch_start()

@@ -11,14 +11,15 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+import warnings
 from typing import Dict, List, Optional
 
-from loguru import logger
 from rich.table import Table
 
 from gradsflow.core.base import BaseTracker, TrackingValues
 from gradsflow.core.data import AutoDataset
 from gradsflow.models.utils import to_item
+from gradsflow.utility.common import AverageMeter
 
 
 class Tracker(BaseTracker):
@@ -32,7 +33,6 @@ class Tracker(BaseTracker):
         self.train.metrics = {}
         self.val.metrics = {}
         self.logs: List[Dict] = []
-        self.non_render_logs: List[Dict] = []
 
     def mode(self, mode) -> TrackingValues:
         if mode == "train":
@@ -43,8 +43,9 @@ class Tracker(BaseTracker):
         raise NotImplementedError(f"mode {mode} is not implemented!")
 
     def track(self, key, value, render=False):
+        """Tracks values for each step"""
         if render:
-            logger.warning("render is deprecated!")
+            warnings.warn("render is deprecated!")
         epoch = self.current_epoch
         step = self.current_step
         data = {"current_epoch": epoch, "current_step": step, key: to_item(value)}
@@ -53,15 +54,22 @@ class Tracker(BaseTracker):
     def track_loss(self, loss: float, mode: str):
         """Update `TrackingValues` loss. mode can be train or val"""
         value_tracker = self.mode(mode)
-        value_tracker.loss = loss
+        value_tracker.loss.update(loss)
         key = mode + "/" + "loss"
         self.track(key, loss)
 
     def track_metrics(self, metric: Dict[str, float], mode: str, render: bool = False):
         """Update `TrackingValues` metrics. mode can be train or val and will update logs if render is True"""
         value_tracker = self.mode(mode)
-        value_tracker.metrics = metric
+        # Track values that averages with epoch
+        for key, value in metric.items():
+            try:
+                value_tracker.metrics[key].update(value)
+            except KeyError:
+                value_tracker.metrics[key] = AverageMeter(name=key)
+                value_tracker.metrics[key].update(value)
 
+        # track value for each step in a dict
         for k, v in metric.items():
             k = mode + "/" + k
             self.track(k, v, render=render)
@@ -72,28 +80,23 @@ class Tracker(BaseTracker):
 
     def get_loss(self, mode: str):
         value_tracker = self.mode(mode)
-        return value_tracker.loss
+        return value_tracker.loss.avg
 
     def create_table(self) -> Table:
-        headings = ["current_epoch", "loss", "train/loss"]
-        row = [self.current_epoch, to_item(self.train.step_loss), to_item(self.train.loss)]
-        if self.val.loss:
+        headings = ["i", "train/loss"]
+        row = [self.current_epoch, to_item(self.train.loss.avg)]
+
+        if self.val.loss.count:
             headings.append("val/loss")
+            row.append(to_item(self.val.loss.avg))
 
-        for metric_name, _ in self.train.metrics.items():
+        for metric_name, value in self.train.metrics.items():
             headings.append("train/" + metric_name)
+            row.append(to_item(value.avg))
 
-        for metric_name, _ in self.val.metrics.items():
+        for metric_name, value in self.val.metrics.items():
             headings.append("val/" + metric_name)
-
-        if self.val.loss:
-            row.append(to_item(self.val.loss))
-
-        for _, value in self.train.metrics.items():
-            row.append(to_item(value))
-
-        for _, value in self.val.metrics.items():
-            row.append(to_item(value))
+            row.append(to_item(value.avg))
 
         row = list(map(lambda x: f"{x: .3f}" if isinstance(x, float) else str(x), row))
         table = Table(*headings, expand=False)
@@ -108,4 +111,3 @@ class Tracker(BaseTracker):
         self.train = TrackingValues()
         self.val = TrackingValues()
         self.logs = []
-        self.non_render_logs = []

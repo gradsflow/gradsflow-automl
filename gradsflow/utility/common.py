@@ -11,13 +11,13 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-
+import dataclasses
 import inspect
 import os
 import sys
 from glob import glob
 from pathlib import Path
-from typing import Any, List
+from typing import Any, List, Optional
 
 from smart_open import open as smart_open
 
@@ -65,3 +65,32 @@ def listify(item: Any) -> List:
         return list(item)
     except TypeError:
         return [item]
+
+
+# ref: https://github.com/rwightman/pytorch-image-models/blob/b544ad4d3fcd02057ab9f43b118290f2a089566f/timm/utils/metrics.py#L7
+@dataclasses.dataclass(init=False)
+class AverageMeter:
+    """Computes and stores the average and current value"""
+
+    name: Optional[str]
+    avg: Optional[float] = 0
+
+    def __init__(self, name=None):
+        self.name = name
+        self.val = None
+        self.avg = None
+        self.sum = None
+        self.count = None
+        self.reset()
+
+    def reset(self):
+        self.val = 0
+        self.avg = 0
+        self.sum = 0
+        self.count = 0
+
+    def update(self, val, n=1):
+        self.val = val
+        self.sum += val * n
+        self.count += n
+        self.avg = self.sum / self.count
