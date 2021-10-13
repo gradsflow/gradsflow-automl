@@ -13,6 +13,8 @@
 #  limitations under the License.
 from typing import Dict, List, Tuple, Union
 
+import torch
+
 
 class DataMixin:
     INPUT_KEY = 0  # other common value - inputs, images, text
@@ -24,13 +26,19 @@ class DataMixin:
     def fetch_target(self, data: Union[List, Dict]):
         return data[self.OUTPUT_KEY]
 
-    @staticmethod
-    def send_to_device(batch: Union[List, Dict, Tuple], device):
+    @classmethod
+    def send_to_device(cls, data: Union[List, Dict, Tuple, torch.Tensor, int, float]):
         """Send data to be device"""
-        if isinstance(batch, (list, tuple)):
-            return list(map(lambda x: x.to(device), batch))
-        if isinstance(batch, dict):
-            return {k: v.to(device) for k, v in batch.items()}
+        if isinstance(data, (int, float, str)):
+            return data
+
+        if isinstance(data, torch.Tensor):
+            return data.to(cls.device)
+
+        if isinstance(data, (list, tuple)):
+            return list(map(lambda x: cls.send_to_device(x), data))
+        if isinstance(data, dict):
+            return {k: cls.send_to_device(v) for k, v in data.items()}
         raise NotImplementedError(
-            f"send_to_device is not implemented for data of type {type(batch)}! Please raise an issue/pr"
+            f"send_to_device is not implemented for data of type {type(data)}! Please raise an issue/pr"
         )

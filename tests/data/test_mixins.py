@@ -17,18 +17,31 @@ import torch
 from gradsflow.data.mixins import DataMixin
 from gradsflow.utility import default_device
 
-device = default_device()
+
+class DataTest(DataMixin):
+    device = default_device()
+
+
+datamixin = DataTest()
 
 
 def test_send_to_device():
-    # batch as list
-    batch = torch.randn(4, 16), [1] * 4
-    assert DataMixin.send_to_device(batch, device)
+    # data as primitive
+    assert datamixin.send_to_device(1) == 1
+    assert datamixin.send_to_device(1.5) == 1.5
 
-    # batch as dict
+    # data as Tensor
+    x = torch.randn(4, 1)
+    assert isinstance(datamixin.send_to_device(x), torch.Tensor)
+
+    # data as list
+    batch = torch.randn(4, 16), [1] * 4
+    assert datamixin.send_to_device(batch)
+
+    # data as dict
     batch = {"inputs": torch.randn(4, 16), "targets": [1] * 4}
-    assert DataMixin.send_to_device(batch, device)
+    assert datamixin.send_to_device(batch)
 
     # catch error
     with pytest.raises(NotImplementedError):
-        DataMixin.send_to_device(set(batch), device)
+        datamixin.send_to_device(set(batch))
