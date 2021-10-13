@@ -11,4 +11,24 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-from .common import AverageMeter, default_device, download, listify
+import pytest
+import torch
+
+from gradsflow.data.mixins import DataMixin
+from gradsflow.utility import default_device
+
+device = default_device()
+
+
+def test_send_to_device():
+    # batch as list
+    batch = torch.randn(4, 16), [1] * 4
+    assert DataMixin.send_to_device(batch, device)
+
+    # batch as dict
+    batch = {"inputs": torch.randn(4, 16), "targets": [1] * 4}
+    assert DataMixin.send_to_device(batch, device)
+
+    # catch error
+    with pytest.raises(NotImplementedError):
+        DataMixin.send_to_device(set(batch), device)

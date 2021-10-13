@@ -11,7 +11,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-from typing import Dict, List, Union
+from typing import Dict, List, Tuple, Union
 
 
 class DataMixin:
@@ -25,7 +25,7 @@ class DataMixin:
         return data[self.OUTPUT_KEY]
 
     @staticmethod
-    def send_to_device(batch: Union[List, Dict], device):
+    def send_to_device(batch: Union[List, Dict, Tuple], device):
         """Send data to be device"""
         if isinstance(batch, (list, tuple)):
             return list(map(lambda x: x.to(device), batch))
