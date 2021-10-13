@@ -38,6 +38,7 @@ class AutoDataset(BaseAutoDataset, DataMixin):
         **kwargs
     ):
         super().__init__()
+        self.device = default_device()
         self.setup(train_dataloader, val_dataloader, train_dataset, val_dataset, datamodule, num_classes, **kwargs)
 
     def setup(
@@ -105,6 +106,7 @@ class AutoDataset(BaseAutoDataset, DataMixin):
         if self._val_dataloader:
             self._val_dataloader = accelerator.prepare_data_loader(self._val_dataloader)
         self.device_setup_status = True
+        self.device = accelerator.device
 
     def _fetch(self, data, device_mapper: Optional[Callable] = None):
         """
