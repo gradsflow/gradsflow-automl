@@ -17,6 +17,7 @@ from typing import Union
 from gradsflow.callbacks.callbacks import Callback
 from gradsflow.callbacks.progress import ProgressCallback
 from gradsflow.callbacks.raytune import TorchTuneCheckpointCallback, TorchTuneReport
+from gradsflow.callbacks.training import TrainEvalCallback
 
 if typing.TYPE_CHECKING:
     from gradsflow.models.model import Model
@@ -24,6 +25,7 @@ if typing.TYPE_CHECKING:
 
 class CallbackRunner(Callback):
     _AVAILABLE_CALLBACKS = {
+        "training": TrainEvalCallback,
         "tune_checkpoint": TorchTuneCheckpointCallback,
         "tune_report": TorchTuneReport,
         "progress": ProgressCallback,
@@ -33,13 +35,24 @@ class CallbackRunner(Callback):
         super().__init__(model)
         self.callbacks = []
         for callback in callbacks:
+            try:
+                if isinstance(callback, str):
+                    callback_fn = self._AVAILABLE_CALLBACKS[callback](model)
+                    self.callbacks.append(callback_fn)
+                elif isinstance(callback, Callback):
+                    self.callbacks.append(callback)
+            except KeyError:
+                raise NotImplementedError(f"callback is not implemented {callback}")
+
+    def append(self, callback: Union[str, Callback]):
+        try:
             if isinstance(callback, str):
-                callback_fn = self._AVAILABLE_CALLBACKS[callback](model)
+                callback_fn = self._AVAILABLE_CALLBACKS[callback](self.model)
                 self.callbacks.append(callback_fn)
             elif isinstance(callback, Callback):
                 self.callbacks.append(callback)
-            else:
-                raise NotImplementedError
+        except KeyError:
+            raise NotImplementedError
 
     def available_callbacks(self):
         return list(self._AVAILABLE_CALLBACKS.keys())

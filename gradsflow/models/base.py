@@ -20,11 +20,10 @@ from accelerate import Accelerator
 from torch import nn
 from torchmetrics import Metric, MetricCollection
 
-from gradsflow.data import AutoDataset
 from gradsflow.models.tracker import Tracker
-from gradsflow.models.utils import get_device, losses
+from gradsflow.models.utils import losses
 from gradsflow.models.utils import metrics as metrics_classes
-from gradsflow.utility.common import module_to_cls_index
+from gradsflow.utility.common import default_device, module_to_cls_index
 
 
 @dataclass(init=False)
@@ -60,7 +59,7 @@ class BaseModel(Base):
             self.accelerator = Accelerator(cpu=(device == "cpu"), **accelerator_config)
             self.device = self.accelerator.device
         else:
-            self.device = device or get_device()
+            self.device = device or default_device()
 
     def prepare_model(self, learner: Union[nn.Module, List[nn.Module]]):
         """Inplace ops for preparing model via HF Accelerator. Automatically sends to device."""
@@ -83,15 +82,6 @@ class BaseModel(Base):
         if not self.accelerator:
             return optimizer
         return self.accelerator.prepare_optimizer(optimizer)
-
-    def prepare_data(self, autodataset: AutoDataset = None) -> AutoDataset:
-        if not self.accelerator:
-            return autodataset
-        autodataset.train_dataloader = self.accelerator.prepare_data_loader(autodataset.train_dataloader)
-        if autodataset.val_dataloader:
-            autodataset.val_dataloader = self.accelerator.prepare_data_loader(autodataset.val_dataloader)
-        autodataset.sent_to_device = True
-        return autodataset
 
     def add_metrics(self, *metrics: Union[str, Metric]) -> None:
         for m in metrics:

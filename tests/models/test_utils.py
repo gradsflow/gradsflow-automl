@@ -26,13 +26,9 @@
 import numpy as np
 import torch
 
-from gradsflow.models.utils import get_device, to_item
+from gradsflow.models.utils import to_item
 
 
 def test_to_item():
     x = torch.rand(1, 1, requires_grad=True)
     assert isinstance(to_item(x), np.ndarray)
-
-
-def test_get_device():
-    assert get_device() in ("cpu", "cuda")

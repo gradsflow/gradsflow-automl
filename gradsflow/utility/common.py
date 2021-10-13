@@ -19,6 +19,7 @@ from glob import glob
 from pathlib import Path
 from typing import Any, List, Optional
 
+import torch
 from smart_open import open as smart_open
 
 
@@ -37,6 +38,10 @@ def get_files(folder: str):
     """Fetch every file from given folder recursively."""
     folder = str(Path(folder) / "**" / "*")
     return glob(folder, recursive=True)
+
+
+def default_device():
+    return "cuda" if torch.cuda.is_available() else "cpu"
 
 
 def module_to_cls_index(module, lower_key: bool = True) -> dict:

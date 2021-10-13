@@ -11,7 +11,22 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-from .callbacks import Callback
-from .raytune import report_checkpoint_callback
-from .runner import CallbackRunner
-from .training import TrainEvalCallback
+import pytest
+
+from gradsflow.callbacks import Callback, CallbackRunner, TrainEvalCallback
+
+
+def test_append():
+    class DummyModel:
+        def forward(self):
+            return 1
+
+    cb = CallbackRunner(DummyModel())
+    with pytest.raises(NotImplementedError):
+        cb.append("random")
+    cb.append("training")
+    cb.append(TrainEvalCallback(cb.model))
+    assert len(cb.callbacks) == 2
+
+    for e in cb.callbacks:
+        assert isinstance(e, Callback)

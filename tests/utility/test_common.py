@@ -15,6 +15,7 @@
 import torch
 
 from gradsflow.utility.common import (
+    default_device,
     download,
     get_file_extension,
     get_files,
@@ -45,3 +46,7 @@ def test_listify():
     assert listify((1, 2)) == [1, 2]
     assert listify([1]) == [1]
     assert listify({"a": 1}) == ["a"]
+
+
+def test_get_device():
+    assert default_device() in ("cpu", "cuda")
