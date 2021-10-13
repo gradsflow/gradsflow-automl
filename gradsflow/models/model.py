@@ -91,7 +91,7 @@ class Model(BaseModel, DataMixin):
             model.compile(loss="crossentropyloss", optimizer="adam", learning_rate=1e-3, metrics="accuracy")
             ```
         Args:
-            loss: name of loss or torch Loss class object. See `available_losses()`
+            loss: name of loss, torch Loss class object or any functional method. See `available_losses()`
             optimizer: optimizer name or `torch.optim.Optimizer` Class
             learning_rate: defaults to 1e-3
             metrics: list of metrics to calculate. See `available_metrics()`
@@ -195,7 +195,7 @@ class Model(BaseModel, DataMixin):
         autodataset: AutoDataset,
         max_epochs: int = 1,
         steps_per_epoch: Optional[int] = None,
-        callbacks: Union[List[Callback], Callback, None] = None,
+        callbacks: Optional[Union[List[Callback], Callback, str, List[str]]] = None,
         resume: bool = True,
         show_progress: bool = True,
         progress_kwargs=None,

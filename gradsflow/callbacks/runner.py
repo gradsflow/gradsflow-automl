@@ -43,8 +43,14 @@ class CallbackRunner(Callback):
             else:
                 raise NotImplementedError
 
-    def append(self, callback: Callback):
-        self.callbacks.append(callback)
+    def append(self, callback: Union[str, Callback]):
+        if isinstance(callback, str):
+            callback_fn = self._AVAILABLE_CALLBACKS[callback](self.model)
+            self.callbacks.append(callback_fn)
+        elif isinstance(callback, Callback):
+            self.callbacks.append(callback)
+        else:
+            raise NotImplementedError
 
     def available_callbacks(self):
         return list(self._AVAILABLE_CALLBACKS.keys())
