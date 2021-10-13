@@ -12,13 +12,12 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import warnings
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 from rich import box
 from rich.table import Table
 
 from gradsflow.core.base import BaseTracker, TrackingValues
-from gradsflow.data import AutoDataset
 from gradsflow.models.utils import to_item
 from gradsflow.utility.common import AverageMeter
 
