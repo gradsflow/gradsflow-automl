@@ -36,11 +36,3 @@ class BaseAutoDataset:
         self.train_dataset = None
         self.val_dataset = None
         self.num_classes = None
-
-    @property
-    def train_dataloader(self):
-        return
-
-    @property
-    def val_dataloader(self):
-        return

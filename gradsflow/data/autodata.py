@@ -57,10 +57,10 @@ class AutoDataset(BaseAutoDataset, DataMixin):
         self.num_classes = num_classes
 
         if (datamodule or train_dataloader) is None:
-            raise UserWarning("Both datamodule and _train_dataloader can't be None!")
+            raise UserWarning("Both datamodule and train_dataloader can't be None!")
 
         if all((datamodule, train_dataloader)):
-            logger.warning("Both datamodule and _train_dataloader is set! Using datamodule over _train_dataloader.")
+            logger.warning("Both datamodule and train_dataloader is set! Using datamodule over train_dataloader.")
 
         if isinstance(datamodule, pl.LightningDataModule):
             self.datamodule = datamodule
@@ -88,11 +88,11 @@ class AutoDataset(BaseAutoDataset, DataMixin):
             self._val_dataloader = accelerator.prepare_data_loader(self._val_dataloader)
         self.device_setup_status = True
 
-    def fetch(self, data, device_mapper: Optional[Callable] = None):
+    def _fetch(self, data, device_mapper: Optional[Callable] = None):
         """
         If data is not sent to `device` then will attempt to map the `device_mapper` function on data.
         Args:
-            data: Data Batch
+            data: Single dataset batch
             device_mapper: Function to move data to device
         """
         if self.device_setup_status:
@@ -103,8 +103,8 @@ class AutoDataset(BaseAutoDataset, DataMixin):
 
     @property
     def train_dataloader(self):
-        return self.fetch(self._train_dataloader, self.send_to_device)
+        return self._fetch(self._train_dataloader, self.send_to_device)
 
     @property
     def val_dataloader(self):
-        return self.fetch(self._val_dataloader, self.send_to_device)
+        return self._fetch(self._val_dataloader, self.send_to_device)

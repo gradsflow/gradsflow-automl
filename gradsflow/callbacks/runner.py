@@ -35,21 +35,23 @@ class CallbackRunner(Callback):
         super().__init__(model)
         self.callbacks = []
         for callback in callbacks:
+            try:
+                if isinstance(callback, str):
+                    callback_fn = self._AVAILABLE_CALLBACKS[callback](model)
+                    self.callbacks.append(callback_fn)
+                elif isinstance(callback, Callback):
+                    self.callbacks.append(callback)
+            except KeyError:
+                raise NotImplementedError(f"callback is not implemented {callback}")
+
+    def append(self, callback: Union[str, Callback]):
+        try:
             if isinstance(callback, str):
-                callback_fn = self._AVAILABLE_CALLBACKS[callback](model)
+                callback_fn = self._AVAILABLE_CALLBACKS[callback](self.model)
                 self.callbacks.append(callback_fn)
             elif isinstance(callback, Callback):
                 self.callbacks.append(callback)
-            else:
-                raise NotImplementedError
-
-    def append(self, callback: Union[str, Callback]):
-        if isinstance(callback, str):
-            callback_fn = self._AVAILABLE_CALLBACKS[callback](self.model)
-            self.callbacks.append(callback_fn)
-        elif isinstance(callback, Callback):
-            self.callbacks.append(callback)
-        else:
+        except KeyError:
             raise NotImplementedError
 
     def available_callbacks(self):
