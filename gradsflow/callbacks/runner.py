@@ -118,5 +118,7 @@ class CallbackRunner(Callback):
             callback.on_forward_end()
 
     def clean(self):
+        """Remove all the callbacks except `TrainEvalCallback` added during `model.fit`"""
         for callback in self.callbacks:
             callback.clean()
+        self.callbacks = self.callbacks[0:1]
