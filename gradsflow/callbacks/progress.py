@@ -44,7 +44,7 @@ class ProgressCallback(Callback):
         self.progress.start()
         epochs = self.model.tracker.max_epochs
         completed = self.model.tracker.current_epoch
-        self.fit_prog = self.progress.add_task("[red]Progress...", total=epochs, completed=completed)
+        self.fit_prog = self.progress.add_task("[red]Progress", total=epochs, completed=completed)
 
     def on_fit_end(self):
         self.progress.stop()
@@ -54,7 +54,7 @@ class ProgressCallback(Callback):
 
     def on_train_epoch_start(self):
         n = len(self.model.autodataset.train_dataloader)
-        self.train_prog_bar = self.progress.add_task("[green]Learning...", total=n)
+        self.train_prog_bar = self.progress.add_task("[green]Learning", total=n)
 
     def on_train_epoch_end(self, *args, **kwargs):
         self.progress.remove_task(self.train_prog_bar)

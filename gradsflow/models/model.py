@@ -67,6 +67,7 @@ class Model(BaseModel, DataMixin):
         )
         self.autodataset: Optional[AutoDataset] = None
         self.callback_runner: CallbackRunner = CallbackRunner(self, "training")
+        self.disable_auto_optimization = False
 
     def forward_once(self, x) -> torch.Tensor:
         self.callback_runner.on_forward_start()
@@ -114,22 +115,18 @@ class Model(BaseModel, DataMixin):
         self.metrics.update(preds, target)
         return self.metrics.compute()
 
-    def train_step(self, batch: Union[List[torch.Tensor], Dict[Any, torch.Tensor]]) -> Dict[str, torch.Tensor]:
+    def step(self, batch: Union[List[torch.Tensor], Dict[Any, torch.Tensor]]) -> Dict[str, torch.Tensor]:
         inputs = self.fetch_inputs(batch)
         target = self.fetch_target(batch)
-        self.optimizer.zero_grad()
         logits = self.forward_once(inputs)
         loss = self.loss(logits, target)
-        self.backward(loss)
-        self.optimizer.step()
         return {"loss": loss, "metrics": self.calculate_metrics(logits, target)}
 
+    def train_step(self, batch: Union[List[torch.Tensor], Dict[Any, torch.Tensor]]) -> Dict[str, torch.Tensor]:
+        return self.step(batch)
+
     def val_step(self, batch: Union[List[torch.Tensor], Dict[Any, torch.Tensor]]) -> Dict[str, torch.Tensor]:
-        inputs = self.fetch_inputs(batch)
-        target = self.fetch_target(batch)
-        logits = self.forward_once(inputs)
-        loss = self.loss(logits, target)
-        return {"loss": loss, "metrics": self.calculate_metrics(logits, target)}
+        return self.step(batch)
 
     def train_one_epoch(self, train_dataloader):
         tracker = self.tracker
