@@ -21,7 +21,7 @@ def test_init():
         def forward(self):
             return 1
 
-    assert isinstance(CallbackRunner(DummyModel(), "training").callbacks, TrainEvalCallback)
+    assert isinstance(CallbackRunner(DummyModel(), "training").callbacks[0], TrainEvalCallback)
     with pytest.raises(NotImplementedError):
         CallbackRunner(DummyModel(), "random")
 
