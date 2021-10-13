@@ -36,7 +36,7 @@ class DataMixin:
             return data.to(cls.device)
 
         if isinstance(data, (list, tuple)):
-            return list(map(lambda x: cls.send_to_device(x), data))
+            return list(map(cls.send_to_device, data))
         if isinstance(data, dict):
             return {k: cls.send_to_device(v) for k, v in data.items()}
         raise NotImplementedError(
