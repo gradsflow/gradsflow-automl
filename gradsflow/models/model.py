@@ -66,7 +66,7 @@ class Model(BaseModel, DataMixin):
             accelerator_config=accelerator_config,
         )
         self.autodataset: Optional[AutoDataset] = None
-        self.callback_runner: CallbackRunner = CallbackRunner(self, "training")
+        self.callback_runner: CallbackRunner = CallbackRunner(self, TrainEvalCallback(self))
         self.disable_auto_optimization = False
 
     def forward_once(self, x) -> torch.Tensor:
