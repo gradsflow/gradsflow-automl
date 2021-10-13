@@ -1,4 +1,3 @@
-"""Provide some common functionalities/utilities for Datasets"""
 #  Copyright (c) 2021 GradsFlow. All rights reserved.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,19 +11,13 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-from typing import List
+from gradsflow.data.common import random_split_dataset
+from gradsflow.data.image import get_fake_data
 
-from torch.utils.data import Dataset, random_split
+fake_data = get_fake_data((32, 32))
 
 
-def random_split_dataset(data: Dataset, pct=0.9) -> List[Dataset]:
-    """
-    Randomly splits dataset into two sets. Length of first split is len(data) * pct.
-    Args:
-        data: pytorch Dataset object with `__len__` implementation.
-        pct: percentage of split.
-    """
-    n = len(data)
-    split_1 = int(n * pct)
-    split_2 = n - split_1
-    return random_split(data, (split_1, split_2))
+def test_random_split_dataset():
+    d1, d2 = random_split_dataset(fake_data.dataset, 0.9)
+    assert len(d1) > len(d2)
+    assert len(d1) == int(len(fake_data.dataset) * 0.9)

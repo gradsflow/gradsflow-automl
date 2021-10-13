@@ -13,6 +13,7 @@
 #  limitations under the License.
 import dataclasses
 import logging
+from typing import Union
 
 from torch.utils.data import DataLoader, Dataset
 
@@ -24,7 +25,7 @@ logger = logging.getLogger("core.data")
 @dataclasses.dataclass(init=False)
 class Data:
     dataloader: DataLoader
-    dataset: [RayDataset, Dataset]
+    dataset: Union[RayDataset, Dataset]
 
 
 class BaseAutoDataset:

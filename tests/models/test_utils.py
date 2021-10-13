@@ -26,9 +26,19 @@
 import numpy as np
 import torch
 
-from gradsflow.models.utils import to_item
+from gradsflow.models.utils import available_losses, available_metrics, to_item
 
 
 def test_to_item():
     x = torch.rand(1, 1, requires_grad=True)
     assert isinstance(to_item(x), np.ndarray)
+
+
+def test_available_losses():
+    assert isinstance(available_losses()[0], str)
+    assert isinstance(available_losses(), list)
+
+
+def test_available_metrics():
+    assert isinstance(available_metrics()[0], str)
+    assert isinstance(available_metrics(), list)
