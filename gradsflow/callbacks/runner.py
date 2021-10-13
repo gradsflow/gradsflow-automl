@@ -17,6 +17,7 @@ from typing import Union
 from gradsflow.callbacks.callbacks import Callback
 from gradsflow.callbacks.progress import ProgressCallback
 from gradsflow.callbacks.raytune import TorchTuneCheckpointCallback, TorchTuneReport
+from gradsflow.callbacks.training import TrainEvalCallback
 
 if typing.TYPE_CHECKING:
     from gradsflow.models.model import Model
@@ -24,6 +25,7 @@ if typing.TYPE_CHECKING:
 
 class CallbackRunner(Callback):
     _AVAILABLE_CALLBACKS = {
+        "training": TrainEvalCallback,
         "tune_checkpoint": TorchTuneCheckpointCallback,
         "tune_report": TorchTuneReport,
         "progress": ProgressCallback,
@@ -40,6 +42,9 @@ class CallbackRunner(Callback):
                 self.callbacks.append(callback)
             else:
                 raise NotImplementedError
+
+    def append(self, callback: Callback):
+        self.callbacks.append(callback)
 
     def available_callbacks(self):
         return list(self._AVAILABLE_CALLBACKS.keys())

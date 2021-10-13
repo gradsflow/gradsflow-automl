@@ -65,7 +65,8 @@ class Model(BaseModel, DataMixin):
             use_accelerate=use_accelerate,
             accelerator_config=accelerator_config,
         )
-        self.callback_runner: Optional[CallbackRunner] = None
+        self.autodataset: Optional[AutoDataset] = None
+        self.callback_runner: CallbackRunner = CallbackRunner(self, "training")
 
     def forward_once(self, x) -> torch.Tensor:
         self.callback_runner.on_forward_start()
@@ -157,17 +158,17 @@ class Model(BaseModel, DataMixin):
                 break
 
     def _train_epoch_with_event(self):
-        train_dataloader = self.tracker.autodataset.get_train_dl(self.send_to_device)
+        train_dataloader = self.autodataset.train_dataloader
         # ----- TRAIN -----
         self.callback_runner.on_train_epoch_start()
         self.train_one_epoch(train_dataloader)
         self.callback_runner.on_train_epoch_end()
 
     def _val_epoch_with_event(self):
-        autodataset = self.tracker.autodataset
+        autodataset = self.autodataset
         if not autodataset.val_dataloader:
             return
-        val_dataloader = self.tracker.autodataset.get_val_dl(self.send_to_device)
+        val_dataloader = self.autodataset.val_dataloader
         # ------ VALIDATE -----
         self.callback_runner.on_val_epoch_start()
         self.val_one_epoch(val_dataloader)
@@ -197,7 +198,7 @@ class Model(BaseModel, DataMixin):
         autodataset: AutoDataset,
         max_epochs: int = 1,
         steps_per_epoch: Optional[int] = None,
-        callbacks: Union[List[str], Callback] = None,
+        callbacks: Union[List[Callback], Callback, None] = None,
         resume: bool = True,
         show_progress: bool = True,
         progress_kwargs=None,
@@ -225,15 +226,20 @@ class Model(BaseModel, DataMixin):
         Returns:
             Tracker object
         """
+        self.assert_compiled()
+        self.autodataset = autodataset
+        self.autodataset.prepare_data(self.accelerator)
+
         if not resume:
             self.tracker.reset()
-        self.assert_compiled()
-        callback_list = listify(callbacks)
-        callback_list.append(TrainEvalCallback(self))
+
         if show_progress:
-            callback_list.append(ProgressCallback(self, progress_kwargs))
-        self.callback_runner = CallbackRunner(self, *callback_list)
-        self.tracker.autodataset = self.prepare_data(autodataset)
+            self.callback_runner.append(ProgressCallback(self, progress_kwargs))
+
+        callback_list = listify(callbacks)
+        for callback in callback_list:
+            self.callback_runner.append(callback)
+
         self.tracker.steps_per_epoch = steps_per_epoch
         self.tracker.max_epochs = max_epochs
 

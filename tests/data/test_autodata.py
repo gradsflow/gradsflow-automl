@@ -28,6 +28,6 @@ def test_auto_dataset():
 
 def test_sent_to_device():
     data = AutoDataset(dataloader)
-    assert data.sent_to_device is None
-    data.sent_to_device = True
-    assert data.sent_to_device
+    assert data.device_setup_status is None
+    data.device_setup_status = True
+    assert data.device_setup_status
