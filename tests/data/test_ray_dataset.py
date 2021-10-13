@@ -13,7 +13,10 @@
 #  limitations under the License.
 from pathlib import Path
 
-from gradsflow.data.ray_dataset import RayDataset
+import numpy as np
+from PIL import Image
+
+from gradsflow.data.ray_dataset import RayDataset, RayImageFolder
 
 data_dir = Path.cwd()
 
@@ -22,4 +25,23 @@ data_dir = Path.cwd()
 def test_ray_dataset():
     folder = f"{data_dir}/data/test-data-cat-dog-v0/cat-dog/"
 
-    RayDataset(folder)
+    dataset = RayDataset(folder)
+
+    assert len(dataset) == 8
+    assert next(iter(dataset))
+
+    assert dataset
+
+
+def test_ray_image_folder():
+    folder = f"{data_dir}/data/test-data-cat-dog-v0/cat-dog/"
+
+    dataset = RayImageFolder(folder)
+
+    # test_find_classes
+    assert dataset.find_classes() == ["cat", "dog"]
+
+    # test_iter
+    item = next(iter(dataset))
+    assert isinstance(item[0], Image.Image)
+    assert isinstance(item[1], str)
