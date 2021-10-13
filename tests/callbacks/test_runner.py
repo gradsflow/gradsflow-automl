@@ -16,6 +16,16 @@ import pytest
 from gradsflow.callbacks import Callback, CallbackRunner, TrainEvalCallback
 
 
+def test_init():
+    class DummyModel:
+        def forward(self):
+            return 1
+
+    assert isinstance(CallbackRunner(DummyModel(), "training").callbacks, TrainEvalCallback)
+    with pytest.raises(NotImplementedError):
+        CallbackRunner(DummyModel(), "random")
+
+
 def test_append():
     class DummyModel:
         def forward(self):

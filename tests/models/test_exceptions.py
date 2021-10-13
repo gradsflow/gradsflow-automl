@@ -11,29 +11,14 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-import dataclasses
-import logging
-from typing import Union
+import pytest
 
-from torch.utils.data import DataLoader, Dataset
-
-from gradsflow.data.ray_dataset import RayDataset
-
-logger = logging.getLogger("core.data")
+from gradsflow.models.exceptions import EpochCancel, FitCancel
 
 
-@dataclasses.dataclass(init=False)
-class Data:
-    dataloader: DataLoader
-    dataset: Union[RayDataset, Dataset]
+def test_exceptions():
+    with pytest.raises(EpochCancel):
+        raise EpochCancel()
 
-
-class BaseAutoDataset:
-    def __init__(self):
-        self.meta = {}
-        self.datamodule = None
-        self._train_dataloader = None
-        self._val_dataloader = None
-        self.train_dataset = None
-        self.val_dataset = None
-        self.num_classes = None
+    with pytest.raises(FitCancel):
+        raise FitCancel()

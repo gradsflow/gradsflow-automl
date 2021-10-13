@@ -11,10 +11,18 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-from torch.utils.data import random_split
+from typing import List
+
+from torch.utils.data import Dataset, random_split
 
 
-def random_split_dataset(data, pct=0.1):
+def random_split_dataset(data: Dataset, pct=0.9) -> List[Dataset]:
+    """
+    Randomly splits dataset into two sets. Length of first split is len(data) * pct.
+    Args:
+        data: pytorch Dataset object with `__len__` implementation.
+        pct: percentage of split.
+    """
     n = len(data)
     split_1 = int(n * pct)
     split_2 = n - split_1

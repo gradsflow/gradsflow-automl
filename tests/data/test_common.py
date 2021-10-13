@@ -11,29 +11,13 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-import dataclasses
-import logging
-from typing import Union
+from gradsflow.data.common import random_split_dataset
+from gradsflow.data.image import get_fake_data
 
-from torch.utils.data import DataLoader, Dataset
-
-from gradsflow.data.ray_dataset import RayDataset
-
-logger = logging.getLogger("core.data")
+fake_data = get_fake_data((32, 32))
 
 
-@dataclasses.dataclass(init=False)
-class Data:
-    dataloader: DataLoader
-    dataset: Union[RayDataset, Dataset]
-
-
-class BaseAutoDataset:
-    def __init__(self):
-        self.meta = {}
-        self.datamodule = None
-        self._train_dataloader = None
-        self._val_dataloader = None
-        self.train_dataset = None
-        self.val_dataset = None
-        self.num_classes = None
+def test_random_split_dataset():
+    d1, d2 = random_split_dataset(fake_data.dataset, 0.9)
+    assert len(d1) > len(d2)
+    assert len(d1) == int(len(fake_data.dataset) * 0.9)

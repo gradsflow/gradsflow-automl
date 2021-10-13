@@ -243,7 +243,7 @@ class Model(BaseModel, DataMixin):
         try:
             self.callback_runner.with_event("fit", self._fit_with_event, FitCancel)
         except KeyboardInterrupt:
-            logger.error("Keyboard interruption detected")
+            logger.info("Keyboard interruption detected")
         finally:
             self.callback_runner.clean()
 
