@@ -35,9 +35,10 @@ class AutoDataset(BaseAutoDataset, DataMixin):
         val_dataset: Optional[Dataset] = None,
         datamodule: Optional[pl.LightningDataModule] = None,
         num_classes: Optional[int] = None,
+        **kwargs
     ):
         super().__init__()
-        self.setup(train_dataloader, val_dataloader, train_dataset, val_dataset, datamodule, num_classes)
+        self.setup(train_dataloader, val_dataloader, train_dataset, val_dataset, datamodule, num_classes, **kwargs)
 
     def setup(
         self,
@@ -47,6 +48,7 @@ class AutoDataset(BaseAutoDataset, DataMixin):
         val_dataset: Optional[Dataset] = None,
         datamodule: Optional[pl.LightningDataModule] = None,
         num_classes: Optional[int] = None,
+        **kwargs
     ):
 
         self.datamodule = datamodule
@@ -56,8 +58,24 @@ class AutoDataset(BaseAutoDataset, DataMixin):
         self.val_dataset = val_dataset
         self.num_classes = num_classes
 
-        if (datamodule or train_dataloader) is None:
-            raise UserWarning("Both datamodule and train_dataloader can't be None!")
+        if not train_dataloader and train_dataset:
+            self._train_dataloader = DataLoader(
+                train_dataset,
+                batch_size=kwargs.get("batch_size", 8),
+                shuffle=True,
+                num_workers=kwargs.get("num_workers", 0),
+                pin_memory=kwargs.get("pin_memory"),
+            )
+        if not val_dataloader and val_dataset:
+            self._val_dataloader = DataLoader(
+                val_dataset,
+                batch_size=kwargs.get("batch_size", 8),
+                num_workers=kwargs.get("num_workers", 0),
+                pin_memory=kwargs.get("pin_memory"),
+            )
+
+        if (datamodule or train_dataloader or train_dataset) is None:
+            raise UserWarning("One of datamodule, train_dataloader and dataset must be set!")
 
         if all((datamodule, train_dataloader)):
             logger.warning("Both datamodule and train_dataloader is set! Using datamodule over train_dataloader.")
