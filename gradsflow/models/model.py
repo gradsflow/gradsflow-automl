@@ -77,19 +77,31 @@ class Model(BaseModel, DataMixin):
 
     def compile(
         self,
-        loss: Union[str, nn.modules.loss._Loss] = None,
-        optimizer: Union[str, Callable] = None,
+        loss: Union[str, nn.modules.loss._Loss] = "crossentropyloss",
+        optimizer: Union[str, Callable] = "adam",
         learning_rate: float = 3e-4,
         metrics: METRICS_TYPE = None,
         loss_config: Optional[dict] = None,
         optimizer_config: Optional[dict] = None,
     ) -> None:
         """
-        Examples:
-            ```python
-            model = Model(net)
-            model.compile(loss="crossentropyloss", optimizer="adam", learning_rate=1e-3, metrics="accuracy")
-            ```
+        Compile loss function, optimizer and metrics
+        Example:
+        ```python
+        model = Model(net)
+        model.compile(loss="crossentropyloss", optimizer="adam", learning_rate=1e-3, metrics="accuracy")
+        ```
+        You can also compile optimizer by passing class as argument-
+        ```python
+        model.compile(optimizer=torch.optim.SGD, learning_rate=1e-3, optimizer_configs = {"momentum":0.9})
+        ```
+        To see a list of available losses and metrics-
+        ```python
+        from gradsflow.models import available_losses, available_metrics
+        print(available_losses())
+        print(available_metrics())
+        ```
+
         Args:
             loss: name of loss, torch Loss class object or any functional method. See `available_losses()`
             optimizer: optimizer name or `torch.optim.Optimizer` Class
@@ -97,7 +109,6 @@ class Model(BaseModel, DataMixin):
             metrics: list of metrics to calculate. See `available_metrics()`
             loss_config: Dict config if any to pass to loss function
             optimizer_config: Dict config if any to pass to Optimizer
-
         """
         loss_config = loss_config or {}
         optimizer_config = optimizer_config or {}
@@ -204,13 +215,12 @@ class Model(BaseModel, DataMixin):
         Similar to Keras model.fit(...) it trains the model for specified epochs and returns Tracker object
 
         Examples:
-            ```python
-            autodataset = AutoDataset(train_dataloader, val_dataloader)
-            model = Model(cnn)
-            model.compile("crossentropyloss", "adam", learning_rate=1e-3, metrics="accuracy")
-            model.fit(autodataset)
-            ```
-
+        ```python
+        autodataset = AutoDataset(train_dataloader, val_dataloader)
+        model = Model(cnn)
+        model.compile("crossentropyloss", "adam", learning_rate=1e-3, metrics="accuracy")
+        model.fit(autodataset)
+        ```
         Args:
             autodataset: AutoDataset object encapsulate dataloader and datamodule
             max_epochs: number of epochs to train

@@ -50,6 +50,7 @@ class CallbackRunner(Callback):
                 callback_fn = self._AVAILABLE_CALLBACKS[callback](self.model)
                 self.callbacks.append(callback_fn)
             elif isinstance(callback, Callback):
+                callback.model = self.model
                 self.callbacks.append(callback)
         except KeyError:
             raise NotImplementedError
