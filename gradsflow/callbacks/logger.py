@@ -37,7 +37,7 @@ class CSVLogger(Callback):
         self._logs = []
         self.verbose = verbose
 
-    def on_epoch_end(self, *args, **kwargs):
+    def on_epoch_end(self):
         epoch = self.model.tracker.current_epoch
         train_loss = self.model.tracker.train_loss
         val_loss = self.model.tracker.val_loss

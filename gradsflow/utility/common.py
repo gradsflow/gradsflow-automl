@@ -122,5 +122,5 @@ def to_item(data: Union[torch.Tensor, Iterable, Dict]) -> Union[int, float, str,
             data = data.detach()
         data = data.cpu().numpy()
 
-    warnings.warn(f"to_item didn't convert any value.")
+    warnings.warn("to_item didn't convert any value.")
     return data
