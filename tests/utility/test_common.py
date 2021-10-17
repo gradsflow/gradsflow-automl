@@ -56,3 +56,13 @@ def test_get_device():
 def test_to_item():
     x = torch.rand(1, 1, requires_grad=True)
     assert isinstance(to_item(x), np.ndarray)
+
+    x = [torch.rand(10)]
+    assert isinstance(to_item(x), list)
+
+    x = (torch.rand(10),)
+    assert isinstance(to_item(x), tuple)
+
+    x = {"input": torch.rand(10)}
+    assert isinstance(to_item(x), dict)
+    assert isinstance(to_item(x)["input"], np.ndarray)

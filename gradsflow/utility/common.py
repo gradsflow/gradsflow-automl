@@ -77,7 +77,9 @@ def listify(item: Any) -> List:
 # ref: https://github.com/rwightman/pytorch-image-models/blob/b544ad4d3fcd02057ab9f43b118290f2a089566f/timm/utils/metrics.py#L7
 @dataclasses.dataclass(init=False)
 class AverageMeter:
-    """Computes and stores the average and current value"""
+    """Computes and stores the average and current value.
+    `val` is the running value, `avg` is the average value over an epoch.
+    """
 
     name: Optional[str]
     avg: Optional[float] = 0
