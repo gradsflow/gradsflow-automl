@@ -11,8 +11,22 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-from .callbacks import Callback
-from .logger import CSVLogger
-from .raytune import report_checkpoint_callback
-from .runner import CallbackRunner
-from .training import TrainEvalCallback
+
+import torch
+
+from gradsflow.models import Model
+
+
+class DummyModel(Model):
+    def __init__(self):
+        learner = torch.nn.Linear(1, 4)
+        super().__init__(learner)
+
+    def backward(self, loss: torch.Tensor):
+        return None
+
+    def train_step(self, batch):
+        return {"loss": torch.as_tensor(1), "metrics": {"accuracy": 1}}
+
+    def val_step(self, batch):
+        return {"loss": torch.as_tensor(1), "metrics": {"accuracy": 1}}

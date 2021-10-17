@@ -11,7 +11,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-
+import numpy as np
 import torch
 
 from gradsflow.utility.common import (
@@ -21,6 +21,7 @@ from gradsflow.utility.common import (
     get_files,
     listify,
     module_to_cls_index,
+    to_item,
 )
 
 
@@ -50,3 +51,18 @@ def test_listify():
 
 def test_get_device():
     assert default_device() in ("cpu", "cuda")
+
+
+def test_to_item():
+    x = torch.rand(1, 1, requires_grad=True)
+    assert isinstance(to_item(x), np.ndarray)
+
+    x = [torch.rand(10)]
+    assert isinstance(to_item(x), list)
+
+    x = (torch.rand(10),)
+    assert isinstance(to_item(x), tuple)
+
+    x = {"input": torch.rand(10)}
+    assert isinstance(to_item(x), dict)
+    assert isinstance(to_item(x)["input"], np.ndarray)

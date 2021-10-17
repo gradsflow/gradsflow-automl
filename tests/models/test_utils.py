@@ -23,15 +23,8 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-import numpy as np
-import torch
 
-from gradsflow.models.utils import available_losses, available_metrics, to_item
-
-
-def test_to_item():
-    x = torch.rand(1, 1, requires_grad=True)
-    assert isinstance(to_item(x), np.ndarray)
+from gradsflow.models.utils import available_losses, available_metrics
 
 
 def test_available_losses():

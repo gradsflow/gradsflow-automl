@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import typing
-from typing import Callable
+from typing import Callable, Optional
 
 if typing.TYPE_CHECKING:
     from gradsflow.models.model import Model
@@ -27,7 +27,7 @@ class Callback:
 
     _events = ("forward", "step", "train_epoch", "val_epoch", "epoch", "fit")
 
-    def __init__(self, model: "Model"):
+    def __init__(self, model: Optional["Model"]):
         self.model = model
 
     def with_event(self, event_type: str, func: Callable, exception, final_fn: Callable = dummy):

@@ -15,10 +15,12 @@ import dataclasses
 import inspect
 import os
 import sys
+import warnings
 from glob import glob
 from pathlib import Path
-from typing import Any, List, Optional
+from typing import Any, Dict, Iterable, List, Optional, Union
 
+import numpy as np
 import torch
 from smart_open import open as smart_open
 
@@ -75,7 +77,9 @@ def listify(item: Any) -> List:
 # ref: https://github.com/rwightman/pytorch-image-models/blob/b544ad4d3fcd02057ab9f43b118290f2a089566f/timm/utils/metrics.py#L7
 @dataclasses.dataclass(init=False)
 class AverageMeter:
-    """Computes and stores the average and current value"""
+    """Computes and stores the average and current value.
+    `val` is the running value, `avg` is the average value over an epoch.
+    """
 
     name: Optional[str]
     avg: Optional[float] = 0
@@ -97,3 +101,26 @@ class AverageMeter:
         self.sum += val * n
         self.count += n
         self.avg = self.sum / self.count
+
+
+def to_item(data: Union[torch.Tensor, Iterable, Dict]) -> Union[int, float, str, np.ndarray, Dict]:
+    """
+    Converts torch.Tensor into cpu numpy format.
+    Args:
+        data: torch.Tensor contained in any Iterable or Dictionary.
+    """
+
+    if isinstance(data, (int, float, str)):
+        return data
+    if isinstance(data, (list, tuple)):
+        return type(data)(map(to_item, data))
+    if isinstance(data, dict):
+        return {k: to_item(v) for k, v in data.items()}
+
+    if torch.is_tensor(data):
+        if data.requires_grad:
+            data = data.detach()
+        data = data.cpu().numpy()
+
+    warnings.warn("to_item didn't convert any value.")
+    return data
