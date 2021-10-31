@@ -18,9 +18,9 @@ from gradsflow.callbacks import Callback
 class EmissionTrackerCallback(Callback):
     """
     Tracks the carbon emissions produced by deep neural networks using
-    (CodeCarbon)[https://github.com/mlco2/codecarbon]. To use this callback first install codecarbon using
+    [CodeCarbon](https://github.com/mlco2/codecarbon). To use this callback first install codecarbon using
     `pip install codecarbon`.
-    For offline use, you must have to specify the (country code)[https://github.com/mlco2/codecarbon#offline-mode].
+    For offline use, you must have to specify the [country code](https://github.com/mlco2/codecarbon#offline-mode).
     """
 
     def __init__(self, offline: bool = False, *args, **kwargs):
@@ -35,4 +35,5 @@ class EmissionTrackerCallback(Callback):
         super().__init__(model=None)
 
     def on_fit_end(self):
-        self.tracker.stop()
+        emissions: float = self.tracker.stop()
+        print(f"Emissions: {emissions} kg")

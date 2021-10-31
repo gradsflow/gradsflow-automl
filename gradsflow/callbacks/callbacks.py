@@ -12,6 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import typing
+from abc import ABC
 from typing import Callable, Optional
 
 if typing.TYPE_CHECKING:
@@ -22,7 +23,7 @@ def dummy(x=None, *_, **__):
     return x
 
 
-class Callback:
+class Callback(ABC):
     """Callback objects define events on which it will run during the model training cycle."""
 
     _events = ("forward", "step", "train_epoch", "val_epoch", "epoch", "fit")
