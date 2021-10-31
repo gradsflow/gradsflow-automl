@@ -109,7 +109,7 @@ class Base:
 
 
 class BaseModel(Base):
-    """Base Class of Model API"""
+    """Base Class of Model API implemented with HF Accelerate"""
 
     def __init__(
         self,
