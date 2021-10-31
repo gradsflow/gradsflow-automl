@@ -24,7 +24,7 @@ from gradsflow.callbacks.progress import ProgressCallback
 from gradsflow.callbacks.training import TrainEvalCallback
 from gradsflow.data import AutoDataset
 from gradsflow.data.mixins import DataMixin
-from gradsflow.models.base import BaseModel
+from gradsflow.models.base import BaseLite, BaseModel
 from gradsflow.models.exceptions import EpochCancel, FitCancel
 from gradsflow.models.tracker import Tracker
 from gradsflow.utility.common import listify, module_to_cls_index
@@ -32,7 +32,7 @@ from gradsflow.utility.common import listify, module_to_cls_index
 METRICS_TYPE = Union[str, Metric, List[Union[str, Metric]], None]
 
 
-class Model(BaseModel, DataMixin):
+class Model(BaseLite, DataMixin):
     """
     Model provide training functionality with `model.fit(...)` inspired from Keras
 
@@ -201,6 +201,14 @@ class Model(BaseModel, DataMixin):
         self.callback_runner.with_event("epoch", self.epoch, EpochCancel)
         self.callback_runner.on_fit_end()
 
+    def run(self) -> Any:
+        try:
+            self.callback_runner.with_event("fit", self._fit_with_event, FitCancel)
+        except KeyboardInterrupt:
+            logger.info("Keyboard interruption detected")
+        finally:
+            self.callback_runner.clean()
+
     def fit(
         self,
         autodataset: AutoDataset,
@@ -250,11 +258,12 @@ class Model(BaseModel, DataMixin):
         self.tracker.steps_per_epoch = steps_per_epoch
         self.tracker.max_epochs = max_epochs
 
-        try:
-            self.callback_runner.with_event("fit", self._fit_with_event, FitCancel)
-        except KeyboardInterrupt:
-            logger.info("Keyboard interruption detected")
-        finally:
-            self.callback_runner.clean()
+        self.run()
+        # try:
+        #     self.callback_runner.with_event("fit", self._fit_with_event, FitCancel)
+        # except KeyboardInterrupt:
+        #     logger.info("Keyboard interruption detected")
+        # finally:
+        #     self.callback_runner.clean()
 
         return self.tracker

@@ -12,6 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 from .callbacks import Callback
+from .gpu import EmissionTrackerCallback
 from .logger import CSVLogger
 from .raytune import report_checkpoint_callback
 from .runner import CallbackRunner

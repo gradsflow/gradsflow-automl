@@ -12,11 +12,13 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import os
+from abc import ABC
 from dataclasses import dataclass
 from typing import Any, Callable, List, Optional, Union
 
 import torch
 from accelerate import Accelerator
+from pytorch_lightning.lite import LightningLite
 from torch import nn
 from torchmetrics import Metric, MetricCollection
 
@@ -101,11 +103,21 @@ class Base:
     def backward(self, loss):
         ...
 
+    def prepare_model(self, learner):
+        return
+
+    def prepare_optimizer(self, optimizer):
+        return optimizer
+
     def eval(self):
-        ...
+        """Set learner to eval mode for validation"""
+        self.learner.requires_grad_(False)
+        self.learner.eval()
 
     def train(self):
-        ...
+        """Set learner to training mode"""
+        self.learner.requires_grad_(True)
+        self.learner.train()
 
 
 class BaseModel(Base):
@@ -160,12 +172,16 @@ class BaseModel(Base):
         else:
             self.accelerator.backward(loss)
 
-    def eval(self):
-        """Set learner to eval mode for validation"""
-        self.learner.requires_grad_(False)
-        self.learner.eval()
 
-    def train(self):
-        """Set learner to training mode"""
-        self.learner.requires_grad_(True)
-        self.learner.train()
+class BaseLite(Base, LightningLite, ABC):
+    def __init__(
+        self,
+        learner: Union[nn.Module, Any],
+        device: Optional[str] = None,
+        use_accelerate: bool = True,
+        accelerator_config: dict = None,
+    ):
+        self.accelerator = "lite"
+        self.learner = learner
+        super().__init__(**accelerator_config)
+        self.metrics.to(self.device)
