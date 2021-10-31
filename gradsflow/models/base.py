@@ -33,6 +33,27 @@ class Base:
     loss: Callable = None
     _compiled: bool = False
 
+    def __init__(self):
+        self.tracker = Tracker()
+        self.accelerator = None
+        self.device = None
+        self.metrics: MetricCollection = MetricCollection([])
+
+    def add_metrics(self, *metrics: Union[str, Metric]) -> None:
+        for m in metrics:
+            if isinstance(m, str):
+                m_cls = metrics_classes.get(m)
+                assert (
+                    m_cls is not None
+                ), f"metrics {m} is not available! Available metrics are {tuple(metrics_classes.keys())}"
+                m_obj = m_cls()
+            elif isinstance(m, Metric):
+                m_obj = m
+            else:
+                raise NotImplementedError(f"metrics not implemented for {m}! Please see `torchmetrics`.")
+            self.metrics.add_metrics(m_obj)
+        self.metrics.to(self.device)
+
 
 class BaseModel(Base):
     """Base Class of Model API"""
@@ -47,12 +68,11 @@ class BaseModel(Base):
         use_accelerate: bool = True,
         accelerator_config: dict = None,
     ):
-        self.tracker = Tracker()
-        self.accelerator = None
-        self.device = None
+
+        super().__init__()
         self._set_accelerator(device, use_accelerate, accelerator_config)
         self.learner = self.prepare_model(learner)
-        self.metrics: MetricCollection = MetricCollection([]).to(self.device)
+        self.metrics.to(self.device)
 
     def _set_accelerator(self, device: Optional[str], use_accelerate: bool, accelerator_config: dict):
         if use_accelerate:
@@ -82,21 +102,6 @@ class BaseModel(Base):
         if not self.accelerator:
             return optimizer
         return self.accelerator.prepare_optimizer(optimizer)
-
-    def add_metrics(self, *metrics: Union[str, Metric]) -> None:
-        for m in metrics:
-            if isinstance(m, str):
-                m_cls = metrics_classes.get(m)
-                assert (
-                    m_cls is not None
-                ), f"metrics {m} is not available! Available metrics are {tuple(metrics_classes.keys())}"
-                m_obj = m_cls()
-            elif isinstance(m, Metric):
-                m_obj = m
-            else:
-                raise NotImplementedError(f"metrics not implemented for {m}! Please see `torchmetrics`.")
-            self.metrics.add_metrics(m_obj)
-        self.metrics.to(self.device)
 
     def _get_loss(self, loss: Union[str, Callable]) -> Optional[Callable]:
         loss_fn = None
