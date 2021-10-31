@@ -83,5 +83,6 @@ nav:
       - Tuner: gradsflow/tuner
       - AutoTasks: gradsflow/tasks
       - Data: gradsflow/data
+      - Callbacks: gradsflow/callbacks
       - utility: gradsflow/utility.md
   - Release Notes: 'CHANGELOG.md'
