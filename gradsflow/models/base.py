@@ -25,9 +25,13 @@ from gradsflow.models.utils import losses
 from gradsflow.models.utils import metrics as metrics_classes
 from gradsflow.utility.common import default_device, module_to_cls_index
 
+_OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
+
 
 @dataclass(init=False)
 class Base:
+    TEST = os.environ.get("GF_CI", "false").lower() == "true"
+
     learner: Union[nn.Module, Any]
     optimizer: torch.optim.Optimizer = None
     loss: Callable = None
@@ -35,9 +39,46 @@ class Base:
 
     def __init__(self):
         self.tracker = Tracker()
-        self.accelerator = None
         self.device = None
         self.metrics: MetricCollection = MetricCollection([])
+
+    def __call__(self, x):
+        return self.forward(x)
+
+    def _get_loss(self, loss: Union[str, Callable]) -> Optional[Callable]:
+        loss_fn = None
+        if isinstance(loss, str):
+            loss_fn = losses.get(loss)
+            assert loss_fn is not None, f"loss {loss} is not available! Available losses are {tuple(losses.keys())}"
+        elif callable(loss):
+            loss_fn = loss
+
+        return loss_fn
+
+    def _get_optimizer(self, optimizer: Union[str, torch.optim.Optimizer]) -> Callable:
+        if isinstance(optimizer, str):
+            optimizer_fn = _OPTIMIZER_INDEX.get(optimizer)
+            assert (
+                optimizer_fn
+            ), f"optimizer {optimizer} is not available! Available optimizers are {tuple(_OPTIMIZER_INDEX.keys())}"
+
+        elif callable(optimizer):
+            assert optimizer in tuple(_OPTIMIZER_INDEX.values()), f"Unknown Optimizer {type(optimizer)}"
+            optimizer_fn = optimizer
+        else:
+            raise NotImplementedError(f"Unknown optimizer {optimizer}")
+        return optimizer_fn
+
+    def assert_compiled(self):
+        if not self._compiled:
+            raise UserWarning("Model not compiled yet! Please call `model.compile(...)` first.")
+
+    def load_from_checkpoint(self, checkpoint):
+        self.learner = torch.load(checkpoint)
+
+    @torch.no_grad()
+    def predict(self, x):
+        return self.learner(x)
 
     def add_metrics(self, *metrics: Union[str, Metric]) -> None:
         for m in metrics:
@@ -54,12 +95,21 @@ class Base:
             self.metrics.add_metrics(m_obj)
         self.metrics.to(self.device)
 
+    def forward(self, x):
+        return self.learner(x)
+
+    def backward(self, loss):
+        ...
+
+    def eval(self):
+        ...
+
+    def train(self):
+        ...
+
 
 class BaseModel(Base):
     """Base Class of Model API"""
-
-    TEST = os.environ.get("GF_CI", "false").lower() == "true"
-    _OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
 
     def __init__(
         self,
@@ -68,7 +118,7 @@ class BaseModel(Base):
         use_accelerate: bool = True,
         accelerator_config: dict = None,
     ):
-
+        self.accelerator = None
         super().__init__()
         self._set_accelerator(device, use_accelerate, accelerator_config)
         self.learner = self.prepare_model(learner)
@@ -103,48 +153,8 @@ class BaseModel(Base):
             return optimizer
         return self.accelerator.prepare_optimizer(optimizer)
 
-    def _get_loss(self, loss: Union[str, Callable]) -> Optional[Callable]:
-        loss_fn = None
-        if isinstance(loss, str):
-            loss_fn = losses.get(loss)
-            assert loss_fn is not None, f"loss {loss} is not available! Available losses are {tuple(losses.keys())}"
-        elif callable(loss):
-            loss_fn = loss
-
-        return loss_fn
-
-    def _get_optimizer(self, optimizer: Union[str, torch.optim.Optimizer]) -> Callable:
-        if isinstance(optimizer, str):
-            optimizer_fn = self._OPTIMIZER_INDEX.get(optimizer)
-            assert (
-                optimizer_fn
-            ), f"optimizer {optimizer} is not available! Available optimizers are {tuple(self._OPTIMIZER_INDEX.keys())}"
-
-        elif callable(optimizer):
-            assert optimizer in tuple(self._OPTIMIZER_INDEX.values()), f"Unknown Optimizer {type(optimizer)}"
-            optimizer_fn = optimizer
-        else:
-            raise NotImplementedError(f"Unknown optimizer {optimizer}")
-        return optimizer_fn
-
-    def assert_compiled(self):
-        if not self._compiled:
-            raise UserWarning("Model not compiled yet! Please call `model.compile(...)` first.")
-
-    def forward(self, x):
-        return self.learner(x)
-
-    def __call__(self, x):
-        return self.forward(x)
-
-    @torch.no_grad()
-    def predict(self, x):
-        return self.learner(x)
-
-    def load_from_checkpoint(self, checkpoint):
-        self.learner = torch.load(checkpoint)
-
     def backward(self, loss: torch.Tensor):
+        """model.backward(loss)"""
         if not self.accelerator:
             loss.backward()
         else:
