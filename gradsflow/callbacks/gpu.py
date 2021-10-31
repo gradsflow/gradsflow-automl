@@ -21,15 +21,19 @@ class EmissionTrackerCallback(Callback):
     [CodeCarbon](https://github.com/mlco2/codecarbon). To use this callback first install codecarbon using
     `pip install codecarbon`.
     For offline use, you must have to specify the [country code](https://github.com/mlco2/codecarbon#offline-mode).
+
+    Args:
+        offline: whether to use internet connection or not. You will have to provide the country code `country_iso_code` for offline use.
+        **kwargs: passed directly to codecarbon class.
     """
 
-    def __init__(self, offline: bool = False, *args, **kwargs):
+    def __init__(self, offline: bool = False, **kwargs):
         from codecarbon import EmissionsTracker, OfflineEmissionsTracker
 
         if offline:
-            self.tracker = OfflineEmissionsTracker(*args, **kwargs)
+            self.tracker = OfflineEmissionsTracker(**kwargs)
         else:
-            self.tracker = EmissionsTracker(*args, **kwargs)
+            self.tracker = EmissionsTracker(**kwargs)
         self.tracker.start()
 
         super().__init__(model=None)
