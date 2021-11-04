@@ -13,6 +13,7 @@
 #  limitations under the License.
 import os
 from pathlib import Path
+from typing import Optional
 
 import pandas as pd
 from loguru import logger
@@ -55,3 +56,24 @@ class CSVLogger(Callback):
         self._logs.append(data)
         df = pd.DataFrame(self._logs)
         df.to_csv(self._dst, index=False)
+
+
+class ModelCheckpoint(Callback):
+    def __init__(self, filename: Optional[str] = None, path: str = os.getcwd(), save_extra: bool = False):
+        """
+        Saves Model checkpoint
+        Args:
+            filename: name of checkpoint
+            path: folder path location of the model checkpoint
+            save_extra: whether to save extra details like tracker
+        """
+        super().__init__(model=None)
+        filename = filename or "model"
+        self.path = path
+        self._dst = Path(path) / Path(filename)
+        self.save_extra = save_extra
+
+    def on_epoch_end(self):
+        epoch = self.model.tracker.current_epoch
+        path = f"{self._dst}_epoch={epoch}_.pt"
+        self.model.save(path, save_extra=self.save_extra)

@@ -169,3 +169,10 @@ class BaseModel(Base):
         """Set learner to training mode"""
         self.learner.requires_grad_(True)
         self.learner.train()
+
+    def save(self, path: str, save_extra: bool = True):
+        """save model"""
+        model = self.learner
+        if save_extra:
+            model = {"model": self.learner, "tracker": self.tracker}
+        torch.save(model, path)
