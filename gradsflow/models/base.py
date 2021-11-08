@@ -45,11 +45,13 @@ class Base:
     def __call__(self, x):
         return self.forward(x)
 
-    def _get_loss(self, loss: Union[str, Callable]) -> Optional[Callable]:
+    def _get_loss(self, loss: Union[str, Callable], loss_config: dict) -> Optional[Callable]:
         loss_fn = None
         if isinstance(loss, str):
-            loss_fn = losses.get(loss)
+            loss_fn = losses.get(loss)(**loss_config)
             assert loss_fn is not None, f"loss {loss} is not available! Available losses are {tuple(losses.keys())}"
+        elif isinstance(loss, type):  # when loss is a class
+            loss_fn = loss(**loss_config)
         elif callable(loss):
             loss_fn = loss
 
