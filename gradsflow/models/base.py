@@ -50,7 +50,7 @@ class Base:
         if isinstance(loss, str):
             loss_fn = losses.get(loss)(**loss_config)
             assert loss_fn is not None, f"loss {loss} is not available! Available losses are {tuple(losses.keys())}"
-        elif isinstance(loss, nn.Module):
+        elif isinstance(loss, type):  # when loss is a class
             loss_fn = loss(**loss_config)
         elif callable(loss):
             loss_fn = loss
