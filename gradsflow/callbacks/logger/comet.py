@@ -37,6 +37,10 @@ class CometCallback(Callback):
         )
         self.experiment = Experiment(project_name=project_name, api_key=api_key)
 
+    def on_fit_start(self):
+        self.experiment.set_model_graph(self.model.learner)
+        self.experiment.set_code(os.path.dirname(os.path.realpath(__file__)))
+
     def on_train_epoch_start(
         self,
     ):
@@ -73,6 +77,5 @@ class CometCallback(Callback):
         val_metrics = to_item(val_metrics)
 
         data = {"epoch": epoch, "train_loss": train_loss, "val_loss": val_loss, **train_metrics, **val_metrics}
-        print(data)
         self.experiment.log_metrics(data, step=step, epoch=epoch)
         self.experiment.log_epoch_end(epoch)
