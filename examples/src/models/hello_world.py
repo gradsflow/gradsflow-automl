@@ -17,7 +17,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms as T
 
 from gradsflow import AutoDataset, Model
-from gradsflow.callbacks import CSVLogger
+from gradsflow.callbacks import CSVLogger, EmissionTrackerCallback, ModelCheckpoint
 from gradsflow.data.common import random_split_dataset
 
 # Replace dataloaders with your custom dataset and you are all set to train your model
@@ -32,7 +32,13 @@ train_data, val_data = random_split_dataset(data, 0.99)
 train_dl = DataLoader(train_data, batch_size=batch_size)
 val_dl = DataLoader(val_data, batch_size=batch_size)
 num_classes = len(data.categories)
-csv_logger = CSVLogger(verbose=True)
+cbs = [
+    CSVLogger(
+        verbose=True,
+    ),
+    ModelCheckpoint(),
+    EmissionTrackerCallback(),
+]
 
 if __name__ == "__main__":
     autodataset = AutoDataset(train_dl, val_dl, num_classes=num_classes)
@@ -41,4 +47,4 @@ if __name__ == "__main__":
     model = Model(cnn)
 
     model.compile("crossentropyloss", "adam", metrics=["accuracy"])
-    model.fit(autodataset, max_epochs=10, steps_per_epoch=10, callbacks=csv_logger)
+    model.fit(autodataset, max_epochs=10, steps_per_epoch=10, callbacks=cbs)
