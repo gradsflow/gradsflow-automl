@@ -194,4 +194,3 @@ class BaseLite(Base, LightningLite, ABC):
         self.learner = learner
         super().__init__(**accelerator_config)
         self.metrics.to(self.device)
-
