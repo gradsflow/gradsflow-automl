@@ -16,6 +16,7 @@ import timm
 import torch
 
 from gradsflow.callbacks.gpu import EmissionTrackerCallback
+from gradsflow.callbacks.logger import ModelCheckpoint
 from gradsflow.data import AutoDataset
 from gradsflow.data.image import get_fake_data
 from gradsflow.models.model import Model
@@ -53,8 +54,14 @@ def test_fit():
     autodataset2 = AutoDataset(train_data.dataloader, num_classes=num_classes)
     model.TEST = False
     emission_cb = EmissionTrackerCallback()
+    ckpt_cb = ModelCheckpoint(save_extra=False)
     tracker2 = model.fit(
-        autodataset2, max_epochs=1, steps_per_epoch=1, show_progress=False, resume=False, callbacks=emission_cb
+        autodataset2,
+        max_epochs=1,
+        steps_per_epoch=1,
+        show_progress=False,
+        resume=False,
+        callbacks=[emission_cb, ckpt_cb],
     )
     assert isinstance(tracker2, Tracker)
 

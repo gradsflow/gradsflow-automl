@@ -13,7 +13,7 @@
 #  limitations under the License.
 from .callbacks import Callback
 from .gpu import EmissionTrackerCallback
-from .logger import CSVLogger
+from .logger import CSVLogger, ModelCheckpoint
 from .raytune import report_checkpoint_callback
 from .runner import CallbackRunner
 from .training import TrainEvalCallback

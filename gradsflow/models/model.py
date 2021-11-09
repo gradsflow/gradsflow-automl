@@ -77,7 +77,7 @@ class Model(BaseLite, DataMixin):
 
     def compile(
         self,
-        loss: Union[str, nn.modules.loss._Loss] = "crossentropyloss",
+        loss: Union[str, nn.Module] = "crossentropyloss",
         optimizer: Union[str, Callable] = "adam",
         learning_rate: float = 3e-4,
         metrics: METRICS_TYPE = None,
@@ -118,7 +118,7 @@ class Model(BaseLite, DataMixin):
             optimizer = optimizer_fn(self.learner.parameters(), lr=learning_rate, **optimizer_config)
             self.optimizer = self.prepare_optimizer(optimizer)
         if loss:
-            self.loss = self._get_loss(loss)(**loss_config)
+            self.loss = self._get_loss(loss, loss_config)
         self.add_metrics(*listify(metrics))
         self._compiled = True
 

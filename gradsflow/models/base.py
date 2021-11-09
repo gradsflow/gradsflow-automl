@@ -47,11 +47,13 @@ class Base:
     def __call__(self, x):
         return self.forward(x)
 
-    def _get_loss(self, loss: Union[str, Callable]) -> Optional[Callable]:
+    def _get_loss(self, loss: Union[str, Callable], loss_config: dict) -> Optional[Callable]:
         loss_fn = None
         if isinstance(loss, str):
-            loss_fn = losses.get(loss)
+            loss_fn = losses.get(loss)(**loss_config)
             assert loss_fn is not None, f"loss {loss} is not available! Available losses are {tuple(losses.keys())}"
+        elif isinstance(loss, type):  # when loss is a class
+            loss_fn = loss(**loss_config)
         elif callable(loss):
             loss_fn = loss
 
@@ -172,6 +174,13 @@ class BaseModel(Base):
         else:
             self.accelerator.backward(loss)
 
+    def save(self, path: str, save_extra: bool = True):
+        """save model"""
+        model = self.learner
+        if save_extra:
+            model = {"model": self.learner, "tracker": self.tracker}
+        torch.save(model, path)
+
 
 class BaseLite(Base, LightningLite, ABC):
     def __init__(
@@ -185,3 +194,4 @@ class BaseLite(Base, LightningLite, ABC):
         self.learner = learner
         super().__init__(**accelerator_config)
         self.metrics.to(self.device)
+
