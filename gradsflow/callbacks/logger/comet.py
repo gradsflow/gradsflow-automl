@@ -20,10 +20,14 @@ from gradsflow.utility.imports import requires
 
 os.environ["COMET_DISABLE_AUTO_LOGGING"] = "1"
 
+CURRENT_FILE = os.path.dirname(os.path.realpath(__file__))
+
 
 class CometCallback(Callback):
     @requires("comet_ml", "pip install comet_ml to use CometCallback")
-    def __init__(self, project_name: str = "awesome-project", api_key: Optional[str] = None):
+    def __init__(
+        self, project_name: str = "awesome-project", api_key: Optional[str] = None, code_file: str = CURRENT_FILE
+    ):
         os.environ["COMET_DISABLE_AUTO_LOGGING"] = "1"
         from comet_ml import Experiment
 
@@ -35,11 +39,12 @@ class CometCallback(Callback):
         super().__init__(
             model=None,
         )
+        self._code_file = code_file
         self.experiment = Experiment(project_name=project_name, api_key=api_key)
 
     def on_fit_start(self):
         self.experiment.set_model_graph(self.model.learner)
-        self.experiment.set_code(os.path.dirname(os.path.realpath(__file__)))
+        self.experiment.set_code(self._code_file)
 
     def on_train_epoch_start(
         self,
