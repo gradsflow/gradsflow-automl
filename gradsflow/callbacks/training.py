@@ -16,6 +16,8 @@ from .callbacks import Callback
 
 
 class TrainEvalCallback(Callback):
+    _name = "TrainEvalCallback"
+
     def on_train_step_start(self):
         self.model.optimizer.zero_grad()
 

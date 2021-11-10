@@ -20,6 +20,8 @@ from .callbacks import Callback
 
 
 class ProgressCallback(Callback):
+    _name = "ProgressCallback"
+
     def __init__(self, model, progress_kwargs: Optional[Dict] = None):
         super().__init__(model)
         progress_kwargs = progress_kwargs or {}

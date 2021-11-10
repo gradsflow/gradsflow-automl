@@ -12,7 +12,8 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import typing
-from typing import Union
+from collections import OrderedDict
+from typing import Any, Dict, Union
 
 from gradsflow.callbacks.callbacks import Callback
 from gradsflow.callbacks.progress import ProgressCallback
@@ -24,7 +25,8 @@ if typing.TYPE_CHECKING:
 
 
 class CallbackRunner(Callback):
-    _AVAILABLE_CALLBACKS = {
+    _name: str = "CallbackRunner"
+    _AVAILABLE_CALLBACKS: Dict[str, Any] = {
         "training": TrainEvalCallback,
         "tune_checkpoint": TorchTuneCheckpointCallback,
         "tune_report": TorchTuneReport,
@@ -34,26 +36,20 @@ class CallbackRunner(Callback):
     def __init__(self, model: "Model", *callbacks: Union[str, Callback]):
         super().__init__(model)
         self.callbacks = []
+        self.callbacks = OrderedDict()
         for callback in callbacks:
-            try:
-                if isinstance(callback, str):
-                    callback_fn = self._AVAILABLE_CALLBACKS[callback](model)
-                    self.callbacks.append(callback_fn)
-                elif isinstance(callback, Callback):
-                    self.callbacks.append(callback)
-            except KeyError:
-                raise NotImplementedError(f"callback is not implemented {callback}")
+            self.append(callback)
 
     def append(self, callback: Union[str, Callback]):
         try:
             if isinstance(callback, str):
-                callback_fn = self._AVAILABLE_CALLBACKS[callback](self.model)
-                self.callbacks.append(callback_fn)
+                callback_fn: Callback = self._AVAILABLE_CALLBACKS[callback](self.model)
+                self.callbacks[callback_fn._name] = callback_fn
             elif isinstance(callback, Callback):
                 callback.model = self.model
-                self.callbacks.append(callback)
+                self.callbacks[callback._name] = callback
         except KeyError:
-            raise NotImplementedError
+            raise NotImplementedError(f"callback is not implemented {callback}")
 
     def available_callbacks(self):
         return list(self._AVAILABLE_CALLBACKS.keys())

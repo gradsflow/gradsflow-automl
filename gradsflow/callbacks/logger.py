@@ -23,14 +23,17 @@ from .callbacks import Callback
 
 
 class CSVLogger(Callback):
+    """
+    Saves Model training metrics as CSV
+    Args:
+        filename: filename of the csv
+        path: folder path location of the csv
+        verbose: Whether to show output
+    """
+
+    _name = "CSVLogger"
+
     def __init__(self, filename: str = "./experiment.csv", path: str = os.getcwd(), verbose: bool = False):
-        """
-        Saves Model training metrics as CSV
-        Args:
-            filename: filename of the csv
-            path: folder path location of the csv
-            verbose: Whether to show output
-        """
         super().__init__(model=None)
         self.filename = filename
         self.path = path
@@ -59,14 +62,17 @@ class CSVLogger(Callback):
 
 
 class ModelCheckpoint(Callback):
+    """
+    Saves Model checkpoint
+    Args:
+        filename: name of checkpoint
+        path: folder path location of the model checkpoint
+        save_extra: whether to save extra details like tracker
+    """
+
+    _name = "ModelCheckpoint"
+
     def __init__(self, filename: Optional[str] = None, path: str = os.getcwd(), save_extra: bool = False):
-        """
-        Saves Model checkpoint
-        Args:
-            filename: name of checkpoint
-            path: folder path location of the model checkpoint
-            save_extra: whether to save extra details like tracker
-        """
         super().__init__(model=None)
         filename = filename or "model"
         self.path = path
