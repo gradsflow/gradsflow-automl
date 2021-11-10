@@ -39,13 +39,11 @@ class Tracker(BaseTracker):
 
         raise NotImplementedError(f"mode {mode} is not implemented!")
 
-    def track(self, key, value, render=False):
-        """Tracks values for each step"""
-        if render:
-            warnings.warn("render is deprecated!")
+    def track(self, key, value):
+        """Tracks value"""
         epoch = self.current_epoch
-        step = self.current_step
-        data = {"current_epoch": epoch, "current_step": step, key: to_item(value)}
+        # step = self.current_step
+        data = {"current_epoch": epoch, key: to_item(value)}
         self.logs.append(data)
 
     def track_loss(self, loss: float, mode: str):
@@ -56,7 +54,7 @@ class Tracker(BaseTracker):
         self.track(key, loss)
 
     def track_metrics(self, metric: Dict[str, float], mode: str):
-        """Update `TrackingValues` metrics. mode can be train or val and will update logs if render is True"""
+        """Update `TrackingValues` metrics. mode can be train or val"""
         value_tracker = self.mode(mode)
         # Track values that averages with epoch
         for key, value in metric.items():
@@ -103,7 +101,7 @@ class Tracker(BaseTracker):
     def reset(self):
         self.max_epochs = 0
         self.current_epoch = 0
-        self.current_step = 0  # deprecated
+        # self.current_step = 0  # deprecated
         self.steps_per_epoch = None
         self.train = TrackingValues()
         self.val = TrackingValues()
