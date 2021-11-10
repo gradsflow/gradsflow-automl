@@ -15,7 +15,7 @@ import os
 from pathlib import Path
 
 from gradsflow import AutoDataset
-from gradsflow.callbacks.logger import CSVLogger
+from gradsflow.callbacks.logger import CometCallback, CSVLogger
 from gradsflow.data.image import image_dataset_from_directory
 from tests.dummies import DummyModel
 
@@ -31,3 +31,11 @@ def test_csv_logger():
     model.compile()
     model.fit(autodata, callbacks=csv_logger)
     assert os.path.isfile("test_csv_logger.csv")
+
+
+def test_logger():
+    comet = CometCallback()
+    autodata = AutoDataset(train_dataloader=data.dataloader)
+    model = DummyModel()
+    model.compile()
+    model.fit(autodata, callbacks=[comet])
