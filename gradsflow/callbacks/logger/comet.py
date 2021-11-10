@@ -87,7 +87,6 @@ class CometCallback(Callback):
         self._step(*args, **kwargs, prefix=self._val_prefix)
 
     def on_epoch_end(self):
-        step = self.model.tracker.train.steps
         epoch = self.model.tracker.current_epoch
         train_loss = self.model.tracker.train_loss
         train_metrics = self.model.tracker.train_metrics
@@ -95,10 +94,10 @@ class CometCallback(Callback):
         val_metrics = self.model.tracker.val_metrics
 
         self.experiment.train()
-        self.experiment.log_metric("train_epoch_loss", train_loss, step=step, epoch=epoch)
-        self.experiment.log_metrics(train_metrics, step=step, epoch=epoch, prefix=self._train_prefix)
+        self.experiment.log_metric("train_epoch_loss", train_loss, epoch=epoch)
+        self.experiment.log_metrics(train_metrics, epoch=epoch, prefix=self._train_prefix)
 
         self.experiment.validate()
-        self.experiment.log_metric("val_epoch_loss", val_loss, step=step, epoch=epoch)
-        self.experiment.log_metrics(val_metrics, step=step, epoch=epoch, prefix=self._val_prefix)
+        self.experiment.log_metric("val_epoch_loss", val_loss, epoch=epoch)
+        self.experiment.log_metrics(val_metrics, epoch=epoch, prefix=self._val_prefix)
         self.experiment.log_epoch_end(epoch)
