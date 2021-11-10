@@ -72,16 +72,18 @@ class CometCallback(Callback):
         self.experiment.validate()
 
     def on_train_step_end(self, *args, **kwargs):
+        step = self.model.tracker.current_step
         outputs = kwargs["outputs"]
         loss = outputs["loss"].item()
-        self.experiment.log_metrics(outputs.get("metrics", {}))
-        self.experiment.log_metric("train_step_loss", loss)
+        self.experiment.log_metrics(outputs.get("metrics", {}), step=step)
+        self.experiment.log_metric("step_loss", loss, step=step)
 
     def on_val_step_end(self, *args, **kwargs):
+        step = self.model.tracker.current_step
         outputs = kwargs["outputs"]
         loss = outputs["loss"].item()
-        self.experiment.log_metrics(outputs.get("metrics", {}))
-        self.experiment.log_metric("val_step_loss", loss)
+        self.experiment.log_metrics(outputs.get("metrics", {}), step=step)
+        self.experiment.log_metric("step_loss", loss, step=step)
 
     def on_epoch_end(self):
         step = self.model.tracker.current_step
