@@ -40,7 +40,8 @@ Documentation = "https://docs.gradsflow.com"
 
 [tool.flit.metadata.requires-extra]
 dev = [
-    "codecarbon>=1.2.0"
+    "codecarbon>=1.2.0",
+    "comet_ml",
 ]
 test = [
     "pytest",
