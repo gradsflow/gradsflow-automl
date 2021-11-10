@@ -35,6 +35,8 @@ def report_checkpoint_callback(metrics: Optional[dict] = None, filename: Optiona
 
 
 class TorchTuneCheckpointCallback(Callback):
+    _name = "TorchTuneCheckpointCallback"
+
     def on_epoch_end(self):
         epoch = self.model.tracker.current_epoch
         model = self.model.learner
@@ -45,6 +47,8 @@ class TorchTuneCheckpointCallback(Callback):
 
 
 class TorchTuneReport(Callback):
+    _name = "TorchTuneReport"
+
     def on_epoch_end(self):
         val_loss = self.model.tracker.val_loss
         train_loss = self.model.tracker.train_loss

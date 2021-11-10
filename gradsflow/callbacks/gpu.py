@@ -28,6 +28,8 @@ class EmissionTrackerCallback(Callback):
         **kwargs: passed directly to codecarbon class.
     """
 
+    _name = "EmissionTrackerCallback"
+
     @requires("codecarbon", "install codecarbon to use EmissionTrackerCallback")
     def __init__(self, offline: bool = False, **kwargs):
         from codecarbon import EmissionsTracker, OfflineEmissionsTracker

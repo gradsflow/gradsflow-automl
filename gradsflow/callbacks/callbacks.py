@@ -27,6 +27,7 @@ class Callback(ABC):
     """Callback objects define events on which it will run during the model training cycle."""
 
     _events = ("forward", "step", "train_epoch", "val_epoch", "epoch", "fit")
+    _name: str = "Callback"
 
     def __init__(self, model: Optional["Model"]):
         self.model = model
