@@ -13,6 +13,7 @@
 #  limitations under the License.
 
 from gradsflow.callbacks import Callback
+from gradsflow.utility.imports import requires
 
 
 class EmissionTrackerCallback(Callback):
@@ -27,6 +28,7 @@ class EmissionTrackerCallback(Callback):
         **kwargs: passed directly to codecarbon class.
     """
 
+    @requires("codecarbon", "install codecarbon to use EmissionTrackerCallback")
     def __init__(self, offline: bool = False, **kwargs):
         from codecarbon import EmissionsTracker, OfflineEmissionsTracker
 

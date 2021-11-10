@@ -11,9 +11,24 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-from .callbacks import Callback
-from .gpu import EmissionTrackerCallback
-from .logger import CSVLogger, ModelCheckpoint
-from .raytune import report_checkpoint_callback
-from .runner import CallbackRunner
-from .training import TrainEvalCallback
+import functools
+import importlib
+from typing import Optional
+
+
+def is_installed(module_name: str) -> bool:
+    return importlib.util.find_spec(module_name) is not None
+
+
+def requires(package_name: str, err_msg: Optional[str] = None):
+    def inner_fn(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            msg = err_msg or f"{package_name} Module must be installed to use!"
+            if not is_installed(package_name):
+                raise ModuleNotFoundError(msg)
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return inner_fn
