@@ -18,6 +18,15 @@ from .callbacks import Callback
 class TrainEvalCallback(Callback):
     _name = "TrainEvalCallback"
 
+    def _metric_update(self, mode: str, **kwargs):
+        # ----- METRIC UPDATES -----
+        tracker = self.model.tracker
+        outputs = kwargs["outputs"]
+        loss = outputs["loss"].item()
+        tracker.val.step_loss = loss
+        tracker.track_loss(loss, mode=mode)
+        tracker.track_metrics(outputs.get("metrics", {}), mode=mode)
+
     def on_train_step_start(self):
         self.model.optimizer.zero_grad()
 
@@ -28,21 +37,10 @@ class TrainEvalCallback(Callback):
             self.model.backward(outputs["loss"])
             self.model.optimizer.step()
 
-        # ----- METRIC UPDATES -----
-        tracker = self.model.tracker
-        loss = outputs["loss"].item()
-        tracker.val.step_loss = loss
-        tracker.track_loss(loss, mode="train")
-        tracker.track_metrics(outputs.get("metrics", {}), mode="train")
+        self._metric_update(mode="train", **kwargs)
 
     def on_val_step_end(self, *args, **kwargs):
-        # ----- METRIC UPDATES -----
-        tracker = self.model.tracker
-        outputs = kwargs["outputs"]
-        loss = outputs["loss"].item()
-        tracker.val.step_loss = loss
-        tracker.track_loss(loss, mode="val")
-        tracker.track_metrics(outputs.get("metrics", {}), mode="val")
+        self._metric_update(mode="val", **kwargs)
 
     def on_train_epoch_start(self):
         self.model.train()
@@ -53,3 +51,7 @@ class TrainEvalCallback(Callback):
         self.model.eval()
         self.model.metrics.reset()
         self.model.tracker.val.reset_metrics()
+
+    def on_epoch_end(self):
+        for scheduler in self.model.schedulers:
+            scheduler.step()

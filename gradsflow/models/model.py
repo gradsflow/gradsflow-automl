@@ -52,7 +52,6 @@ class Model(BaseModel, DataMixin):
     """
 
     TEST = os.environ.get("GF_CI", "false").lower() == "true"
-    _OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
 
     def __init__(
         self,
@@ -82,10 +81,12 @@ class Model(BaseModel, DataMixin):
         self,
         loss: Union[str, nn.Module] = "crossentropyloss",
         optimizer: Union[str, Callable] = "adam",
+        schedulers: Union[str, Callable] = None,
         learning_rate: float = 3e-4,
         metrics: METRICS_TYPE = None,
         loss_config: Optional[dict] = None,
         optimizer_config: Optional[dict] = None,
+        scheduler_config: Optional[List[Dict]] = None,
     ) -> None:
         """
         Compile loss function, optimizer and metrics
@@ -108,20 +109,27 @@ class Model(BaseModel, DataMixin):
         Args:
             loss: name of loss, torch Loss class object or any functional method. See `available_losses()`
             optimizer: optimizer name or `torch.optim.Optimizer` Class
+            schedulers: Pytorch scheduler name with config or object.
             learning_rate: defaults to 1e-3
             metrics: list of metrics to calculate. See `available_metrics()`
             loss_config: Dict config if any to pass to loss function
             optimizer_config: Dict config if any to pass to Optimizer
+            scheduler_config: list of dictionary configs. It should be equal to number of schedulers.
         """
         loss_config = loss_config or {}
         optimizer_config = optimizer_config or {}
+        schedulers = listify(schedulers)
+        scheduler_config = [scheduler_config] if isinstance(scheduler_config, dict) else listify(scheduler_config)
 
         if optimizer:
-            optimizer_fn = self._get_optimizer(optimizer)
+            optimizer_fn = self._build_optimizer(optimizer)
             optimizer = optimizer_fn(self.learner.parameters(), lr=learning_rate, **optimizer_config)
             self.optimizer = self.prepare_optimizer(optimizer)
+
+        if schedulers:
+            self.schedulers = self._build_schedulers(schedulers, self.optimizer, scheduler_config)
         if loss:
-            self.loss = self._get_loss(loss, loss_config)
+            self.loss = self._build_loss(loss, loss_config)
         self.add_metrics(*listify(metrics))
         self._compiled = True
 

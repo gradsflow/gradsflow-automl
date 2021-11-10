@@ -27,6 +27,8 @@ from gradsflow.utility.common import default_device, module_to_cls_index
 
 _OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
 
+_SCHEDULER_INDEX = module_to_cls_index(torch.optim.lr_scheduler, True)
+
 
 @dataclass(init=False)
 class Base:
@@ -41,11 +43,12 @@ class Base:
         self.tracker = Tracker()
         self.device = None
         self.metrics: MetricCollection = MetricCollection([])
+        self.schedulers: List[torch.optim.lr_scheduler._LRScheduler] = []
 
     def __call__(self, x):
         return self.forward(x)
 
-    def _get_loss(self, loss: Union[str, Callable], loss_config: dict) -> Optional[Callable]:
+    def _build_loss(self, loss: Union[str, Callable], loss_config: dict) -> Optional[Callable]:
         loss_fn = None
         if isinstance(loss, str):
             loss_fn = losses.get(loss)(**loss_config)
@@ -57,19 +60,33 @@ class Base:
 
         return loss_fn
 
-    def _get_optimizer(self, optimizer: Union[str, torch.optim.Optimizer]) -> Callable:
+    def _build_optimizer(self, optimizer: Union[str, torch.optim.Optimizer]) -> Callable:
         if isinstance(optimizer, str):
             optimizer_fn = _OPTIMIZER_INDEX.get(optimizer)
             assert (
                 optimizer_fn
             ), f"optimizer {optimizer} is not available! Available optimizers are {tuple(_OPTIMIZER_INDEX.keys())}"
 
-        elif callable(optimizer):
+        elif isinstance(optimizer, type):  # is a class name
             assert optimizer in tuple(_OPTIMIZER_INDEX.values()), f"Unknown Optimizer {type(optimizer)}"
             optimizer_fn = optimizer
         else:
             raise NotImplementedError(f"Unknown optimizer {optimizer}")
         return optimizer_fn
+
+    def _build_schedulers(self, schedulers, optimizer, scheduler_config) -> List:
+        final_schedulers = []
+        for i, scheduler in enumerate(schedulers):
+            if isinstance(scheduler, str):
+                scheduler_fn = _SCHEDULER_INDEX.get(scheduler)(optimizer=optimizer, **scheduler_config[i])
+            elif isinstance(scheduler, type):
+                scheduler_fn = scheduler(optimizer=optimizer, **scheduler_config[i])
+            elif isinstance(scheduler, torch.optim.lr_scheduler._LRScheduler):
+                scheduler_fn = scheduler
+            else:
+                raise NotImplementedError(f"scheduler of type {type(scheduler)} is not implemented!")
+            final_schedulers.append(scheduler_fn)
+        return final_schedulers
 
     def assert_compiled(self):
         if not self._compiled:

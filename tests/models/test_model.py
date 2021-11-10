@@ -80,7 +80,7 @@ def test_compile():
     model1.compile("crossentropyloss", "adam", metrics="accuracy")
 
     model2 = Model(cnn)
-    model2.compile("crossentropyloss", torch.optim.Adam)
+    model2.compile("crossentropyloss", torch.optim.Adam, schedulers="exponentiallr", scheduler_config={"gamma": 0.9})
     model2.compile(torch.nn.CrossEntropyLoss, torch.optim.Adam, learning_rate=0.01)
     assert model2.optimizer.param_groups[0]["lr"] == 0.01
 

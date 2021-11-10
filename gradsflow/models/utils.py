@@ -17,6 +17,7 @@ import numpy as np
 import torch
 import torchmetrics
 from torch import nn
+from torch.optim.optimizer import Optimizer
 from torchmetrics import Metric
 
 from gradsflow.utility.common import module_to_cls_index
