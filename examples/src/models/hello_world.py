@@ -45,7 +45,7 @@ cbs = [
     ),
     ModelCheckpoint(),
     EmissionTrackerCallback(),
-    CometCallback(),
+    CometCallback(offline=True),
 ]
 
 if __name__ == "__main__":

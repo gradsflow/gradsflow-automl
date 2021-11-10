@@ -14,6 +14,8 @@
 import os
 from pathlib import Path
 
+import pytest
+
 from gradsflow import AutoDataset
 from gradsflow.callbacks.logger import CometCallback, CSVLogger
 from gradsflow.data.image import image_dataset_from_directory
@@ -34,7 +36,10 @@ def test_csv_logger():
 
 
 def test_logger():
-    comet = CometCallback()
+    with pytest.raises(ValueError):
+        CometCallback()
+
+    comet = CometCallback(offline=True)
     autodata = AutoDataset(train_dataloader=data.dataloader)
     model = DummyModel()
     model.compile()

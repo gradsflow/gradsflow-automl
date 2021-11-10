@@ -14,6 +14,8 @@
 import os
 from typing import Optional
 
+from comet_ml import BaseExperiment
+
 from gradsflow.callbacks import Callback
 from gradsflow.utility.imports import requires
 
@@ -26,22 +28,34 @@ class CometCallback(Callback):
     Args:
         project_name: Name of the Project
         api_key: project API key
+        offline: log experiment offline
     """
 
-    @requires("comet_ml", "CometCallback requires comet_ml to be installed!")
     def __init__(
         self,
         project_name: str = "awesome-project",
         api_key: Optional[str] = os.environ.get("COMET_API_KEY"),
         code_file: str = CURRENT_FILE,
+        offline: bool = False,
+        **kwargs
     ):
-        from comet_ml import Experiment
-
         super().__init__(
             model=None,
         )
         self._code_file = code_file
-        self.experiment = Experiment(project_name=project_name, api_key=api_key)
+        self.experiment = self._create_experiment(project_name=project_name, api_key=api_key, offline=offline, **kwargs)
+
+    @requires("comet_ml", "CometCallback requires comet_ml to be installed!")
+    def _create_experiment(
+        self, project_name: str, offline: bool = False, api_key: Optional[str] = None, **kwargs
+    ) -> BaseExperiment:
+        from comet_ml import Experiment, OfflineExperiment
+
+        if offline:
+            experiment = OfflineExperiment(project_name=project_name, **kwargs)
+        else:
+            experiment = Experiment(project_name=project_name, api_key=api_key, **kwargs)
+        return experiment
 
     def on_fit_start(self):
         self.experiment.set_model_graph(self.model.learner)
