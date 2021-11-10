@@ -25,7 +25,7 @@ CURRENT_FILE = os.path.dirname(os.path.realpath(__file__))
 
 class CometCallback(Callback):
     """
-    [Comet](https://www.comet.ml/) Logging callback
+    [Comet](https://www.comet.ml/) Logging callback. To use this callback `pip install comet-ml`.
     Args:
         project_name: Name of the Project
         api_key: project API key
@@ -35,7 +35,7 @@ class CometCallback(Callback):
     def __init__(
         self,
         project_name: str = "awesome-project",
-        api_key: Optional[str] = None,
+        api_key: Optional[str] = os.environ.get("COMET_API_KEY"),
         code_file: str = CURRENT_FILE,
     ):
         from comet_ml import Experiment
