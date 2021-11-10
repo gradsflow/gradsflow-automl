@@ -17,6 +17,7 @@
 from os import environ as _environ
 
 _environ["LOGURU_LEVEL"] = _environ.get("LOGURU_LEVEL") or _environ.get("LOG_LEVEL", "ERROR")
+_environ["COMET_DISABLE_AUTO_LOGGING"] = "1"
 
 from gradsflow.core.automodel import AutoModel
 from gradsflow.data import AutoDataset

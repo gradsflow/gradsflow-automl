@@ -11,13 +11,20 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+import os
+
 import torchvision
 from timm import create_model
 from torch.utils.data import DataLoader
 from torchvision import transforms as T
 
 from gradsflow import AutoDataset, Model
-from gradsflow.callbacks import CSVLogger, EmissionTrackerCallback, ModelCheckpoint
+from gradsflow.callbacks import (
+    CometCallback,
+    CSVLogger,
+    EmissionTrackerCallback,
+    ModelCheckpoint,
+)
 from gradsflow.data.common import random_split_dataset
 
 # Replace dataloaders with your custom dataset and you are all set to train your model
@@ -38,6 +45,7 @@ cbs = [
     ),
     ModelCheckpoint(),
     EmissionTrackerCallback(),
+    CometCallback(offline=True),
 ]
 
 if __name__ == "__main__":

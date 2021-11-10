@@ -87,6 +87,9 @@ class AverageMeter:
     def __init__(self, name=None):
         self.name = name
         self.computed = False
+        self.val = None
+        self.sum = None
+        self.count = None
         self.reset()
 
     def reset(self):
@@ -96,8 +99,9 @@ class AverageMeter:
         self.count = 0
 
     def update(self, val, n=1):
+        """Updates the average meter value with new data. It also converts `torch.Tensor` to primitive datatype."""
         self.computed = True
-        self.val = val
+        self.val = to_item(val)
         self.sum += val * n
         self.count += n
         self.avg = self.sum / self.count
