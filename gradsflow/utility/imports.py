@@ -27,8 +27,7 @@ def requires(package_name: str, err_msg: Optional[str] = None):
             msg = err_msg or f"{package_name} Module must be installed to use!"
             if not is_installed(package_name):
                 raise ModuleNotFoundError(msg)
-            else:
-                return func(*args, **kwargs)
+            return func(*args, **kwargs)
 
         return wrapper
 
