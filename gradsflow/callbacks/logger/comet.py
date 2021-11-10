@@ -37,13 +37,15 @@ class CometCallback(Callback):
         api_key: Optional[str] = os.environ.get("COMET_API_KEY"),
         code_file: str = CURRENT_FILE,
         offline: bool = False,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(
             model=None,
         )
         self._code_file = code_file
         self.experiment = self._create_experiment(project_name=project_name, api_key=api_key, offline=offline, **kwargs)
+        self._train_prefix = "train"
+        self._val_prefix = "val"
 
     @requires("comet_ml", "CometCallback requires comet_ml to be installed!")
     def _create_experiment(
@@ -59,7 +61,7 @@ class CometCallback(Callback):
 
     def on_fit_start(self):
         self.experiment.set_model_graph(self.model.learner)
-        self.experiment.set_code(self._code_file)
+        self.experiment.log_code(self._code_file)
 
     def on_train_epoch_start(
         self,
@@ -71,21 +73,21 @@ class CometCallback(Callback):
     ):
         self.experiment.validate()
 
-    def _step(self, *args, **kwargs):
-        step = self.model.tracker.current_step
+    def _step(self, prefix: str, *args, **kwargs):
+        step = self.model.tracker.mode(prefix).steps
         outputs = kwargs["outputs"]
         loss = outputs["loss"].item()
-        self.experiment.log_metrics(outputs.get("metrics", {}), step=step)
-        self.experiment.log_metric("step_loss", loss, step=step)
+        self.experiment.log_metrics(outputs.get("metrics", {}), step=step, prefix=prefix)
+        self.experiment.log_metric(f"{prefix}_step_loss", loss, step=step)
 
     def on_train_step_end(self, *args, **kwargs):
-        self._step(*args, **kwargs)
+        self._step(*args, **kwargs, prefix=self._train_prefix)
 
     def on_val_step_end(self, *args, **kwargs):
-        self._step(*args, **kwargs)
+        self._step(*args, **kwargs, prefix=self._val_prefix)
 
     def on_epoch_end(self):
-        step = self.model.tracker.current_step
+        step = self.model.tracker.train.steps
         epoch = self.model.tracker.current_epoch
         train_loss = self.model.tracker.train_loss
         train_metrics = self.model.tracker.train_metrics
@@ -93,10 +95,10 @@ class CometCallback(Callback):
         val_metrics = self.model.tracker.val_metrics
 
         self.experiment.train()
-        self.experiment.log_metric("epoch_loss", train_loss, step=step, epoch=epoch)
-        self.experiment.log_metrics(train_metrics, step=step, epoch=epoch)
+        self.experiment.log_metric("train_epoch_loss", train_loss, step=step, epoch=epoch)
+        self.experiment.log_metrics(train_metrics, step=step, epoch=epoch, prefix=self._train_prefix)
 
         self.experiment.validate()
-        self.experiment.log_metric("epoch_loss", val_loss, step=step, epoch=epoch)
-        self.experiment.log_metrics(val_metrics, step=step, epoch=epoch)
+        self.experiment.log_metric("val_epoch_loss", val_loss, step=step, epoch=epoch)
+        self.experiment.log_metrics(val_metrics, step=step, epoch=epoch, prefix=self._val_prefix)
         self.experiment.log_epoch_end(epoch)

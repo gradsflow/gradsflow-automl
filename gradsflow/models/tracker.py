@@ -103,7 +103,7 @@ class Tracker(BaseTracker):
     def reset(self):
         self.max_epochs = 0
         self.current_epoch = 0
-        self.current_step = 0
+        self.current_step = 0  # deprecated
         self.steps_per_epoch = None
         self.train = TrackingValues()
         self.val = TrackingValues()
