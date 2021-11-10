@@ -15,6 +15,7 @@ from .callbacks import Callback
 from .export import ModelCheckpoint
 from .gpu import EmissionTrackerCallback
 from .logger import CometCallback, CSVLogger
+from .progress import ProgressCallback
 from .raytune import report_checkpoint_callback
 from .runner import CallbackRunner
 from .training import TrainEvalCallback

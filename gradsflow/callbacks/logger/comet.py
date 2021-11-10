@@ -24,18 +24,22 @@ CURRENT_FILE = os.path.dirname(os.path.realpath(__file__))
 
 
 class CometCallback(Callback):
-    @requires("comet_ml", "pip install comet_ml to use CometCallback")
+    """
+    [Comet](https://www.comet.ml/) Logging callback
+    Args:
+        project_name: Name of the Project
+        api_key: project API key
+    """
+
+    @requires("comet_ml", "CometCallback requires comet_ml to be installed!")
     def __init__(
-        self, project_name: str = "awesome-project", api_key: Optional[str] = None, code_file: str = CURRENT_FILE
+        self,
+        project_name: str = "awesome-project",
+        api_key: Optional[str] = None,
+        code_file: str = CURRENT_FILE,
     ):
-        os.environ["COMET_DISABLE_AUTO_LOGGING"] = "1"
         from comet_ml import Experiment
 
-        """
-        Saves Model training metrics as CSV
-        Args:
-            project_name: Name of the Project
-        """
         super().__init__(
             model=None,
         )

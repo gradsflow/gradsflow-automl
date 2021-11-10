@@ -15,8 +15,7 @@ import pytest
 import timm
 import torch
 
-from gradsflow.callbacks.gpu import EmissionTrackerCallback
-from gradsflow.callbacks.logger import ModelCheckpoint
+from gradsflow.callbacks import EmissionTrackerCallback, ModelCheckpoint
 from gradsflow.data import AutoDataset
 from gradsflow.data.image import get_fake_data
 from gradsflow.models.model import Model

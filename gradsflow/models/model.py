@@ -19,9 +19,12 @@ from loguru import logger
 from torch import nn
 from torchmetrics import Metric
 
-from gradsflow.callbacks import Callback, CallbackRunner
-from gradsflow.callbacks.progress import ProgressCallback
-from gradsflow.callbacks.training import TrainEvalCallback
+from gradsflow.callbacks import (
+    Callback,
+    CallbackRunner,
+    ProgressCallback,
+    TrainEvalCallback,
+)
 from gradsflow.data import AutoDataset
 from gradsflow.data.mixins import DataMixin
 from gradsflow.models.base import BaseModel
@@ -148,7 +151,7 @@ class Model(BaseModel, DataMixin):
             # ----- TRAIN STEP -----
             self.callback_runner.on_train_step_start()
             outputs = self.train_step(batch)
-            self.callback_runner.on_train_step_end(outputs=outputs)
+            self.callback_runner.on_train_step_end(data=batch, outputs=outputs)
             if self.TEST:
                 break
             if steps_per_epoch and step >= steps_per_epoch:
@@ -161,7 +164,7 @@ class Model(BaseModel, DataMixin):
             # ----- VAL STEP -----
             self.callback_runner.on_val_step_start()
             outputs = self.val_step(batch)
-            self.callback_runner.on_val_step_end(outputs=outputs)
+            self.callback_runner.on_val_step_end(data=batch, outputs=outputs)
             if self.TEST:
                 break
 
