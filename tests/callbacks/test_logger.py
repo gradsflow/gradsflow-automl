@@ -28,7 +28,7 @@ data = image_dataset_from_directory(folder, transform=True, ray_data=False)
 
 def test_csv_logger():
     csv_logger = CSVLogger(filename="test_csv_logger.csv")
-    autodata = AutoDataset(train_dataloader=data.dataloader)
+    autodata = AutoDataset(train_dataloader=data.dataloader, val_dataloader=data.dataloader)
     model = DummyModel()
     model.compile()
     model.fit(autodata, callbacks=csv_logger)
@@ -40,7 +40,7 @@ def test_logger():
         CometCallback()
 
     comet = CometCallback(offline=True)
-    autodata = AutoDataset(train_dataloader=data.dataloader)
+    autodata = AutoDataset(train_dataloader=data.dataloader, val_dataloader=data.dataloader)
     model = DummyModel()
     model.compile()
     model.fit(autodata, callbacks=[comet])
