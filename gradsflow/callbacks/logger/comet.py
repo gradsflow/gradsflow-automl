@@ -15,10 +15,7 @@ import os
 from typing import Optional
 
 from gradsflow.callbacks import Callback
-from gradsflow.utility.common import to_item
 from gradsflow.utility.imports import requires
-
-os.environ["COMET_DISABLE_AUTO_LOGGING"] = "1"
 
 CURRENT_FILE = os.path.dirname(os.path.realpath(__file__))
 
@@ -73,18 +70,18 @@ class CometCallback(Callback):
         self.experiment.log_metric("val_step_loss", loss)
 
     def on_epoch_end(self):
-        # TODO: cache this
         step = self.model.tracker.current_step
         epoch = self.model.tracker.current_epoch
         train_loss = self.model.tracker.train_loss
-        val_loss = self.model.tracker.val_loss
         train_metrics = self.model.tracker.train_metrics
+        val_loss = self.model.tracker.val_loss
         val_metrics = self.model.tracker.val_metrics
-        train_metrics = {"train/" + k: v.avg for k, v in train_metrics.items()}
-        val_metrics = {"val/" + k: v.avg for k, v in val_metrics.items()}
-        train_metrics = to_item(train_metrics)
-        val_metrics = to_item(val_metrics)
 
-        data = {"epoch": epoch, "train_loss": train_loss, "val_loss": val_loss, **train_metrics, **val_metrics}
-        self.experiment.log_metrics(data, step=step, epoch=epoch)
+        self.experiment.train()
+        self.experiment.log_metric("epoch_loss", train_loss, step=step, epoch=epoch)
+        self.experiment.log_metrics(train_metrics, step=step, epoch=epoch)
+
+        self.experiment.validate()
+        self.experiment.log_metric("epoch_loss", val_loss, step=step, epoch=epoch)
+        self.experiment.log_metrics(val_metrics, step=step, epoch=epoch)
         self.experiment.log_epoch_end(epoch)

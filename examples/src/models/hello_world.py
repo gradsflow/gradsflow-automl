@@ -45,7 +45,7 @@ cbs = [
     ),
     ModelCheckpoint(),
     EmissionTrackerCallback(),
-    CometCallback(api_key=os.environ.get("COMET_API_KEY")),
+    CometCallback(),
 ]
 
 if __name__ == "__main__":
