@@ -30,9 +30,10 @@ from gradsflow.data.mixins import DataMixin
 from gradsflow.models.base import BaseModel
 from gradsflow.models.exceptions import EpochCancel, FitCancel
 from gradsflow.models.tracker import Tracker
-from gradsflow.utility.common import listify, module_to_cls_index
+from gradsflow.utility.common import listify
 
-METRICS_TYPE = Union[str, Metric, List[Union[str, Metric]], None]
+_METRICS_TYPE = Union[str, Metric, List[Union[str, Metric]], None]
+_SCHEDULER_TYPE = Union[str, List[str], Callable, List[Callable]]
 
 
 class Model(BaseModel, DataMixin):
@@ -81,9 +82,9 @@ class Model(BaseModel, DataMixin):
         self,
         loss: Union[str, nn.Module] = "crossentropyloss",
         optimizer: Union[str, Callable] = "adam",
-        schedulers: Union[str, Callable] = None,
+        schedulers: _SCHEDULER_TYPE = None,
         learning_rate: float = 3e-4,
-        metrics: METRICS_TYPE = None,
+        metrics: _METRICS_TYPE = None,
         loss_config: Optional[dict] = None,
         optimizer_config: Optional[dict] = None,
         scheduler_config: Optional[List[Dict]] = None,
@@ -93,8 +94,15 @@ class Model(BaseModel, DataMixin):
         Example:
         ```python
         model = Model(net)
+
+        # without scheduler
         model.compile(loss="crossentropyloss", optimizer="adam", learning_rate=1e-3, metrics="accuracy")
+
+        # with scheduler
+        model.compile(loss="crossentropyloss", optimizer="adam", learning_rate=1e-3, metrics="accuracy",
+            scheduler="cosineannealinglr", scheduler_config={"T_max":10, "eta_min":0})
         ```
+
         You can also compile optimizer by passing class as argument-
         ```python
         model.compile(optimizer=torch.optim.SGD, learning_rate=1e-3, optimizer_configs = {"momentum":0.9})
@@ -105,7 +113,6 @@ class Model(BaseModel, DataMixin):
         print(available_losses())
         print(available_metrics())
         ```
-
         Args:
             loss: name of loss, torch Loss class object or any functional method. See `available_losses()`
             optimizer: optimizer name or `torch.optim.Optimizer` Class

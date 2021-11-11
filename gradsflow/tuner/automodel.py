@@ -25,7 +25,7 @@ from torch import nn
 from gradsflow.data import AutoDataset
 from gradsflow.models import Model
 from gradsflow.models.constants import LEARNER
-from gradsflow.models.model import METRICS_TYPE
+from gradsflow.models.model import _METRICS_TYPE
 from gradsflow.tuner.tuner import ComplexObject, Tuner
 
 
@@ -81,7 +81,7 @@ class AutoModelV2:
         optimizer: Union[str, Domain] = None,
         learning_rate: Union[float, Domain] = 3e-4,
         optimizer_config: Union[Dict[str, Domain], None] = None,
-        metrics: METRICS_TYPE = None,
+        metrics: _METRICS_TYPE = None,
     ) -> None:
         compile_config = locals()
         for k, v in compile_config.items():
