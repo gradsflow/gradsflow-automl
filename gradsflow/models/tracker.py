@@ -11,7 +11,6 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-import warnings
 from typing import Dict, List
 
 from rich import box
@@ -42,7 +41,6 @@ class Tracker(BaseTracker):
     def track(self, key, value):
         """Tracks value"""
         epoch = self.current_epoch
-        # step = self.current_step
         data = {"current_epoch": epoch, key: to_item(value)}
         self.logs.append(data)
 
@@ -101,7 +99,6 @@ class Tracker(BaseTracker):
     def reset(self):
         self.max_epochs = 0
         self.current_epoch = 0
-        # self.current_step = 0  # deprecated
         self.steps_per_epoch = None
         self.train = TrackingValues()
         self.val = TrackingValues()
