@@ -34,6 +34,8 @@ class CometCallback(Callback):
     def __init__(
         self,
         project_name: str = "awesome-project",
+        workspace: Optional[str] = None,
+        experiment_id: Optional[str] = None,
         api_key: Optional[str] = os.environ.get("COMET_API_KEY"),
         code_file: str = CURRENT_FILE,
         offline: bool = False,
@@ -43,20 +45,53 @@ class CometCallback(Callback):
             model=None,
         )
         self._code_file = code_file
-        self.experiment = self._create_experiment(project_name=project_name, api_key=api_key, offline=offline, **kwargs)
+        self._experiment_id = experiment_id
+        self.experiment = self._create_experiment(
+            project_name=project_name,
+            workspace=workspace,
+            api_key=api_key,
+            offline=offline,
+            experiment_id=experiment_id,
+            **kwargs,
+        )
         self._train_prefix = "train"
         self._val_prefix = "val"
 
     @requires("comet_ml", "CometCallback requires comet_ml to be installed!")
     def _create_experiment(
-        self, project_name: str, offline: bool = False, api_key: Optional[str] = None, **kwargs
+        self,
+        project_name: str,
+        workspace: str,
+        offline: bool = False,
+        api_key: Optional[str] = None,
+        experiment_id: Optional[str] = None,
+        **kwargs,
     ) -> BaseExperiment:
-        from comet_ml import Experiment, OfflineExperiment
+        from comet_ml import (
+            ExistingExperiment,
+            ExistingOfflineExperiment,
+            Experiment,
+            OfflineExperiment,
+        )
 
         if offline:
-            experiment = OfflineExperiment(project_name=project_name, **kwargs)
+            if experiment_id:
+                experiment = ExistingOfflineExperiment(
+                    project_name=project_name, workspace=workspace, previous_experiment=experiment_id, **kwargs
+                )
+            else:
+                experiment = OfflineExperiment(project_name=project_name, workspace=workspace, **kwargs)
         else:
-            experiment = Experiment(project_name=project_name, api_key=api_key, **kwargs)
+            if experiment_id:
+                experiment = ExistingExperiment(
+                    project_name=project_name,
+                    workspace=workspace,
+                    api_key=api_key,
+                    previous_experiment=experiment_id,
+                    **kwargs,
+                )
+            else:
+                experiment = Experiment(project_name=project_name, workspace=workspace, api_key=api_key, **kwargs)
         return experiment
 
     def on_fit_start(self):
