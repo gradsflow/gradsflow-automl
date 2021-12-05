@@ -28,6 +28,7 @@ classifiers = [
 requires-python = ">=3.7"
 requires = [
     "torch >=1.4",
+    "torchvision",
     "ray[default,tune] >=1.6,<1.9",
     "timm",
     "accelerate >=0.5.0",
