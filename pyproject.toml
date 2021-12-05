@@ -1,5 +1,5 @@
 [build-system]
-requires = ["flit_core >=2,<4"]
+requires = ["flit_core >=3.2,<4"]
 build-backend = "flit_core.buildapi"
 
 [tool.flit.metadata]
@@ -27,12 +27,11 @@ classifiers = [
 ]
 requires-python = ">=3.7"
 requires = [
-    "accelerate>=0.5.0",
-    "smart_open>=5.1",
-    "lightning-flash[image,text]>=0.5.1",
+    "accelerate >=0.5.0",
+    "smart_open >=5.1",
     "ray[default,tune] >=1.6,<1.9",
     "rich",
-    "loguru>=0.5"
+    "loguru >=0.5"
 ]
 
 [tool.flit.metadata.urls]
@@ -40,7 +39,8 @@ Documentation = "https://docs.gradsflow.com"
 
 [tool.flit.metadata.requires-extra]
 dev = [
-    "codecarbon>=1.2.0",
+    "lightning-flash[image,text] >=0.5.1",
+    "codecarbon >=1.2.0",
     "comet_ml",
 ]
 test = [
