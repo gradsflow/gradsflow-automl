@@ -17,7 +17,10 @@ from typing import Optional
 
 
 def is_installed(module_name: str) -> bool:
-    return importlib.util.find_spec(module_name) is not None
+    try:
+        return importlib.util.find_spec(module_name) is not None
+    except AttributeError:
+        return False
 
 
 def requires(package_name: str, err_msg: Optional[str] = None):

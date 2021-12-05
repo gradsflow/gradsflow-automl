@@ -39,7 +39,7 @@ Documentation = "https://docs.gradsflow.com"
 
 [tool.flit.metadata.requires-extra]
 dev = [
-    "lightning-flash[image,text] >=0.5.1",
+    "lightning-flash[image,text]>=0.5.1",
     "codecarbon >=1.2.0",
     "comet_ml",
 ]
