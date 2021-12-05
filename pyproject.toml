@@ -30,7 +30,7 @@ requires = [
     "accelerate>=0.5.0",
     "smart_open>=5.1",
     "lightning-flash[image,text]>=0.5.1",
-    "ray[default,tune]>=1.6",
+    "ray[default,tune] >=1.6,<1.9",
     "rich",
     "loguru>=0.5"
 ]
