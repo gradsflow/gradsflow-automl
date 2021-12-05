@@ -17,7 +17,6 @@ import math
 from enum import Enum
 from typing import Callable, Dict, Optional
 
-import pytorch_lightning as pl
 import torch
 
 from gradsflow.callbacks import report_checkpoint_callback
@@ -54,13 +53,7 @@ class AutoBackend:
         self.max_epochs = max_epochs
         self.max_steps = max_steps
 
-    def _gf_objective(
-        self,
-        search_space: Dict,
-        trainer_config: Dict,
-        gpu: Optional[float] = 0,
-    ):
-
+    def _gf_objective(self, search_space: Dict, trainer_config: Dict, **_):
         autodataset = self.autodataset
         model = self.model_builder(search_space)
         tracker = model.fit(
@@ -79,6 +72,8 @@ class AutoBackend:
         trainer_config: Dict,
         gpu: Optional[float] = 0,
     ):
+        import pytorch_lightning as pl
+
         val_check_interval = 1.0
         if self.max_steps:
             val_check_interval = max(self.max_steps - 1, 1.0)

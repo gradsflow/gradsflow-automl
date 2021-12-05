@@ -13,7 +13,6 @@
 #  limitations under the License.
 
 import torch
-from flash.text.seq2seq import SummarizationTask
 
 from gradsflow.core.autoclassifier import AutoClassifier
 
@@ -68,6 +67,8 @@ class AutoSummarization(AutoClassifier):
     ]
 
     def build_model(self, config: dict) -> torch.nn.Module:
+        from flash.text.seq2seq import SummarizationTask
+
         """Build SummarizationModel from `ray.tune` hyperparameter configs
         or via _search_space dictionary arguments
 

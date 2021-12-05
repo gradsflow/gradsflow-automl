@@ -14,9 +14,8 @@
 
 import logging
 from abc import ABC
-from typing import Optional, Union
+from typing import TYPE_CHECKING, Optional, Union
 
-import pytorch_lightning as pl
 import torch
 from ray import tune
 from torch.utils.data import DataLoader
@@ -25,6 +24,10 @@ from gradsflow.core.backend import AutoBackend
 from gradsflow.core.base import BaseAutoModel
 from gradsflow.data import AutoDataset
 from gradsflow.utility.common import module_to_cls_index
+
+pl = None
+if TYPE_CHECKING:
+    import pytorch_lightning as pl
 
 logger = logging.getLogger("core.model")
 
