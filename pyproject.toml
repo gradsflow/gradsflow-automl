@@ -46,6 +46,7 @@ dev = [
 test = [
     "pytest",
     "coverage",
+    "pytest-sugar"
 ]
 
 [tool.isort]

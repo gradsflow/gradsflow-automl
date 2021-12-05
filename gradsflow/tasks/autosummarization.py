@@ -67,8 +67,6 @@ class AutoSummarization(AutoClassifier):
     ]
 
     def build_model(self, config: dict) -> torch.nn.Module:
-        from flash.text.seq2seq import SummarizationTask
-
         """Build SummarizationModel from `ray.tune` hyperparameter configs
         or via _search_space dictionary arguments
 
@@ -80,6 +78,8 @@ class AutoSummarization(AutoClassifier):
             optimizer [str]: PyTorch Optimizers. Check `AutoImageClassification._OPTIMIZER_INDEX`
             learning_rate [float]: Learning rate for the model.
         """
+        from flash.text.seq2seq import SummarizationTask
+
         backbone = config["backbone"]
         optimizer = config["optimizer"]
         learning_rate = config["lr"]

@@ -36,7 +36,7 @@ class AutoDataset(BaseAutoDataset, DataMixin):
         val_dataloader: Optional[DataLoader] = None,
         train_dataset: Optional[Dataset] = None,
         val_dataset: Optional[Dataset] = None,
-        datamodule: Optional[pl.LightningDataModule] = None,
+        datamodule: Optional["pl.LightningDataModule"] = None,
         num_classes: Optional[int] = None,
         **kwargs
     ):
@@ -50,7 +50,7 @@ class AutoDataset(BaseAutoDataset, DataMixin):
         val_dataloader: Optional[DataLoader] = None,
         train_dataset: Optional[Dataset] = None,
         val_dataset: Optional[Dataset] = None,
-        datamodule: Optional[pl.LightningDataModule] = None,
+        datamodule: Optional["pl.LightningDataModule"] = None,
         num_classes: Optional[int] = None,
         **kwargs
     ):
