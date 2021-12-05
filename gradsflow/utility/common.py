@@ -22,13 +22,6 @@ from typing import Any, Dict, Iterable, List, Optional, Union
 
 import numpy as np
 import torch
-from smart_open import open as smart_open
-
-
-def download(path):
-    """Read any filesystem or cloud file"""
-    with smart_open(path) as fr:
-        return fr.read()
 
 
 def get_file_extension(path: str) -> str:
