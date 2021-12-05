@@ -15,4 +15,6 @@ from gradsflow.utility import download
 
 
 def test_download():
-    assert "gradsflow" in (download("README.md")).lower()
+    with open("test_download.txt", "w") as fw:
+        fw.write("Hello")
+    assert b"hello" == (download("test_download.txt")).lower()
