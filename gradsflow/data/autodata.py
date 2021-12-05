@@ -18,12 +18,13 @@ from loguru import logger
 from torch.utils.data import DataLoader, Dataset
 
 from gradsflow.core.data import BaseAutoDataset
+from gradsflow.utility.imports import is_installed
 
 from ..utility.common import default_device
 from .mixins import DataMixin
 
 pl = None
-if TYPE_CHECKING:
+if is_installed("pytorch_lightning"):
     import pytorch_lightning as pl
 
 
@@ -54,7 +55,6 @@ class AutoDataset(BaseAutoDataset, DataMixin):
         num_classes: Optional[int] = None,
         **kwargs
     ):
-        import pytorch_lightning as pl
 
         self.datamodule = datamodule
         self._train_dataloader = train_dataloader
@@ -85,7 +85,7 @@ class AutoDataset(BaseAutoDataset, DataMixin):
         if all((datamodule, train_dataloader)):
             logger.warning("Both datamodule and train_dataloader is set! Using datamodule over train_dataloader.")
 
-        if isinstance(datamodule, pl.LightningDataModule):
+        if pl is not None and isinstance(datamodule, pl.LightningDataModule):
             self.datamodule = datamodule
             self._train_dataloader = datamodule.train_dataloader()
             self._val_dataloader = datamodule.val_dataloader()
