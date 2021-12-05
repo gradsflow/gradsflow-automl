@@ -16,7 +16,6 @@ import torch
 
 from gradsflow.utility.common import (
     default_device,
-    download,
     get_file_extension,
     get_files,
     listify,
@@ -35,10 +34,6 @@ def test_get_files():
 
 def test_get_file_extension():
     assert get_file_extension("image.1.png") == "png"
-
-
-def test_download():
-    assert "gradsflow" in (download("README.md")).lower()
 
 
 def test_listify():

@@ -11,5 +11,10 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-from .common import AverageMeter, default_device, listify
-from .data import download
+from gradsflow.utility import download
+
+
+def test_download():
+    with open("test_download.txt", "w") as fw:
+        fw.write("Hello")
+    assert b"hello" == (download("test_download.txt")).lower()

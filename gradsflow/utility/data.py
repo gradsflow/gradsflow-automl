@@ -11,5 +11,11 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-from .common import AverageMeter, default_device, listify
-from .data import download
+
+from smart_open import smart_open
+
+
+def download(path):
+    """Read any filesystem or cloud file"""
+    with smart_open(path) as fr:
+        return fr.read()
