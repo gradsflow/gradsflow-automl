@@ -27,11 +27,14 @@ classifiers = [
 ]
 requires-python = ">=3.7"
 requires = [
+    "torch >=1.4",
+    "torchvision",
+    "ray[default,tune] >=1.6,<1.9",
+    "timm",
     "accelerate >=0.5.0",
     "smart_open >=5.1",
-    "ray[default,tune] >=1.6,<1.9",
     "rich",
-    "loguru >=0.5"
+    "loguru >=0.5",
 ]
 
 [tool.flit.metadata.urls]
@@ -39,7 +42,7 @@ Documentation = "https://docs.gradsflow.com"
 
 [tool.flit.metadata.requires-extra]
 dev = [
-    "lightning-flash[image,text] >=0.5.1",
+    "lightning-flash[image,text]>=0.5.1",
     "codecarbon >=1.2.0",
     "comet_ml",
 ]

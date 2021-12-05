@@ -34,7 +34,7 @@ def available_tasks() -> List[str]:
 
 
 def autotask(
-    datamodule: Optional[pl.LightningDataModule] = None,
+    datamodule: Optional["pl.LightningDataModule"] = None,
     train_dataloader: Optional[DataLoader] = None,
     val_dataloader: Optional[DataLoader] = None,
     num_classes: Optional[int] = None,

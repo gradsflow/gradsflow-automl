@@ -16,7 +16,6 @@ from typing import Optional
 
 import torch
 from ray import tune
-from ray.tune.integration.pytorch_lightning import TuneReportCheckpointCallback
 
 from .callbacks import Callback
 
@@ -27,6 +26,8 @@ _METRICS = {
 
 
 def report_checkpoint_callback(metrics: Optional[dict] = None, filename: Optional[str] = None):
+    from ray.tune.integration.pytorch_lightning import TuneReportCheckpointCallback
+
     metrics = metrics or _METRICS
     filename = filename or "filename"
     callback = TuneReportCheckpointCallback(metrics=metrics, filename=filename, on="validation_end")
