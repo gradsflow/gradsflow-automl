@@ -14,12 +14,16 @@
 
 from typing import List, Optional, Union
 
-import pytorch_lightning as pl
 from torch.utils.data import DataLoader
+
+from gradsflow.utility.imports import is_installed
 
 from .autoclassification.image import AutoImageClassifier
 from .autoclassification.text import AutoTextClassifier
 from .autosummarization import AutoSummarization
+
+if is_installed("pytorch_lightning"):
+    import pytorch_lightning as pl
 
 SUPPORTED_TASKS = {
     "image-classification": AutoImageClassifier,

@@ -12,9 +12,11 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import os
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
-from comet_ml import BaseExperiment
+BaseExperiment = None
+if TYPE_CHECKING:
+    from comet_ml import BaseExperiment
 
 from gradsflow.callbacks import Callback
 from gradsflow.utility.imports import requires
@@ -66,7 +68,7 @@ class CometCallback(Callback):
         api_key: Optional[str] = None,
         experiment_id: Optional[str] = None,
         **kwargs,
-    ) -> BaseExperiment:
+    ) -> "BaseExperiment":
         from comet_ml import (
             ExistingExperiment,
             ExistingOfflineExperiment,

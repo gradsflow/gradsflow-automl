@@ -14,7 +14,7 @@
 
 import logging
 from abc import ABC
-from typing import TYPE_CHECKING, Optional, Union
+from typing import Optional, Union
 
 import torch
 from ray import tune
@@ -29,7 +29,6 @@ from gradsflow.utility.imports import is_installed
 pl = None
 if is_installed("pytorch_lightning"):
     import pytorch_lightning as pl
-
 
 logger = logging.getLogger("core.model")
 
