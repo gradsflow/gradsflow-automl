@@ -13,7 +13,6 @@
 #  limitations under the License.
 
 import torch
-from flash.text.seq2seq import SummarizationTask
 
 from gradsflow.core.autoclassifier import AutoClassifier
 
@@ -79,6 +78,8 @@ class AutoSummarization(AutoClassifier):
             optimizer [str]: PyTorch Optimizers. Check `AutoImageClassification._OPTIMIZER_INDEX`
             learning_rate [float]: Learning rate for the model.
         """
+        from flash.text.seq2seq import SummarizationTask
+
         backbone = config["backbone"]
         optimizer = config["optimizer"]
         learning_rate = config["lr"]

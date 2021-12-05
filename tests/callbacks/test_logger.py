@@ -14,8 +14,10 @@
 import os
 from pathlib import Path
 
+import pytest
+
 from gradsflow import AutoDataset
-from gradsflow.callbacks.logger import CSVLogger
+from gradsflow.callbacks.logger import CometCallback, CSVLogger
 from gradsflow.data.image import image_dataset_from_directory
 from tests.dummies import DummyModel
 
@@ -26,8 +28,19 @@ data = image_dataset_from_directory(folder, transform=True, ray_data=False)
 
 def test_csv_logger():
     csv_logger = CSVLogger(filename="test_csv_logger.csv")
-    autodata = AutoDataset(train_dataloader=data.dataloader)
+    autodata = AutoDataset(train_dataloader=data.dataloader, val_dataloader=data.dataloader)
     model = DummyModel()
     model.compile()
     model.fit(autodata, callbacks=csv_logger)
     assert os.path.isfile("test_csv_logger.csv")
+
+
+def test_logger():
+    with pytest.raises(ValueError):
+        CometCallback()
+
+    comet = CometCallback(offline=True)
+    autodata = AutoDataset(train_dataloader=data.dataloader, val_dataloader=data.dataloader)
+    model = DummyModel()
+    model.compile()
+    model.fit(autodata, callbacks=[comet])

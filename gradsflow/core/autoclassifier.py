@@ -13,15 +13,19 @@
 #  limitations under the License.
 
 from abc import abstractmethod
-from typing import Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Dict, List, Optional, Union
 
-import pytorch_lightning as pl
 import torch
 from ray import tune
 from torch.utils.data import DataLoader
 
 from gradsflow.core.automodel import AutoModel
 from gradsflow.utility.common import listify
+from gradsflow.utility.imports import is_installed
+
+pl = None
+if is_installed("pytorch_lightning"):
+    import pytorch_lightning as pl
 
 
 class AutoClassifier(AutoModel):
@@ -31,7 +35,7 @@ class AutoClassifier(AutoModel):
 
     def __init__(
         self,
-        datamodule: Optional[pl.LightningDataModule] = None,
+        datamodule: Optional["pl.LightningDataModule"] = None,
         train_dataloader: Optional[DataLoader] = None,
         val_dataloader: Optional[DataLoader] = None,
         num_classes: Optional[int] = None,

@@ -21,7 +21,7 @@ def test_init():
         def forward(self):
             return 1
 
-    assert isinstance(CallbackRunner(DummyModel(), "training").callbacks[0], TrainEvalCallback)
+    assert isinstance(CallbackRunner(DummyModel(), "training").callbacks["TrainEvalCallback"], TrainEvalCallback)
     with pytest.raises(NotImplementedError):
         CallbackRunner(DummyModel(), "random")
 
@@ -34,9 +34,10 @@ def test_append():
     cb = CallbackRunner(DummyModel())
     with pytest.raises(NotImplementedError):
         cb.append("random")
-    cb.append("training")
+    cb.append("tune_checkpoint")
     cb.append(TrainEvalCallback(cb.model))
     assert len(cb.callbacks) == 2
 
-    for e in cb.callbacks:
-        assert isinstance(e, Callback)
+    for cb_name, cb in cb.callbacks.items():
+        assert isinstance(cb_name, str)
+        assert isinstance(cb, Callback)

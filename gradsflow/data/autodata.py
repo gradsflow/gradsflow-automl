@@ -11,9 +11,8 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-from typing import Callable, Optional
+from typing import TYPE_CHECKING, Callable, Optional
 
-import pytorch_lightning as pl
 from accelerate import Accelerator
 from loguru import logger
 from torch.utils.data import DataLoader, Dataset
@@ -22,6 +21,10 @@ from gradsflow.core.data import BaseAutoDataset
 
 from ..utility.common import default_device
 from .mixins import DataMixin
+
+pl = None
+if TYPE_CHECKING:
+    import pytorch_lightning as pl
 
 
 class AutoDataset(BaseAutoDataset, DataMixin):
@@ -33,7 +36,7 @@ class AutoDataset(BaseAutoDataset, DataMixin):
         val_dataloader: Optional[DataLoader] = None,
         train_dataset: Optional[Dataset] = None,
         val_dataset: Optional[Dataset] = None,
-        datamodule: Optional[pl.LightningDataModule] = None,
+        datamodule: Optional["pl.LightningDataModule"] = None,
         num_classes: Optional[int] = None,
         **kwargs
     ):
@@ -47,10 +50,11 @@ class AutoDataset(BaseAutoDataset, DataMixin):
         val_dataloader: Optional[DataLoader] = None,
         train_dataset: Optional[Dataset] = None,
         val_dataset: Optional[Dataset] = None,
-        datamodule: Optional[pl.LightningDataModule] = None,
+        datamodule: Optional["pl.LightningDataModule"] = None,
         num_classes: Optional[int] = None,
         **kwargs
     ):
+        import pytorch_lightning as pl
 
         self.datamodule = datamodule
         self._train_dataloader = train_dataloader

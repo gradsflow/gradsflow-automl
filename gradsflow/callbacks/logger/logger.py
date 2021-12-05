@@ -13,23 +13,27 @@
 #  limitations under the License.
 import os
 from pathlib import Path
+from typing import Optional
 
 import pandas as pd
 from loguru import logger
 
-from ..utility.common import to_item
-from .callbacks import Callback
+from gradsflow.callbacks.callbacks import Callback
+from gradsflow.utility.common import to_item
 
 
 class CSVLogger(Callback):
+    """
+    Saves Model training metrics as CSV
+    Args:
+        filename: filename of the csv
+        path: folder path location of the csv
+        verbose: Whether to show output
+    """
+
+    _name = "CSVLogger"
+
     def __init__(self, filename: str = "./experiment.csv", path: str = os.getcwd(), verbose: bool = False):
-        """
-        Saves Model training metrics as CSV
-        Args:
-            filename: filename of the csv
-            path: folder path location of the csv
-            verbose: Whether to show output
-        """
         super().__init__(model=None)
         self.filename = filename
         self.path = path
@@ -55,3 +59,27 @@ class CSVLogger(Callback):
         self._logs.append(data)
         df = pd.DataFrame(self._logs)
         df.to_csv(self._dst, index=False)
+
+
+class ModelCheckpoint(Callback):
+    """
+    Saves Model checkpoint
+    Args:
+        filename: name of checkpoint
+        path: folder path location of the model checkpoint
+        save_extra: whether to save extra details like tracker
+    """
+
+    _name = "ModelCheckpoint"
+
+    def __init__(self, filename: Optional[str] = None, path: str = os.getcwd(), save_extra: bool = False):
+        super().__init__(model=None)
+        filename = filename or "model"
+        self.path = path
+        self._dst = Path(path) / Path(filename)
+        self.save_extra = save_extra
+
+    def on_epoch_end(self):
+        epoch = self.model.tracker.current_epoch
+        path = f"{self._dst}_epoch={epoch}_.pt"
+        self.model.save(path, save_extra=self.save_extra)

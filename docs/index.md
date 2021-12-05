@@ -19,12 +19,11 @@
 
 
 ## Highlights
-
-- 2021-8-25: [Released first version 0.0.1](https://pypi.org/project/gradsflow/) ✨ :tada:
-- 2021-8-29: Migrated to Ray Tune
-- 2021-10-4: Model Trainer support
-- 2021-10-5: [Hacktoberfest 2021 Kickoff event](https://youtu.be/lVtxXyCAZ-4?t=2647)
 - 2021-10-7: [v0.0.6 Release blog post](https://towardsdatascience.com/gradsflow-democratizing-ai-with-automl-9a8a75d6b7ea)
+- 2021-10-5: [Hacktoberfest 2021 Kickoff event](https://youtu.be/lVtxXyCAZ-4?t=2647)
+- 2021-10-4: Model Trainer support
+- 2021-8-29: Migrated to Ray Tune
+- 2021-8-25: [Released first version 0.0.1](https://pypi.org/project/gradsflow/) ✨ :tada:
 
 ## Installation
 
