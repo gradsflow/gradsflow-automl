@@ -31,7 +31,8 @@ requires = [
     "smart_open >=5.1",
     "ray[default,tune] >=1.6,<1.9",
     "rich",
-    "loguru >=0.5"
+    "loguru >=0.5",
+    "timm",
 ]
 
 [tool.flit.metadata.urls]
