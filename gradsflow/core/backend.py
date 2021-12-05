@@ -17,12 +17,16 @@ import math
 from enum import Enum
 from typing import Callable, Dict, Optional
 
-import pytorch_lightning as pl
 import torch
 
 from gradsflow.callbacks import report_checkpoint_callback
 from gradsflow.data import AutoDataset
 from gradsflow.utility.common import module_to_cls_index
+from gradsflow.utility.imports import is_installed
+
+pl = None
+if is_installed("pytorch_lightning"):
+    import pytorch_lightning as pl
 
 logger = logging.getLogger("core.backend")
 
@@ -54,13 +58,7 @@ class AutoBackend:
         self.max_epochs = max_epochs
         self.max_steps = max_steps
 
-    def _gf_objective(
-        self,
-        search_space: Dict,
-        trainer_config: Dict,
-        gpu: Optional[float] = 0,
-    ):
-
+    def _gf_objective(self, search_space: Dict, trainer_config: Dict, **_):
         autodataset = self.autodataset
         model = self.model_builder(search_space)
         tracker = model.fit(
@@ -79,6 +77,7 @@ class AutoBackend:
         trainer_config: Dict,
         gpu: Optional[float] = 0,
     ):
+
         val_check_interval = 1.0
         if self.max_steps:
             val_check_interval = max(self.max_steps - 1, 1.0)
@@ -114,9 +113,9 @@ class AutoBackend:
             gpu Optional[float]: GPU per trial
         """
         if self.backend == Backend.pl.value:
-            return self._lightning_objective(config, trainer_config, gpu)
+            return self._lightning_objective(config, trainer_config=trainer_config, gpu=gpu)
 
         if self.backend in (Backend.gf.value,):
-            return self._gf_objective(config, trainer_config, gpu)
+            return self._gf_objective(config, trainer_config=trainer_config, gpu=gpu)
 
         raise NotImplementedError(f"Trainer not implemented for backend: {self.backend}")

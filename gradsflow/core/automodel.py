@@ -14,9 +14,8 @@
 
 import logging
 from abc import ABC
-from typing import Optional, Union
+from typing import TYPE_CHECKING, Optional, Union
 
-import pytorch_lightning as pl
 import torch
 from ray import tune
 from torch.utils.data import DataLoader
@@ -25,6 +24,12 @@ from gradsflow.core.backend import AutoBackend
 from gradsflow.core.base import BaseAutoModel
 from gradsflow.data import AutoDataset
 from gradsflow.utility.common import module_to_cls_index
+from gradsflow.utility.imports import is_installed
+
+pl = None
+if is_installed("pytorch_lightning"):
+    import pytorch_lightning as pl
+
 
 logger = logging.getLogger("core.model")
 
@@ -53,7 +58,7 @@ class AutoModel(BaseAutoModel, ABC):
 
     def __init__(
         self,
-        datamodule: Optional[pl.LightningDataModule] = None,
+        datamodule: Optional["pl.LightningDataModule"] = None,
         train_dataloader: Optional[DataLoader] = None,
         val_dataloader: Optional[DataLoader] = None,
         num_classes: Optional[int] = None,
@@ -70,7 +75,7 @@ class AutoModel(BaseAutoModel, ABC):
         self.analysis = None
         self.prune = prune
         self.n_trials = n_trials
-        self.model: Union[torch.nn.Module, pl.LightningModule, None] = None
+        self.model: Union[torch.nn.Module, "pl.LightningModule", None] = None
         self.max_epochs = max_epochs
         self.max_steps = max_steps
         self.timeout = timeout

@@ -12,6 +12,8 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+from loguru import logger
+
 from gradsflow.callbacks import Callback
 from gradsflow.utility.imports import requires
 
@@ -35,13 +37,13 @@ class EmissionTrackerCallback(Callback):
         from codecarbon import EmissionsTracker, OfflineEmissionsTracker
 
         if offline:
-            self.tracker = OfflineEmissionsTracker(**kwargs)
+            self._emission_tracker = OfflineEmissionsTracker(**kwargs)
         else:
-            self.tracker = EmissionsTracker(**kwargs)
-        self.tracker.start()
+            self._emission_tracker = EmissionsTracker(**kwargs)
+        self._emission_tracker.start()
 
         super().__init__(model=None)
 
     def on_fit_end(self):
-        emissions: float = self.tracker.stop()
-        print(f"Emissions: {emissions} kg")
+        emissions: float = self._emission_tracker.stop()
+        logger.info(f"Emissions: {emissions} kg")

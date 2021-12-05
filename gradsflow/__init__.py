@@ -29,4 +29,4 @@ from gradsflow.tasks.autotasks import autotask, available_tasks
 from gradsflow.tuner.automodel import AutoModelV2
 from gradsflow.tuner.tuner import Tuner
 
-__version__ = "0.0.7.dev2"
+__version__ = "0.0.7.post1"
