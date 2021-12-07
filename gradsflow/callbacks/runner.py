@@ -40,6 +40,7 @@ class CallbackRunner(Callback):
         for callback in callbacks:
             self.append(callback)
 
+    # skipcq: W0212
     def append(self, callback: Union[str, Callback]):
         try:
             if isinstance(callback, str):

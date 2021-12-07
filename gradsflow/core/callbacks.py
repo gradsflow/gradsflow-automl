@@ -31,7 +31,7 @@ if typing.TYPE_CHECKING:
     from gradsflow.models.model import Model
 
 
-def dummy(x=None, *_, **__):
+def dummy(x=None, **__):
     return x
 
 
@@ -44,6 +44,7 @@ class Callback(ABC):
     def __init__(self, model: Optional["Model"]):
         self.model = model
 
+    # skipcq: B101
     def with_event(self, event_type: str, func: Callable, exception, final_fn: Callable = dummy):
         """Calls a function with event wrapped around. Inspired from FastAI.
         Ref: https://github.com/fastai/fastai/blob/6e44b354f4d12bdfa2c9530f38f851c54a05764d/fastai/learner.py#L162
