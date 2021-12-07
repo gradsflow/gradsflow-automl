@@ -117,12 +117,10 @@ class CallbackRunner(Callback):
             callback.on_forward_end()
 
     def clean(self, keep: Optional[Union[List[str], str]] = None):
-        """Remove all the callbacks"""
+        """Remove all the callbacks except callback names provided in keep"""
         for _, callback in self.callbacks.items():
             callback.clean()
-        keep = listify(keep)
-        for key, value in self.callbacks:
-            if key in keep:
-                continue
+        not_keep = set(self.callbacks.keys()) - set(listify(keep))
+        for key in not_keep:
             self.callbacks.pop(key)
         # self.callbacks = OrderedDict(list(self.callbacks.items())[0:1])

@@ -41,7 +41,7 @@ class Callback(ABC):
     _events = ("forward", "step", "train_epoch", "val_epoch", "epoch", "fit")
     _name: str = "Callback"
 
-    def __init__(self, model: Optional["Model"]):
+    def __init__(self, model: Optional["Model"] = None):
         self.model = model
 
     def with_event(self, event_type: str, func: Callable, exception, final_fn: Callable = dummy):
