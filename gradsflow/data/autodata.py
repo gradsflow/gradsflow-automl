@@ -17,7 +17,7 @@ from accelerate import Accelerator
 from loguru import logger
 from torch.utils.data import DataLoader, Dataset
 
-from gradsflow.core.data import BaseAutoDataset
+from gradsflow.data.base import BaseAutoDataset
 from gradsflow.utility.imports import is_installed
 
 from ..utility.common import default_device

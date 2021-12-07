@@ -15,7 +15,7 @@ import os
 from pathlib import Path
 from typing import Optional
 
-from gradsflow.callbacks.callbacks import Callback
+from gradsflow.core.callbacks import Callback
 
 
 class ModelCheckpoint(Callback):

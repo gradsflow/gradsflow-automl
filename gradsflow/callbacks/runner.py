@@ -15,10 +15,10 @@ import typing
 from collections import OrderedDict
 from typing import Any, Dict, Union
 
-from gradsflow.callbacks.callbacks import Callback
 from gradsflow.callbacks.progress import ProgressCallback
 from gradsflow.callbacks.raytune import TorchTuneCheckpointCallback, TorchTuneReport
 from gradsflow.callbacks.training import TrainEvalCallback
+from gradsflow.core.callbacks import Callback
 
 if typing.TYPE_CHECKING:
     from gradsflow.models.model import Model
