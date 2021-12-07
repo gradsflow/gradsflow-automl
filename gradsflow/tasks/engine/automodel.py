@@ -20,9 +20,9 @@ import torch
 from ray import tune
 from torch.utils.data import DataLoader
 
-from gradsflow.core.backend import AutoBackend
 from gradsflow.core.base import BaseAutoModel
 from gradsflow.data import AutoDataset
+from gradsflow.tasks.engine.backend import AutoBackend
 from gradsflow.utility.common import module_to_cls_index
 from gradsflow.utility.imports import is_installed
 

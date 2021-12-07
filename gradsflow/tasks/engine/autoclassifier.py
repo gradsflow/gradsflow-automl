@@ -13,13 +13,13 @@
 #  limitations under the License.
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 import torch
 from ray import tune
 from torch.utils.data import DataLoader
 
-from gradsflow.core.automodel import AutoModel
+from gradsflow.tasks.engine.automodel import AutoModel
 from gradsflow.utility.common import listify
 from gradsflow.utility.imports import is_installed
 

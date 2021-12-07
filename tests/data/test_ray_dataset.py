@@ -13,7 +13,6 @@
 #  limitations under the License.
 from pathlib import Path
 
-import numpy as np
 from PIL import Image
 
 from gradsflow.data.ray_dataset import RayDataset, RayImageFolder
