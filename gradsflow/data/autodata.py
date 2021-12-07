@@ -39,11 +39,25 @@ class AutoDataset(BaseAutoDataset, DataMixin):
         val_dataset: Optional[Dataset] = None,
         datamodule: Optional["pl.LightningDataModule"] = None,
         num_classes: Optional[int] = None,
+        batch_size: int = 1,
+        num_workers: int = 0,
+        pin_memory: Optional[bool] = False,
         **kwargs
     ):
         super().__init__()
         self.device = default_device()
-        self.setup(train_dataloader, val_dataloader, train_dataset, val_dataset, datamodule, num_classes, **kwargs)
+        self.setup(
+            train_dataloader,
+            val_dataloader,
+            train_dataset,
+            val_dataset,
+            datamodule,
+            num_classes,
+            **kwargs,
+            batch_size=batch_size,
+            num_workers=num_workers,
+            pin_memory=pin_memory
+        )
 
     def setup(
         self,
@@ -53,7 +67,9 @@ class AutoDataset(BaseAutoDataset, DataMixin):
         val_dataset: Optional[Dataset] = None,
         datamodule: Optional["pl.LightningDataModule"] = None,
         num_classes: Optional[int] = None,
-        **kwargs
+        batch_size: int = 1,
+        num_workers: int = 0,
+        pin_memory: Optional[bool] = False,
     ):
 
         self.datamodule = datamodule
@@ -66,17 +82,17 @@ class AutoDataset(BaseAutoDataset, DataMixin):
         if not train_dataloader and train_dataset:
             self._train_dataloader = DataLoader(
                 train_dataset,
-                batch_size=kwargs.get("batch_size", 8),
                 shuffle=True,
-                num_workers=kwargs.get("num_workers", 0),
-                pin_memory=kwargs.get("pin_memory"),
+                batch_size=batch_size,
+                num_workers=num_workers,
+                pin_memory=pin_memory,
             )
         if not val_dataloader and val_dataset:
             self._val_dataloader = DataLoader(
                 val_dataset,
-                batch_size=kwargs.get("batch_size", 8),
-                num_workers=kwargs.get("num_workers", 0),
-                pin_memory=kwargs.get("pin_memory"),
+                batch_size=batch_size,
+                num_workers=num_workers,
+                pin_memory=pin_memory,
             )
 
         if (datamodule or train_dataloader or train_dataset) is None:
