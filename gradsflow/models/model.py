@@ -254,6 +254,6 @@ class Model(BaseModel, DataMixin):
         except KeyboardInterrupt:
             logger.info("Keyboard interruption detected")
         finally:
-            self.callback_runner.clean()
+            self.callback_runner.clean(keep="TrainEvalCallback")
 
         return self.tracker

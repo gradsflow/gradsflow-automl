@@ -13,12 +13,13 @@
 #  limitations under the License.
 import typing
 from collections import OrderedDict
-from typing import Any, Dict, Union
+from typing import Any, Dict, List, Optional, Union
 
 from gradsflow.callbacks.progress import ProgressCallback
 from gradsflow.callbacks.raytune import TorchTuneCheckpointCallback, TorchTuneReport
 from gradsflow.callbacks.training import TrainEvalCallback
 from gradsflow.core.callbacks import Callback
+from gradsflow.utility import listify
 
 if typing.TYPE_CHECKING:
     from gradsflow.models.model import Model
@@ -115,8 +116,13 @@ class CallbackRunner(Callback):
         for _, callback in self.callbacks.items():
             callback.on_forward_end()
 
-    def clean(self):
-        """Remove all the callbacks except `TrainEvalCallback` added during `model.fit`"""
+    def clean(self, keep: Optional[Union[List[str], str]] = None):
+        """Remove all the callbacks"""
         for _, callback in self.callbacks.items():
             callback.clean()
-        self.callbacks = OrderedDict(list(self.callbacks.items())[0:1])
+        keep = listify(keep)
+        for key, value in self.callbacks:
+            if key in keep:
+                continue
+            self.callbacks.pop(key)
+        # self.callbacks = OrderedDict(list(self.callbacks.items())[0:1])

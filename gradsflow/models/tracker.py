@@ -13,6 +13,7 @@
 #  limitations under the License.
 from typing import Dict, List
 
+from loguru import logger
 from rich import box
 from rich.table import Table
 
@@ -97,6 +98,7 @@ class Tracker(BaseTracker):
         return table
 
     def reset(self):
+        logger.info("Reset Tracker")
         self.max_epochs = 0
         self.current_epoch = 0
         self.steps_per_epoch = None
