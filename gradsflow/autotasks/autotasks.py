@@ -33,7 +33,7 @@ SUPPORTED_TASKS = {
 
 
 def available_tasks() -> List[str]:
-    """Get a list of all available tasks."""
+    """Get a list of all available autotasks."""
     return list(SUPPORTED_TASKS.keys())
 
 
@@ -60,7 +60,7 @@ def autotask(
         train_dataloader Optional[DataLoader]: torch dataloader
         val_dataloader Optional[DataLoader]: torch dataloader
         num_classes Optional[int]: number of classes
-        task Optional[str]: type of task. Check available tasks `availalbe_tasks()
+        task Optional[str]: type of task. Check available autotasks `availalbe_tasks()
         data_type Optional[str]: default=None. type of data - image, text or infer.
         max_epochs [int]: default=10.
         n_trials [int]: default=100.
@@ -77,7 +77,7 @@ def autotask(
         raise UserWarning("either task or data_type must be set!")
 
     if task not in SUPPORTED_TASKS:
-        raise UserWarning(f"Unknown task {task}, available tasks are {list(SUPPORTED_TASKS.keys())}")
+        raise UserWarning(f"Unknown task {task}, available autotasks are {list(SUPPORTED_TASKS.keys())}")
 
     targeted_task = SUPPORTED_TASKS[task]
 

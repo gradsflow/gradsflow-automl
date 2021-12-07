@@ -18,7 +18,7 @@ os.environ["GF_CI"] = "true"
 
 from unittest.mock import MagicMock
 
-from gradsflow.tasks import AutoSummarization
+from gradsflow.autotasks import AutoSummarization
 
 
 def test_build_model():

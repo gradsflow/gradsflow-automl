@@ -14,9 +14,9 @@
 
 import timm
 
+from gradsflow.autotasks.engine.autoclassifier import AutoClassifier
+from gradsflow.autotasks.engine.backend import Backend
 from gradsflow.models.model import Model
-from gradsflow.tasks.engine.autoclassifier import AutoClassifier
-from gradsflow.tasks.engine.backend import Backend
 
 
 # noinspection PyTypeChecker

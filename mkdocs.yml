@@ -81,7 +81,7 @@ nav:
         - gradsflow/models/model.md
         - gradsflow/models/tracker.md
       - Tuner: gradsflow/tuner
-      - AutoTasks: gradsflow/tasks
+      - AutoTasks: gradsflow/autotasks
       - Data: gradsflow/data
       - Callbacks: gradsflow/callbacks
       - utility: gradsflow/utility.md

@@ -19,7 +19,7 @@ import torch
 from ray import tune
 from torch.utils.data import DataLoader
 
-from gradsflow.tasks.engine.automodel import AutoModel
+from gradsflow.autotasks.engine.automodel import AutoModel
 from gradsflow.utility.common import listify
 from gradsflow.utility.imports import is_installed
 
@@ -29,7 +29,7 @@ if is_installed("pytorch_lightning"):
 
 
 class AutoClassifier(AutoModel):
-    """Implements `AutoModel` for classification tasks."""
+    """Implements `AutoModel` for classification autotasks."""
 
     _DEFAULT_BACKBONES = []
 

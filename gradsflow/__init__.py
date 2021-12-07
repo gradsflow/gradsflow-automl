@@ -18,13 +18,13 @@ from os import environ as _environ
 
 _environ["LOGURU_LEVEL"] = _environ.get("LOGURU_LEVEL") or _environ.get("LOG_LEVEL", "ERROR")
 
+from gradsflow.autotasks.autoclassification.image import AutoImageClassifier
+from gradsflow.autotasks.autoclassification.text import AutoTextClassifier
+from gradsflow.autotasks.autosummarization import AutoSummarization
+from gradsflow.autotasks.autotasks import autotask, available_tasks
+from gradsflow.autotasks.engine.automodel import AutoModel
 from gradsflow.data import AutoDataset
 from gradsflow.models.model import Model
-from gradsflow.tasks.autoclassification.image import AutoImageClassifier
-from gradsflow.tasks.autoclassification.text import AutoTextClassifier
-from gradsflow.tasks.autosummarization import AutoSummarization
-from gradsflow.tasks.autotasks import autotask, available_tasks
-from gradsflow.tasks.engine.automodel import AutoModel
 from gradsflow.tuner.automodel import AutoModelV2
 from gradsflow.tuner.tuner import Tuner
 

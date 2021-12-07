@@ -14,7 +14,7 @@
 
 import torch
 
-from gradsflow.tasks.engine.autoclassifier import AutoClassifier
+from gradsflow.autotasks.engine.autoclassifier import AutoClassifier
 
 
 # noinspection PyTypeChecker

@@ -20,9 +20,9 @@ import torch
 from ray import tune
 from torch.utils.data import DataLoader
 
+from gradsflow.autotasks.engine.backend import AutoBackend
 from gradsflow.core.base import BaseAutoModel
 from gradsflow.data import AutoDataset
-from gradsflow.tasks.engine.backend import AutoBackend
 from gradsflow.utility.common import module_to_cls_index
 from gradsflow.utility.imports import is_installed
 
@@ -36,7 +36,7 @@ logger = logging.getLogger("core.model")
 class AutoModel(BaseAutoModel, ABC):
     """
     Base model that defines hyperparameter search methods and initializes `Ray`.
-    All other tasks are implementation of `AutoModel`.
+    All other autotasks are implementation of `AutoModel`.
 
     Args:
         datamodule flash.DataModule: DataModule from Flash or PyTorch Lightning

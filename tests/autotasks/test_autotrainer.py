@@ -15,12 +15,12 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-from gradsflow.tasks.engine.backend import AutoBackend
+from gradsflow.autotasks.engine.backend import AutoBackend
 
 trainer_config = {"show_progress": False}
 
 
-@patch("gradsflow.tasks.engine.backend.pl")
+@patch("gradsflow.autotasks.engine.backend.pl")
 def test_optimization_objective(mock_pl: Mock):
     dm = MagicMock()
     model_builder = MagicMock()

@@ -18,7 +18,7 @@ os.environ["GF_CI"] = "true"
 
 from unittest.mock import MagicMock
 
-from gradsflow.tasks import AutoTextClassifier
+from gradsflow.autotasks import AutoTextClassifier
 
 
 def test_build_model():
