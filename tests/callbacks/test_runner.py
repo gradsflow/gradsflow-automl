@@ -13,7 +13,8 @@
 #  limitations under the License.
 import pytest
 
-from gradsflow.callbacks import Callback, CallbackRunner, TrainEvalCallback
+from gradsflow.callbacks import CallbackRunner, TrainEvalCallback
+from gradsflow.core.callbacks import Callback
 
 
 def test_init():
