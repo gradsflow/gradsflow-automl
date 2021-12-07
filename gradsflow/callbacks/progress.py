@@ -14,7 +14,6 @@
 from typing import Dict, Optional
 
 from rich.progress import BarColumn, Progress, RenderableColumn, TimeRemainingColumn
-from rich.table import Column
 
 from .callbacks import Callback
 

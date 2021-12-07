@@ -17,16 +17,15 @@
 from os import environ as _environ
 
 _environ["LOGURU_LEVEL"] = _environ.get("LOGURU_LEVEL") or _environ.get("LOG_LEVEL", "ERROR")
-_environ["COMET_DISABLE_AUTO_LOGGING"] = "1"
 
-from gradsflow.core.automodel import AutoModel
+from gradsflow.autotasks.autoclassification.image import AutoImageClassifier
+from gradsflow.autotasks.autoclassification.text import AutoTextClassifier
+from gradsflow.autotasks.autosummarization import AutoSummarization
+from gradsflow.autotasks.autotasks import autotask, available_tasks
+from gradsflow.autotasks.engine.automodel import AutoModel
 from gradsflow.data import AutoDataset
 from gradsflow.models.model import Model
-from gradsflow.tasks.autoclassification.image import AutoImageClassifier
-from gradsflow.tasks.autoclassification.text import AutoTextClassifier
-from gradsflow.tasks.autosummarization import AutoSummarization
-from gradsflow.tasks.autotasks import autotask, available_tasks
 from gradsflow.tuner.automodel import AutoModelV2
 from gradsflow.tuner.tuner import Tuner
 
-__version__ = "0.0.7.post1"
+__version__ = "0.0.8.dev0"

@@ -19,8 +19,8 @@ import pytest
 import torch
 from flash.image import ImageClassificationData
 
-from gradsflow.core.automodel import AutoModel
-from gradsflow.core.backend import Backend
+from gradsflow.autotasks.engine.automodel import AutoModel
+from gradsflow.autotasks.engine.backend import Backend
 
 cwd = Path.cwd()
 datamodule = ImageClassificationData.from_folders(
@@ -49,7 +49,7 @@ def test_create_search_space():
 
 
 @patch.multiple(AutoModel, __abstractmethods__=set())
-@patch("gradsflow.core.backend.pl")
+@patch("gradsflow.autotasks.engine.backend.pl")
 def test_objective(mock_pl):
     optimization_metric = "val_accuracy"
     model = AutoModel(
@@ -66,7 +66,7 @@ def test_objective(mock_pl):
 
 
 @patch.multiple(AutoModel, __abstractmethods__=set())
-@patch("gradsflow.core.automodel.tune.run")
+@patch("gradsflow.autotasks.engine.automodel.tune.run")
 def test_hp_tune(
     mock_tune,
 ):

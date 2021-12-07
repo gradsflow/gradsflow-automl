@@ -8,9 +8,9 @@ from pathlib import Path
 import ray
 from flash.image import ImageClassificationData
 
+from gradsflow.autotasks import autotask
 from gradsflow.data.image import image_dataset_from_directory
 from gradsflow.models.model import Model
-from gradsflow.tasks import autotask
 
 warnings.filterwarnings("ignore")
 

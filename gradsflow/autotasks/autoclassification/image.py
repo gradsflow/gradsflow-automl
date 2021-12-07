@@ -14,8 +14,8 @@
 
 import timm
 
-from gradsflow.core.autoclassifier import AutoClassifier
-from gradsflow.core.backend import Backend
+from gradsflow.autotasks.engine.autoclassifier import AutoClassifier
+from gradsflow.autotasks.engine.backend import Backend
 from gradsflow.models.model import Model
 
 
