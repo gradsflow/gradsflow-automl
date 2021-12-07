@@ -19,12 +19,8 @@ from loguru import logger
 from torch import nn
 from torchmetrics import Metric
 
-from gradsflow.callbacks import (
-    Callback,
-    CallbackRunner,
-    ProgressCallback,
-    TrainEvalCallback,
-)
+from gradsflow.callbacks import CallbackRunner, ProgressCallback, TrainEvalCallback
+from gradsflow.core import Callback
 from gradsflow.data import AutoDataset
 from gradsflow.data.mixins import DataMixin
 from gradsflow.models.base import BaseModel

@@ -14,6 +14,7 @@
 import dataclasses
 import inspect
 import os
+import re
 import sys
 import warnings
 from glob import glob
@@ -121,3 +122,18 @@ def to_item(data: Union[torch.Tensor, Iterable, Dict]) -> Union[int, float, str,
 
     warnings.warn("to_item didn't convert any value.")
     return data
+
+
+def filter_list(arr: List[str], pattern: Optional[str] = None) -> List[str]:
+    """Filter a list of strings with given pattern
+    ```python
+    >> arr = ['crossentropy', 'binarycrossentropy', 'softmax', 'mae',]
+    >> filter_list(arr, ".*entropy*")
+    >> # ["crossentropy", "binarycrossentropy"]
+    ```
+    """
+    if pattern is None:
+        return arr
+
+    p = re.compile(pattern)
+    return [s for s in arr if p.match(s)]
