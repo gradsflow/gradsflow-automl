@@ -12,14 +12,11 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import dataclasses
-import logging
 from typing import Union
 
 from torch.utils.data import DataLoader, Dataset
 
 from gradsflow.data.ray_dataset import RayDataset
-
-logger = logging.getLogger("core.data")
 
 
 @dataclasses.dataclass(init=False)

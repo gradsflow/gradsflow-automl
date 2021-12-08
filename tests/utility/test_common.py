@@ -16,6 +16,7 @@ import torch
 
 from gradsflow.utility.common import (
     default_device,
+    filter_list,
     get_file_extension,
     get_files,
     listify,
@@ -61,3 +62,14 @@ def test_to_item():
     x = {"input": torch.rand(10)}
     assert isinstance(to_item(x), dict)
     assert isinstance(to_item(x)["input"], np.ndarray)
+
+
+def test_filter_list():
+    arr = [
+        "crossentropy",
+        "binarycrossentropy",
+        "softmax",
+        "mae",
+    ]
+    assert filter_list(arr, ".*entropy") == arr[:2]
+    assert filter_list(arr) == arr

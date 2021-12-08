@@ -19,12 +19,8 @@ from loguru import logger
 from torch import nn
 from torchmetrics import Metric
 
-from gradsflow.callbacks import (
-    Callback,
-    CallbackRunner,
-    ProgressCallback,
-    TrainEvalCallback,
-)
+from gradsflow.callbacks import CallbackRunner, ProgressCallback, TrainEvalCallback
+from gradsflow.core import Callback
 from gradsflow.data import AutoDataset
 from gradsflow.data.mixins import DataMixin
 from gradsflow.models.base import BaseModel
@@ -258,6 +254,6 @@ class Model(BaseModel, DataMixin):
         except KeyboardInterrupt:
             logger.info("Keyboard interruption detected")
         finally:
-            self.callback_runner.clean()
+            self.callback_runner.clean(keep="TrainEvalCallback")
 
         return self.tracker

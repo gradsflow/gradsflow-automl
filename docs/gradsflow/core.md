@@ -1,3 +1,3 @@
-Core Building blocks for AutoML Tasks
+Core Building blocks
 
-::: gradsflow.core.base
+::: gradsflow.core.base.BaseAutoModel

@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from .callbacks import Callback
+from gradsflow.core.callbacks import Callback
 
 
 class TrainEvalCallback(Callback):

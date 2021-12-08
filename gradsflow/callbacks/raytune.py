@@ -17,7 +17,7 @@ from typing import Optional
 import torch
 from ray import tune
 
-from .callbacks import Callback
+from gradsflow.core.callbacks import Callback
 
 _METRICS = {
     "val_accuracy": "val_accuracy",

@@ -13,7 +13,7 @@
 #  limitations under the License.
 from pathlib import Path
 
-from gradsflow.core.data import Data
+from gradsflow.data.base import Data
 from gradsflow.data.image import image_dataset_from_directory
 
 data_dir = Path.cwd()

@@ -13,7 +13,8 @@
 #  limitations under the License.
 import pytest
 
-from gradsflow.callbacks import Callback, CallbackRunner, TrainEvalCallback
+from gradsflow.callbacks import CallbackRunner, TrainEvalCallback
+from gradsflow.core.callbacks import Callback
 
 
 def test_init():
@@ -41,3 +42,13 @@ def test_append():
     for cb_name, cb in cb.callbacks.items():
         assert isinstance(cb_name, str)
         assert isinstance(cb, Callback)
+
+
+def test_clean():
+    class DummyModel:
+        def forward(self):
+            return 1
+
+    cb = CallbackRunner(DummyModel(), TrainEvalCallback())
+    cb.clean(keep="TrainEvalCallback")
+    assert cb.callbacks.get("TrainEvalCallback") is not None

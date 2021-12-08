@@ -11,6 +11,18 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
 import typing
 from abc import ABC
 from typing import Callable, Optional
@@ -19,7 +31,7 @@ if typing.TYPE_CHECKING:
     from gradsflow.models.model import Model
 
 
-def dummy(x=None, *_, **__):
+def dummy(x=None, **__):
     return x
 
 
@@ -29,7 +41,7 @@ class Callback(ABC):
     _events = ("forward", "step", "train_epoch", "val_epoch", "epoch", "fit")
     _name: str = "Callback"
 
-    def __init__(self, model: Optional["Model"]):
+    def __init__(self, model: Optional["Model"] = None):
         self.model = model
 
     def with_event(self, event_type: str, func: Callable, exception, final_fn: Callable = dummy):

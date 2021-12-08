@@ -21,7 +21,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms as T
 from torchvision.datasets import ImageFolder
 
-from gradsflow.core.data import Data
+from gradsflow.data.base import Data
 from gradsflow.data.ray_dataset import RayImageFolder
 
 logger = logging.getLogger("data.image")
