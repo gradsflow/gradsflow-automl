@@ -45,7 +45,7 @@ def test_csv_logger(dummy_model, auto_dataset):
     assert os.path.isfile("test_csv_logger.csv")
 
 
-@pytest.mark.skipif(is_installed("comet"), reason="requires `comet_ml` installed")
+@pytest.mark.skipif(not is_installed("comet_ml"), reason="requires `comet_ml` installed")
 def test_comet(dummy_model, auto_dataset):
     with pytest.raises(ValueError):
         CometCallback()
@@ -55,7 +55,7 @@ def test_comet(dummy_model, auto_dataset):
     dummy_model.fit(auto_dataset, callbacks=[comet])
 
 
-@pytest.mark.skipif(is_installed("codecarbon"), reason="requires `codecarbon` installed")
+@pytest.mark.skipif(not is_installed("codecarbon"), reason="requires `codecarbon` installed")
 def test_emission_tracker(dummy_model, auto_dataset):
     emission_tracker = EmissionTrackerCallback()
     dummy_model.compile()
