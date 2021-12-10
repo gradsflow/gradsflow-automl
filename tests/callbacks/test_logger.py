@@ -17,8 +17,10 @@ from pathlib import Path
 import pytest
 
 from gradsflow import AutoDataset
+from gradsflow.callbacks import EmissionTrackerCallback
 from gradsflow.callbacks.logger import CometCallback, CSVLogger
 from gradsflow.data.image import image_dataset_from_directory
+from gradsflow.utility.imports import is_installed
 from tests.dummies import DummyModel
 
 data_dir = Path.cwd()
@@ -26,21 +28,35 @@ folder = f"{data_dir}/data/test-data-cat-dog-v0/cat-dog/"
 data = image_dataset_from_directory(folder, transform=True, ray_data=False)
 
 
-def test_csv_logger():
+@pytest.fixture
+def dummy_model():
+    return DummyModel()
+
+
+@pytest.fixture
+def auto_dataset():
+    return AutoDataset(train_dataloader=data.dataloader, val_dataloader=data.dataloader)
+
+
+def test_csv_logger(dummy_model, auto_dataset):
     csv_logger = CSVLogger(filename="test_csv_logger.csv")
-    autodata = AutoDataset(train_dataloader=data.dataloader, val_dataloader=data.dataloader)
-    model = DummyModel()
-    model.compile()
-    model.fit(autodata, callbacks=csv_logger)
+    dummy_model.compile()
+    dummy_model.fit(auto_dataset, callbacks=csv_logger)
     assert os.path.isfile("test_csv_logger.csv")
 
 
-def test_logger():
+@pytest.mark.skipif(not is_installed("comet_ml"), reason="requires `comet_ml` installed")
+def test_comet(dummy_model, auto_dataset):
     with pytest.raises(ValueError):
         CometCallback()
 
     comet = CometCallback(offline=True)
-    autodata = AutoDataset(train_dataloader=data.dataloader, val_dataloader=data.dataloader)
-    model = DummyModel()
-    model.compile()
-    model.fit(autodata, callbacks=[comet])
+    dummy_model.compile()
+    dummy_model.fit(auto_dataset, callbacks=[comet])
+
+
+@pytest.mark.skipif(not is_installed("codecarbon"), reason="requires `codecarbon` installed")
+def test_emission_tracker(dummy_model, auto_dataset):
+    emission_tracker = EmissionTrackerCallback()
+    dummy_model.compile()
+    dummy_model.fit(auto_dataset, callbacks=[emission_tracker])
