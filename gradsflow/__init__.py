@@ -28,4 +28,4 @@ from gradsflow.models.model import Model
 from gradsflow.tuner.automodel import AutoModelV2
 from gradsflow.tuner.tuner import Tuner
 
-__version__ = "0.0.8.dev0"
+__version__ = "v0.0.7.post2"
