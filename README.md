@@ -38,7 +38,7 @@
 
 ## Installation
 
-**Recommended**: 
+**Recommended**:
 
 The recommended method of installing `gradsflow` is either with `pip` from PyPI or, with `conda` from conda-forge channel.
 
@@ -54,7 +54,7 @@ The recommended method of installing `gradsflow` is either with `pip` from PyPI 
   conda install -c conda-forge gradsflow
   ```
 
-**Latest** (unstable): 
+**Latest** (unstable):
 
 You can also install the latest bleeding edge version (could be unstable) of `gradsflow`, should you feel motivated enough, as follows:
 
