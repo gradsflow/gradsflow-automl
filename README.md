@@ -10,13 +10,24 @@
 
 ---
 
-[![pytest](https://github.com/gradsflow/gradsflow/actions/workflows/main.yml/badge.svg)](https://github.com/gradsflow/gradsflow/actions/workflows/main.yml)
+<!--- BADGES: START --->
+[![GitHub - License](https://img.shields.io/github/license/gradsflow/gradsflow?logo=github&style=flat&color=green)][#github-license]
+[![pytest](https://github.com/gradsflow/gradsflow/actions/workflows/main.yml/badge.svg)][#pytest-package]
 [![Documentation Status](https://readthedocs.org/projects/gradsflow/badge/?version=latest)](https://gradsflow.readthedocs.io/en/latest/?badge=latest)
 [![codecov](https://codecov.io/gh/gradsflow/gradsflow/branch/main/graph/badge.svg?token=uaB2xsf3pb)](https://codecov.io/gh/gradsflow/gradsflow)
 [![PyPI version](https://badge.fury.io/py/gradsflow.svg)](https://badge.fury.io/py/gradsflow)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/gradsflow?logo=pypi&style=flat&color=blue)][#pypi-package]
 [![Downloads](https://pepy.tech/badge/gradsflow)](https://pepy.tech/project/gradsflow)
-[![Slack](https://img.shields.io/badge/Slack-Join%20our%20community!-orange)](https://join.slack.com/t/gradsflow/shared_invite/zt-ulc0m0ef-xstzyowuTgYceVmFbJlBmg)
+[![Conda - Platform](https://img.shields.io/conda/pn/conda-forge/gradsflow?logo=anaconda&style=flat)][#conda-forge-package]
+[![Conda (channel only)](https://img.shields.io/conda/vn/conda-forge/gradsflow?logo=anaconda&style=flat&color=orange)][#conda-forge-package]
+[![Slack](https://img.shields.io/badge/Slack-Join%20our%20community!-orange)][#slack-package]
 
+[#github-license]: https://github.com/gradsflow/gradsflow/blob/main/LICENSE
+[#pypi-package]: https://pypi.org/project/gradsflow/
+[#conda-forge-package]: https://anaconda.org/conda-forge/gradsflow
+[#slack-package]: https://join.slack.com/t/gradsflow/shared_invite/zt-ulc0m0ef-xstzyowuTgYceVmFbJlBmg
+[#pytest-package]: https://github.com/gradsflow/gradsflow/actions/workflows/main.yml
+<!--- BADGES: END --->
 
 ## Highlights
 - 2021-10-7: [v0.0.6 Release blog post](https://towardsdatascience.com/gradsflow-democratizing-ai-with-automl-9a8a75d6b7ea)
@@ -27,9 +38,29 @@
 
 ## Installation
 
-**Recommended**: `pip install -U gradsflow`
+**Recommended**: 
 
-**Latest** (unstable): `pip install git+https://github.com/gradsflow/gradsflow@main`
+The recommended method of installing `gradsflow` is either with `pip` from PyPI or, with `conda` from conda-forge channel.
+
+- **with pip**
+
+  ```sh
+  pip install -U gradsflow
+  ```
+
+- **with conda**
+
+  ```sh
+  conda install -c conda-forge gradsflow
+  ```
+
+**Latest** (unstable): 
+
+You can also install the latest bleeding edge version (could be unstable) of `gradsflow`, should you feel motivated enough, as follows:
+
+```sh
+pip install git+https://github.com/gradsflow/gradsflow@main
+```
 
 ## About GradsFlow
 
