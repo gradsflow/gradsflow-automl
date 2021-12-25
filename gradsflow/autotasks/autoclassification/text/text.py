@@ -11,20 +11,10 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-#
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+
 
 import torch
+from loguru import logger
 
 from gradsflow.autotasks.engine.autoclassifier import AutoClassifier
 
@@ -80,7 +70,7 @@ class AutoTextClassifier(AutoClassifier):
         super().__init__(*args, **kwargs)
         meta = self.auto_dataset.meta
         self.num_classes = meta.get("num_labels") or meta.get("num_classes")
-        print("num_classes = ", self.num_classes)
+        logger.debug(f"num_classes = {self.num_classes}")
 
     def build_model(self, config: dict) -> torch.nn.Module:
         """Build TextClassifier model from `ray.tune` hyperparameter configs
