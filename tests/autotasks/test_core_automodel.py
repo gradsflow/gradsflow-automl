@@ -49,7 +49,7 @@ def test_create_search_space():
 
 
 @patch.multiple(AutoModel, __abstractmethods__=set())
-@patch("gradsflow.autotasks.engine.backend_type.pl")
+@patch("gradsflow.autotasks.engine.backend.pl")
 def test_objective(mock_pl):
     optimization_metric = "val_accuracy"
     model = AutoModel(
