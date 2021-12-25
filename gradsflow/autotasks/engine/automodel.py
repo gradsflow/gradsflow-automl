@@ -20,7 +20,7 @@ import torch
 from ray import tune
 from torch.utils.data import DataLoader
 
-from gradsflow.autotasks.engine.backend import AutoBackend
+from gradsflow.autotasks.engine.backend import Backend
 from gradsflow.core.base import BaseAutoModel
 from gradsflow.data import AutoDataset
 from gradsflow.utility.common import module_to_cls_index
@@ -48,7 +48,7 @@ class AutoModel(BaseAutoModel, ABC):
         suggested_conf Dict: Any extra suggested configuration
         timeout int: HPO will stop after timeout
         prune bool: Whether to stop unpromising training.
-        backend Optional[str]: Training backend - PL / torch / fastai. Default is PL
+        backend_type Optional[str]: Training backend_type - PL / torch / fastai. Default is PL
     """
 
     _OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
@@ -90,7 +90,7 @@ class AutoModel(BaseAutoModel, ABC):
 
         self.datamodule = self.auto_dataset.datamodule
 
-        self.backend = AutoBackend(
+        self.backend = Backend(
             self.auto_dataset,
             model_builder=self.build_model,
             optimization_metric=optimization_metric,

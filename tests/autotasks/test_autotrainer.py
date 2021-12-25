@@ -15,7 +15,7 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-from gradsflow.autotasks.engine.backend import AutoBackend
+from gradsflow.autotasks.engine.backend import Backend
 
 trainer_config = {"show_progress": False}
 
@@ -25,14 +25,14 @@ def test_optimization_objective(mock_pl: Mock):
     dm = MagicMock()
     model_builder = MagicMock()
 
-    # backend is pl
-    autotrainer = AutoBackend(dm, model_builder, optimization_metric="val_accuracy", backend="pl")
+    # backend_type is pl
+    autotrainer = Backend(dm, model_builder, optimization_metric="val_accuracy", backend="pl")
     autotrainer.optimization_objective({}, trainer_config)
     mock_pl.Trainer.assert_called()
 
-    # wrong backend is passed
+    # wrong backend_type is passed
     with pytest.raises(NotImplementedError):
-        autotrainer = AutoBackend(
+        autotrainer = Backend(
             dm,
             model_builder,
             optimization_metric="val_accuracy",
