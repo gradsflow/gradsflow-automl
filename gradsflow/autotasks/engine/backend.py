@@ -11,18 +11,6 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-#
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
 
 import logging
 import math
@@ -43,7 +31,7 @@ if is_installed("pytorch_lightning"):
 logger = logging.getLogger("core.backend")
 
 
-class Backend(Enum):
+class BackendType(Enum):
     # Remove torch
     pl = "pl"
     gf = "gf"
@@ -51,7 +39,7 @@ class Backend(Enum):
     default = "pl"
 
 
-class AutoBackend:
+class Backend:
     _OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
 
     def __init__(
@@ -64,7 +52,7 @@ class AutoBackend:
         backend: Optional[str] = None,
     ):
         self.model_builder = model_builder
-        self.backend = (backend or Backend.default.value).lower()
+        self.backend_type = (backend or BackendType.default.value).lower()
         self.autodataset = autodataset
         self.optimization_metric = optimization_metric
         self.max_epochs = max_epochs
@@ -124,10 +112,10 @@ class AutoBackend:
             trainer_config dict: configurations passed directly to Lightning Trainer.
             gpu Optional[float]: GPU per trial
         """
-        if self.backend == Backend.pl.value:
+        if self.backend_type == BackendType.pl.value:
             return self._lightning_objective(config, trainer_config=trainer_config, gpu=gpu)
 
-        if self.backend in (Backend.gf.value,):
+        if self.backend_type in (BackendType.gf.value,):
             return self._gf_objective(config, trainer_config=trainer_config, gpu=gpu)
 
-        raise NotImplementedError(f"Trainer not implemented for backend: {self.backend}")
+        raise NotImplementedError(f"Trainer not implemented for backend_type: {self.backend_type}")

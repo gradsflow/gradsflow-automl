@@ -20,7 +20,7 @@ import torch
 from flash.image import ImageClassificationData
 
 from gradsflow.autotasks.engine.automodel import AutoModel
-from gradsflow.autotasks.engine.backend import Backend
+from gradsflow.autotasks.engine.backend import BackendType
 
 cwd = Path.cwd()
 datamodule = ImageClassificationData.from_folders(
@@ -55,7 +55,7 @@ def test_objective(mock_pl):
     model = AutoModel(
         datamodule,
         optimization_metric=optimization_metric,
-        backend=Backend.pl.value,
+        backend=BackendType.pl.value,
     )
 
     model.backend.model_builder = MagicMock()

@@ -15,7 +15,7 @@
 import timm
 
 from gradsflow.autotasks.engine.autoclassifier import AutoClassifier
-from gradsflow.autotasks.engine.backend import Backend
+from gradsflow.autotasks.engine.backend import BackendType
 from gradsflow.models.model import Model
 
 
@@ -36,7 +36,7 @@ class AutoImageClassifier(AutoClassifier):
         suggested_conf [Optional[dict] = None]: This sets Trial suggestions for optimizer,
             learning rate, and all the hyperparameters.
         timeout [int]: Hyperparameter search will stop after timeout.
-        backend Optional[str]: Training loop code. Defaults to None.
+        backend_type Optional[str]: Training loop code. Defaults to None.
 
     Examples:
         ```python
@@ -64,7 +64,7 @@ class AutoImageClassifier(AutoClassifier):
     _DEFAULT_BACKBONES = ["ssl_resnet18", "ssl_resnet50"]
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs, backend=Backend.gf.value)
+        super().__init__(*args, **kwargs, backend=BackendType.gf.value)
 
     def build_model(self, config: dict) -> Model:
         """Build ImageClassifier model from `ray.tune` hyperparameter configs
