@@ -76,14 +76,6 @@ class Base:
         if not self._compiled:
             raise UserWarning("Model not compiled yet! Please call `model.compile(...)` first.")
 
-    def load_from_checkpoint(self, checkpoint):
-        data = torch.load(checkpoint)
-        if isinstance(data, dict):
-            self.learner = data["model"]
-            self.tracker = data["tracker"]
-        else:
-            self.learner = data["model"]
-
     @torch.no_grad()
     def predict(self, x):
         return self.learner(x)
@@ -177,6 +169,14 @@ class BaseModel(Base):
         """Set learner to training mode"""
         self.learner.requires_grad_(True)
         self.learner.train()
+
+    def load_from_checkpoint(self, checkpoint):
+        data = torch.load(checkpoint)
+        if isinstance(data, dict):
+            self.learner = data["model"]
+            self.tracker = data["tracker"]
+        else:
+            self.learner = data
 
     def save(self, path: str, save_extra: bool = False):
         """save model"""
