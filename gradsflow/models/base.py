@@ -15,6 +15,7 @@ import os
 from dataclasses import dataclass
 from typing import Any, Callable, List, Optional, Union
 
+import smart_open
 import torch
 from accelerate import Accelerator
 from torch import nn
@@ -172,9 +173,10 @@ class BaseModel(Base):
         self.learner.requires_grad_(True)
         self.learner.train()
 
-    def save(self, path: str, save_extra: bool = True):
+    def save(self, path: str, save_extra: bool = False):
         """save model"""
         model = self.learner
         if save_extra:
             model = {"model": self.learner, "tracker": self.tracker}
-        torch.save(model, path)
+        with smart_open.open(path, "wb") as f:
+            torch.save(model, f)
