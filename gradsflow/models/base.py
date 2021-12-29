@@ -15,6 +15,7 @@ import os
 from dataclasses import dataclass
 from typing import Any, Callable, List, Optional, Union
 
+import smart_open
 import torch
 from accelerate import Accelerator
 from torch import nn
@@ -74,9 +75,6 @@ class Base:
     def assert_compiled(self):
         if not self._compiled:
             raise UserWarning("Model not compiled yet! Please call `model.compile(...)` first.")
-
-    def load_from_checkpoint(self, checkpoint):
-        self.learner = torch.load(checkpoint)
 
     @torch.no_grad()
     def predict(self, x):
@@ -172,9 +170,18 @@ class BaseModel(Base):
         self.learner.requires_grad_(True)
         self.learner.train()
 
-    def save(self, path: str, save_extra: bool = True):
+    def load_from_checkpoint(self, checkpoint):
+        data = torch.load(checkpoint)
+        if isinstance(data, dict):
+            self.learner = data["model"]
+            self.tracker = data["tracker"]
+        else:
+            self.learner = data
+
+    def save(self, path: str, save_extra: bool = False):
         """save model"""
         model = self.learner
         if save_extra:
             model = {"model": self.learner, "tracker": self.tracker}
-        torch.save(model, path)
+        with smart_open.open(path, "wb") as f:
+            torch.save(model, f)

@@ -34,26 +34,26 @@ model.compile("crossentropyloss", "adam")
 model.TEST = True
 
 
-def test_predict():
+def test_predict(cnn_model):
     x = torch.randn(1, 3, 64, 64)
-    r1 = model.forward(x)
-    r2 = model(x)
-    r3 = model.predict(x)
+    r1 = cnn_model.forward(x)
+    r2 = cnn_model(x)
+    r3 = cnn_model.predict(x)
     assert torch.all(torch.isclose(r1, r2))
     assert torch.all(torch.isclose(r2, r3))
     assert isinstance(model.predict(torch.randn(1, 3, 64, 64)), torch.Tensor)
 
 
-def test_fit():
-    model.TEST = True
+def test_fit(cnn_model):
+    cnn_model.compile()
     assert autodataset
-    tracker = model.fit(autodataset, max_epochs=1, steps_per_epoch=1, show_progress=True)
+    tracker = cnn_model.fit(autodataset, max_epochs=1, steps_per_epoch=1, show_progress=True)
     assert isinstance(tracker, Tracker)
 
     autodataset2 = AutoDataset(train_data.dataloader, num_classes=num_classes)
-    model.TEST = False
+    cnn_model.TEST = False
     ckpt_cb = ModelCheckpoint(save_extra=False)
-    tracker2 = model.fit(
+    tracker2 = cnn_model.fit(
         autodataset2,
         max_epochs=1,
         steps_per_epoch=1,
@@ -84,7 +84,26 @@ def test_compile():
     assert model2.optimizer.param_groups[0]["lr"] == 0.01
 
 
-def test_set_accelerator():
-    model2 = Model(cnn, accelerator_config={"fp16": True})
+def test_set_accelerator(resnet18):
+    model2 = Model(resnet18, accelerator_config={"fp16": True})
     model2.compile()
     assert model2.accelerator
+
+
+def test_save_model(tmp_path, resnet18, cnn_model):
+    path = f"{tmp_path}/dummy_model.pth"
+    cnn_model.save(path, save_extra=True)
+    assert isinstance(torch.load(path), dict)
+
+    cnn_model.save(path, save_extra=False)
+    assert isinstance(torch.load(path), type(resnet18))
+
+
+def test_load_from_checkpoint(tmp_path, cnn_model):
+    path = f"{tmp_path}/dummy_model.pth"
+    cnn_model.save(path, save_extra=True)
+    assert isinstance(torch.load(path), dict)
+
+    cnn_model.tracker.train.metrics["CHECK"] = True
+    cnn_model.load_from_checkpoint(path)
+    assert cnn_model.tracker.train.metrics["CHECK"]
