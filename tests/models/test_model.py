@@ -96,3 +96,13 @@ def test_save_model(tmp_path, resnet18, cnn_model):
 
     cnn_model.save(path, save_extra=False)
     assert isinstance(torch.load(path), type(resnet18))
+
+
+def test_load_from_checkpoint(tmp_path, cnn_model):
+    path = f"{tmp_path}/dummy_model.pth"
+    cnn_model.save(path, save_extra=True)
+    assert isinstance(torch.load(path), dict)
+
+    cnn_model.tracker.train.metrics["CHECK"] = True
+    cnn_model.load_from_checkpoint(path)
+    assert cnn_model.tracker.train.metrics["CHECK"]

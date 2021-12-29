@@ -77,7 +77,12 @@ class Base:
             raise UserWarning("Model not compiled yet! Please call `model.compile(...)` first.")
 
     def load_from_checkpoint(self, checkpoint):
-        self.learner = torch.load(checkpoint)
+        data = torch.load(checkpoint)
+        if isinstance(data, dict):
+            self.learner = data["model"]
+            self.tracker = data["tracker"]
+        else:
+            self.learner = data["model"]
 
     @torch.no_grad()
     def predict(self, x):
