@@ -14,7 +14,6 @@
 import os
 from typing import Optional
 
-import torch
 from ray import tune
 
 from gradsflow.core.callbacks import Callback
@@ -40,11 +39,10 @@ class TorchTuneCheckpointCallback(Callback):
 
     def on_epoch_end(self):
         epoch = self.model.tracker.current_epoch
-        model = self.model.learner
 
         with tune.checkpoint_dir(epoch) as checkpoint_dir:
             path = os.path.join(checkpoint_dir, "filename")
-            torch.save((model.state_dict()), path)
+            self.model.save(path)
 
 
 class TorchTuneReport(Callback):

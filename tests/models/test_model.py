@@ -45,6 +45,7 @@ def test_predict(cnn_model):
 
 
 def test_fit(cnn_model):
+    cnn_model.compile()
     assert autodataset
     tracker = cnn_model.fit(autodataset, max_epochs=1, steps_per_epoch=1, show_progress=True)
     assert isinstance(tracker, Tracker)
