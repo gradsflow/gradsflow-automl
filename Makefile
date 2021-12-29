@@ -23,14 +23,17 @@ clean:
 	rm -f .coverage
 
 style:
-	black gradsflow tests examples
-	isort --profile black gradsflow tests examples
+	black .
+	isort --profile black .
 
 build: clean
-	flit build
+	python -m build
+
+test_pypi: build
+	twine upload -r testpypi dist/*
 
 pypi: build
-	flit publish
+	twine upload dist/*
 
 push:
 	git push && git push --tags
