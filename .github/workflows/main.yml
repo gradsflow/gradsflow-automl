@@ -48,8 +48,9 @@ jobs:
           python --version
           pip --version
           python -m pip install --upgrade pip
-          pip install flit
-          flit install --deps all
+          pip install build
+          pip install -e '.[dev]'
+          pip install -e '.[test]'
           pip list
         shell: bash
 
