@@ -12,3 +12,4 @@ mkdocs-meta-descriptions-plugin
 jupyter_contrib_nbextensions
 comet_ml
 lightning-flash[image,text]>=0.5.1
+mistune>=2.0.1 # not directly required, pinned by Snyk to avoid a vulnerability
