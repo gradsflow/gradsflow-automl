@@ -78,19 +78,19 @@ class Tracker(BaseTracker):
 
     def create_table(self) -> Table:
         headings = ["i", "train/loss"]
-        row = [self.current_epoch, to_item(self.train_loss)]
+        row = [self.current_epoch, self.train_loss]
 
         if self.val.loss.computed:
             headings.append("val/loss")
-            row.append(to_item(self.val_loss))
+            row.append(self.val_loss)
 
         for metric_name, value in self.train_metrics.items():
             headings.append("train/" + metric_name)
-            row.append(to_item(value.avg))
+            row.append(value.avg)
 
         for metric_name, value in self.val_metrics.items():
             headings.append("val/" + metric_name)
-            row.append(to_item(value.avg))
+            row.append(value.avg)
 
         row = list(map(lambda x: f"{x: .3f}" if isinstance(x, float) else str(x), row))
         table = Table(*headings, expand=True, box=box.SIMPLE)
