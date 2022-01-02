@@ -42,7 +42,7 @@ if __name__ == "__main__":
         max_epochs=5,
         optimization_metric="train_loss",
         max_steps=1,
-        n_trials=2,
+        n_trials=1,
     )
     print("AutoImageClassifier initialised!")
 

@@ -102,7 +102,7 @@ class AverageMeter:
         self.avg = self.sum / self.count
 
 
-def to_item(data: Union[torch.Tensor, Iterable, Dict]) -> Union[int, float, str, np.ndarray, Dict]:
+def to_item(data: Any) -> Union[int, float, str, np.ndarray, Dict]:
     """
     Converts torch.Tensor into cpu numpy format.
     Args:
