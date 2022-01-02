@@ -57,7 +57,7 @@ class Tracker(BaseTracker):
         if mode == "val":
             return self.val
 
-        raise NotImplementedError(f"mode {mode} is not implemented!")
+        raise KeyError(f"mode {mode} is not implemented!")
 
     def _track(self, key, value):
         """Tracks value"""
