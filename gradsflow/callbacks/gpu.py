@@ -14,7 +14,7 @@
 
 from loguru import logger
 
-from gradsflow.core.callbacks import Callback
+from gradsflow.callbacks.base import Callback
 from gradsflow.utility.imports import requires
 
 

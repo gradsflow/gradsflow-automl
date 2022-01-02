@@ -20,7 +20,7 @@ BaseExperiment = None
 if TYPE_CHECKING:
     from comet_ml import BaseExperiment
 
-from gradsflow.core.callbacks import Callback
+from gradsflow.callbacks.base import Callback
 from gradsflow.utility.imports import requires
 
 CURRENT_FILE = os.path.dirname(os.path.realpath(__file__))
