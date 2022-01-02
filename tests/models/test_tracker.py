@@ -24,7 +24,7 @@ def test_reset(tracker):
 def test_mode(tracker):
     tracker.mode("train")
     tracker.mode("val")
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(KeyError):
         tracker.mode("test")
 
 

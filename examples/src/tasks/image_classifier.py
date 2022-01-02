@@ -12,37 +12,38 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import os
-
-from flash.image import ImageClassificationData
+import torchvision
+from torch.utils.data import DataLoader
+from torchvision import transforms as T
 
 from gradsflow import AutoImageClassifier
-from gradsflow.data.image import image_dataset_from_directory
+from gradsflow.data.common import random_split_dataset
 
-# 1. Create the DataModule
-data_dir = os.getcwd() + "/data"
-# download_data("https://pl-flash-data.s3.amazonaws.com/hymenoptera_data.zip", data_dir)
-
-datamodule = ImageClassificationData.from_folders(
-    train_folder=f"{data_dir}/hymenoptera_data/train/",
-    val_folder=f"{data_dir}/hymenoptera_data/val/",
-)
+# Replace dataloaders with your custom dataset and you are all set to train your model
 image_size = (64, 64)
-train_data = image_dataset_from_directory(f"{data_dir}/hymenoptera_data/train/", image_size=image_size, transform=True)
+batch_size = 4
 
-val_data = image_dataset_from_directory(f"{data_dir}/hymenoptera_data/val/", image_size=image_size, transform=True)
+to_rgb = lambda x: x.convert("RGB")
 
-num_classes = len(train_data.dataset.classes)
+# TODO: Add argument parser
+if __name__ == "__main__":
+    augs = T.Compose([to_rgb, T.AutoAugment(), T.Resize(image_size), T.ToTensor()])
+    data = torchvision.datasets.Caltech101("~/", download=True, transform=augs)
+    train_data, val_data = random_split_dataset(data, 0.01)
+    train_dl = DataLoader(train_data, batch_size=batch_size)
+    val_dl = DataLoader(val_data, batch_size=batch_size)
 
-model = AutoImageClassifier(
-    train_dataloader=train_data.dataloader,
-    val_dataloader=val_data.dataloader,
-    num_classes=num_classes,
-    max_epochs=1,
-    optimization_metric="val_loss",
-    max_steps=5,
-    n_trials=1,
-)
-print("AutoImageClassifier initialised!")
+    num_classes = len(data.categories)
 
-model.hp_tune()
+    model = AutoImageClassifier(
+        train_dataloader=train_dl,
+        val_dataloader=val_dl,
+        num_classes=num_classes,
+        max_epochs=5,
+        optimization_metric="train_loss",
+        max_steps=1,
+        n_trials=2,
+    )
+    print("AutoImageClassifier initialised!")
+
+    model.hp_tune()
