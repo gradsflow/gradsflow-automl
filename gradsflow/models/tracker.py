@@ -31,25 +31,25 @@ class Tracker(BaseTracker):
         self.val.metrics = {}
         self.logs: List[Dict] = []
 
-    def __getitem__(self, item: str):
+    def __getitem__(self, key: str):
         """
-        1. mode= `train | val` then return respective `TrackingValues` object
-        2. mode=`metrics` then return a dictionary of metrics
-        3. mode=`loss` then return a dictionary of losses
+        1. key= `train | val` then return respective `TrackingValues` object
+        2. key=`metrics` then return a dictionary of metrics
+        3. key=`loss` then return a dictionary of losses
         Args:
-            mode: train, val, metrics or loss
+            key: train, val, metrics or loss
 
         Returns:
             `TrackingValues` or a Dictionary
         """
-        if item == "train" or item == "val":
-            return self.mode(item)
-        elif item == "metrics":
+        if key == "train" or key == "val":
+            return self.mode(key)
+        elif key == "metrics":
             return {"train": self.train_metrics, "val": self.val_metrics}
-        elif item == "loss":
+        elif key == "loss":
             return {"train": self.train_loss, "val": self.val_loss}
 
-        raise KeyError(f"item {item} is not implemented!")
+        raise KeyError(f"key {key} is not implemented!")
 
     def mode(self, mode) -> TrackingValues:
         if mode == "train":
