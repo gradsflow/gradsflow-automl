@@ -66,22 +66,23 @@ class Tracker(BaseTracker):
         self.logs.append(data)
 
     def track_loss(self, loss: float, mode: str):
-        """Update `TrackingValues` loss. mode can be train or val"""
+        """
+        Update `TrackingValues` loss, Called at `*_step_end`.
+        Args:
+            loss: Step Loss
+            mode: can be train | val
+        """
         value_tracker = self.mode(mode)
-        value_tracker.loss.update(loss)
+        value_tracker.update_loss(loss)
         key = mode + "/" + "loss"
         self._track(key, loss)
 
     def track_metrics(self, metric: Dict[str, float], mode: str):
         """Update `TrackingValues` metrics. mode can be train or val"""
         value_tracker = self.mode(mode)
+
         # Track values that averages with epoch
-        for key, value in metric.items():
-            try:
-                value_tracker.metrics[key].update(value)
-            except KeyError:
-                value_tracker.metrics[key] = AverageMeter(name=key)
-                value_tracker.metrics[key].update(value)
+        value_tracker.update_metrics(metric)
 
         # _track value for each step in a dict
         for k, v in metric.items():

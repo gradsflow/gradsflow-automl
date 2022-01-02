@@ -22,6 +22,7 @@ class TrainEvalCallback(Callback):
         self.model.optimizer.zero_grad()
 
     def on_train_step_end(self, outputs: dict = None, *args, **kwargs):
+        MODE = "train"
         # ----- AUTO OPTIMIZATION -----
         if not self.model.disable_auto_optimization:
             self.model.backward(outputs["loss"])
@@ -29,25 +30,24 @@ class TrainEvalCallback(Callback):
 
         # ----- METRIC UPDATES -----
         tracker = self.model.tracker
-        loss = outputs["loss"].item()
-        tracker.val.step_loss = loss
-        tracker.track_loss(loss, mode="train")
-        tracker.track_metrics(outputs.get("metrics", {}), mode="train")
+        loss = outputs["loss"]
+        tracker.track_loss(loss, mode=MODE)
+        tracker.track_metrics(outputs.get("metrics", {}), mode=MODE)
 
     def on_val_step_end(self, outputs: dict = None, *args, **kwargs):
+        MODE = "val"
         # ----- METRIC UPDATES -----
         tracker = self.model.tracker
-        loss = outputs["loss"].item()
-        tracker.val.step_loss = loss
-        tracker.track_loss(loss, mode="val")
-        tracker.track_metrics(outputs.get("metrics", {}), mode="val")
+        loss = outputs["loss"]
+        tracker.track_loss(loss, mode=MODE)
+        tracker.track_metrics(outputs.get("metrics", {}), mode=MODE)
 
     def on_train_epoch_start(self):
         self.model.train()
         self.model.metrics.reset()
-        self.model.tracker.train.reset_metrics()
+        self.model.tracker.train.reset()
 
     def on_val_epoch_start(self):
         self.model.eval()
         self.model.metrics.reset()
-        self.model.tracker.val.reset_metrics()
+        self.model.tracker.val.reset()

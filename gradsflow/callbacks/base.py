@@ -24,6 +24,7 @@ def dummy(x=None, **__):
     return x
 
 
+# TODO: set self.MODE in each callback stage train | val
 class Callback(ABC):
     """Callback objects define events on which it will run during the model training cycle."""
 

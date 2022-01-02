@@ -42,16 +42,36 @@ class BaseAutoModel(ABC):
 
 @dataclass(init=False)
 class TrackingValues:
-    loss: Optional[AverageMeter] = None
+    loss: Optional[AverageMeter] = None  # Average loss in a single Epoch
     steps: Optional[int] = None
     step_loss: Optional[float] = None
-    metrics: Optional[Dict[str, AverageMeter]] = None
+    metrics: Optional[Dict[str, AverageMeter]] = None  # Average value in a single Epoch
 
     def __init__(self):
         self.metrics = {}
         self.loss = AverageMeter(name="loss")
 
-    def reset_metrics(self):
+    def step(self, loss: float, metrics: dict = None):
+        self.step_loss = loss
+        self.update_loss(loss)
+        self.update_metrics(metrics)
+
+    def update_loss(self, loss: float):
+        self.step_loss = loss
+        self.loss.update(loss)
+
+    def update_metrics(self, metrics: Dict[str, float]):
+        """Update `TrackingValues` metrics. mode can be train or val"""
+        # Track values that averages with epoch
+        for key, value in metrics.items():
+            try:
+                self.metrics[key].update(value)
+            except KeyError:
+                self.metrics[key] = AverageMeter(name=key)
+                self.metrics[key].update(value)
+
+    def reset(self):
+        """Values are Reset on start of each `on_*_epoch_start`"""
         self.loss.reset()
         for _, metric in self.metrics.items():
             metric.reset()
