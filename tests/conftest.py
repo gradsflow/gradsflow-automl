@@ -16,6 +16,7 @@ import pytest
 import timm
 
 from gradsflow import Model
+from gradsflow.models.tracker import Tracker
 
 
 @pytest.fixture
@@ -31,3 +32,8 @@ def cnn_model(resnet18):
     model.TEST = True
 
     return model
+
+
+@pytest.fixture
+def tracker():
+    return Tracker()

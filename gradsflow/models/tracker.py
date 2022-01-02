@@ -31,6 +31,9 @@ class Tracker(BaseTracker):
         self.val.metrics = {}
         self.logs: List[Dict] = []
 
+    def __getitem__(self, mode: str):
+        return self.mode(mode)
+
     def mode(self, mode) -> TrackingValues:
         if mode == "train":
             return self.train
