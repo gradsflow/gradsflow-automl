@@ -14,7 +14,7 @@
 import pytest
 
 from gradsflow.callbacks import CallbackRunner, TrainEvalCallback
-from gradsflow.core.callbacks import Callback
+from gradsflow.callbacks.base import Callback
 
 
 def test_init():

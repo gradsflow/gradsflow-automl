@@ -15,7 +15,7 @@ from typing import Dict, Optional
 
 from rich.progress import BarColumn, Progress, RenderableColumn, TimeRemainingColumn
 
-from gradsflow.core.callbacks import Callback
+from gradsflow.callbacks.base import Callback
 
 
 class ProgressCallback(Callback):
