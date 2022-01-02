@@ -16,6 +16,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Dict, Optional
 
+import numpy as np
 import torch
 
 from gradsflow.utility.common import AverageMeter, module_to_cls_index
@@ -57,6 +58,7 @@ class TrackingValues:
         self.update_metrics(metrics)
 
     def update_loss(self, loss: float):
+        assert isinstance(loss, (int, float, np.ndarray)), f"loss must be int | float | np.ndarray but got {type(loss)}"
         self.step_loss = loss
         self.loss.update(loss)
 

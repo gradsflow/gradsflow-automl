@@ -72,6 +72,7 @@ class Tracker(BaseTracker):
             loss: Step Loss
             mode: can be train | val
         """
+        loss = to_item(loss)
         value_tracker = self.mode(mode)
         value_tracker.update_loss(loss)
         key = mode + "/" + "loss"
@@ -111,7 +112,7 @@ class Tracker(BaseTracker):
         return table
 
     def reset(self):
-        logger.info("Reset Tracker")
+        logger.debug("Reset Tracker")
         self.max_epochs = 0
         self.current_epoch = 0
         self.steps_per_epoch = None
