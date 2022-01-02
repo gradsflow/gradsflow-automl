@@ -183,5 +183,6 @@ class BaseModel(Base):
         model = self.learner
         if save_extra:
             model = {"model": self.learner, "tracker": self.tracker}
+        # TODO: save model to cloud
         with smart_open.open(path, "wb") as f:
             torch.save(model, f)
