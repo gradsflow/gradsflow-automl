@@ -139,6 +139,10 @@ class Model(BaseModel, DataMixin):
         return self.step(batch)
 
     def train_one_epoch(self, train_dataloader):
+        """Train model for a single epoch with `train_dataloader`. `CallbackRunner` will call
+        `on_train_step_*` method for each training step.
+        Training will break if `step >= steps_per_epoch`.
+        """
         tracker = self.tracker
         steps_per_epoch = tracker.steps_per_epoch
 
@@ -154,6 +158,9 @@ class Model(BaseModel, DataMixin):
                 break
 
     def val_one_epoch(self, val_dataloader):
+        """Validate model for a single epoch with `val_dataloader`. `CallbackRunner` will call
+        `on_val_step_*` method for each validation step.
+        """
         tracker = self.tracker
         for step, batch in enumerate(val_dataloader):
             tracker.val.steps = step
@@ -182,6 +189,7 @@ class Model(BaseModel, DataMixin):
         self.callback_runner.on_val_epoch_end()
 
     def epoch(self):
+        """Train & Validate Model for specified number of epochs with `on_epoch_*` callback method."""
         current_epoch, max_epochs = self.tracker.current_epoch, self.tracker.max_epochs
 
         for epoch in range(current_epoch, max_epochs):
@@ -211,7 +219,7 @@ class Model(BaseModel, DataMixin):
         progress_kwargs=None,
     ) -> Tracker:
         """
-        Similar to Keras model.fit(...) it trains the model for specified epochs and returns Tracker object
+        Analogous to Keras model.fit(...) API, it trains the model for specified epochs and returns Tracker object
 
         Examples:
         ```python
@@ -252,7 +260,7 @@ class Model(BaseModel, DataMixin):
         try:
             self.callback_runner.with_event("fit", self._fit_with_event, FitCancel)
         except KeyboardInterrupt:
-            logger.info("Keyboard interruption detected")
+            logger.warning("Keyboard interruption detected")
         finally:
             self.callback_runner.clean(keep="TrainEvalCallback")
 

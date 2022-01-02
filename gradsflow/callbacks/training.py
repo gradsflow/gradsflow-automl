@@ -21,9 +21,8 @@ class TrainEvalCallback(Callback):
     def on_train_step_start(self):
         self.model.optimizer.zero_grad()
 
-    def on_train_step_end(self, *args, **kwargs):
+    def on_train_step_end(self, outputs: dict = None, *args, **kwargs):
         # ----- AUTO OPTIMIZATION -----
-        outputs = kwargs["outputs"]
         if not self.model.disable_auto_optimization:
             self.model.backward(outputs["loss"])
             self.model.optimizer.step()
@@ -35,10 +34,9 @@ class TrainEvalCallback(Callback):
         tracker.track_loss(loss, mode="train")
         tracker.track_metrics(outputs.get("metrics", {}), mode="train")
 
-    def on_val_step_end(self, *args, **kwargs):
+    def on_val_step_end(self, outputs: dict = None, *args, **kwargs):
         # ----- METRIC UPDATES -----
         tracker = self.model.tracker
-        outputs = kwargs["outputs"]
         loss = outputs["loss"].item()
         tracker.val.step_loss = loss
         tracker.track_loss(loss, mode="val")
