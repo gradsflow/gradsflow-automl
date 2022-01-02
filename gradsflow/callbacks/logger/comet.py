@@ -118,10 +118,10 @@ class CometCallback(Callback):
         self.experiment.log_metrics(outputs.get("metrics", {}), step=step, prefix=prefix)
         self.experiment.log_metric(f"{prefix}_step_loss", loss, step=step)
 
-    def on_train_step_end(self, outputs: dict = None):
+    def on_train_step_end(self, outputs: dict = None, **_):
         self._step(prefix=self._train_prefix, outputs=outputs)
 
-    def on_val_step_end(self, outputs: dict = None):
+    def on_val_step_end(self, outputs: dict = None, **_):
         self._step(prefix=self._val_prefix, outputs=outputs)
 
     def on_epoch_end(self):
