@@ -13,6 +13,7 @@
 #  limitations under the License.
 
 from gradsflow.callbacks.base import Callback
+from gradsflow.core.base import TrackingValues
 
 
 class TrainEvalCallback(Callback):
@@ -62,7 +63,8 @@ class EarlyStopping(Callback):
 
     def __init__(
         self,
-        monitor="val_loss",
+        monitor="loss",
+        monitor_type="val",
         min_delta=0,
         patience=0,
         verbose=0,
@@ -72,6 +74,7 @@ class EarlyStopping(Callback):
     ):
         super().__init__()
         self.monitor = monitor
+        self.monitor_type = monitor_type
         self.min_delta = min_delta
         self.patience = patience
         self.verbose = verbose
@@ -85,6 +88,10 @@ class EarlyStopping(Callback):
         self.stopped_epoch = 0
 
     def get_monitor_value(self, logs):
+        # tracking_value: TrackingValues = self.model.tracker.mode(self.monitor_type)
+        # val = None
+        # if self.monitor.endswith("loss"):
+        #     val = tracking_value.loss
         pass
 
     def on_fit_start(self):
