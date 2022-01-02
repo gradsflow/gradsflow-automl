@@ -105,7 +105,7 @@ class Callback(ABC):
     def on_epoch_start(self):
         """Called Before each Epoch"""
 
-    def on_epoch_end(self):
+    def on_epoch_end(self, logs=None):
         """Called after each epoch"""
 
     def on_epoch_cancel(self):

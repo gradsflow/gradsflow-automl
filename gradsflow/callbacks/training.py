@@ -53,3 +53,49 @@ class TrainEvalCallback(Callback):
         self.model.eval()
         self.model.metrics.reset()
         self.model.tracker.val.reset_metrics()
+
+
+class EarlyStopping(Callback):
+    # Port of Keras EarlyStopping Callback
+    # https://github.com/keras-team/keras/blob/f5fea878c271e38946c6681c1c2434e72d0ab977/keras/callbacks.py#L1744
+    # Thanks to Keras Team and contributors
+
+    def __init__(
+        self,
+        monitor="val_loss",
+        min_delta=0,
+        patience=0,
+        verbose=0,
+        mode="auto",
+        baseline=None,
+        restore_best_weights=False,
+    ):
+        super().__init__()
+        self.monitor = monitor
+        self.min_delta = min_delta
+        self.patience = patience
+        self.verbose = verbose
+        self.mode = mode
+        self.baseline = baseline
+        self.restore_best_weights = restore_best_weights
+        # Tracking values
+        self.best_model = None
+        self.wait = 0
+        self.best_epoch = 0
+        self.stopped_epoch = 0
+
+    def get_monitor_value(self, logs):
+        pass
+
+    def on_fit_start(self):
+        self.wait = 0
+        self.stopped_epoch = 0
+        self.best_model = None
+        self.best_epoch = 0
+
+    def on_epoch_end(self, logs: dict = None):
+        pass
+
+    # Restore the weights after first epoch if no progress is ever made.
+    # Only reset wait if we beat both the baseline and our previous best.
+    # Only check after the first epoch.

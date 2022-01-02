@@ -81,9 +81,9 @@ class AverageMeter:
     def __init__(self, name=None):
         self.name = name
         self.computed = False
-        self.val = None
+        self.val: Optional[float] = None
         self.sum = None
-        self.count = None
+        self.count: Optional[int] = None
         self.reset()
 
     def reset(self):

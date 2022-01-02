@@ -104,9 +104,9 @@ class CallbackRunner(Callback):
         for _, callback in self.callbacks.items():
             callback.on_epoch_start()
 
-    def on_epoch_end(self):
+    def on_epoch_end(self, logs=None, **kwargs):
         for _, callback in self.callbacks.items():
-            callback.on_epoch_end()
+            callback.on_epoch_end(logs=None, **kwargs)
 
     def on_forward_start(self):
         for _, callback in self.callbacks.items():

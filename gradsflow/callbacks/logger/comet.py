@@ -112,7 +112,7 @@ class CometCallback(Callback):
     ):
         self.experiment.validate()
 
-    def _step(self, prefix: str, *args, **kwargs):
+    def _step(self, prefix: str, *_, **kwargs):
         step = self.model.tracker.mode(prefix).steps
         outputs = kwargs["outputs"]
         loss = outputs["loss"].item()
