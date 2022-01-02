@@ -39,7 +39,7 @@ class Tracker(BaseTracker):
 
         raise NotImplementedError(f"mode {mode} is not implemented!")
 
-    def track(self, key, value):
+    def _track(self, key, value):
         """Tracks value"""
         epoch = self.current_epoch
         data = {"current_epoch": epoch, key: to_item(value)}
@@ -50,7 +50,7 @@ class Tracker(BaseTracker):
         value_tracker = self.mode(mode)
         value_tracker.loss.update(loss)
         key = mode + "/" + "loss"
-        self.track(key, loss)
+        self._track(key, loss)
 
     def track_metrics(self, metric: Dict[str, float], mode: str):
         """Update `TrackingValues` metrics. mode can be train or val"""
@@ -63,18 +63,10 @@ class Tracker(BaseTracker):
                 value_tracker.metrics[key] = AverageMeter(name=key)
                 value_tracker.metrics[key].update(value)
 
-        # track value for each step in a dict
+        # _track value for each step in a dict
         for k, v in metric.items():
             k = mode + "/" + k
-            self.track(k, v)
-
-    def get_metrics(self, mode: str) -> Dict[str, AverageMeter]:
-        value_tracker = self.mode(mode)
-        return value_tracker.metrics
-
-    def get_loss(self, mode: str):
-        value_tracker = self.mode(mode)
-        return value_tracker.loss.avg
+            self._track(k, v)
 
     def create_table(self) -> Table:
         headings = ["i", "train/loss"]
