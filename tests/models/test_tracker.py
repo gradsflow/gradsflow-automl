@@ -43,3 +43,6 @@ def test_create_table(tracker):
 
 def test_get_item(tracker):
     assert tracker["train"] == tracker.mode("train")
+    assert isinstance(tracker["metrics"], dict)
+    assert "train" in tracker["loss"]
+    assert "val" in tracker["loss"]

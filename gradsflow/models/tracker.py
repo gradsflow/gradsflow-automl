@@ -11,7 +11,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 from loguru import logger
 from rich import box
@@ -31,8 +31,25 @@ class Tracker(BaseTracker):
         self.val.metrics = {}
         self.logs: List[Dict] = []
 
-    def __getitem__(self, mode: str):
-        return self.mode(mode)
+    def __getitem__(self, item: str):
+        """
+        1. mode= `train | val` then return respective `TrackingValues` object
+        2. mode=`metrics` then return a dictionary of metrics
+        3. mode=`loss` then return a dictionary of losses
+        Args:
+            mode: train, val, metrics or loss
+
+        Returns:
+            `TrackingValues` or a Dictionary
+        """
+        if item == "train" or item == "val":
+            return self.mode(item)
+        elif item == "metrics":
+            return {"train": self.train_metrics, "val": self.val_metrics}
+        elif item == "loss":
+            return {"train": self.train_loss, "val": self.val_loss}
+
+        raise KeyError(f"item {item} is not implemented!")
 
     def mode(self, mode) -> TrackingValues:
         if mode == "train":
