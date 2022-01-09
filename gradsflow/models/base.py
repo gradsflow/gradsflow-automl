@@ -46,7 +46,8 @@ class Base:
     def __call__(self, x):
         return self.forward(x)
 
-    def _get_loss(self, loss: Union[str, Callable], loss_config: dict) -> Optional[Callable]:
+    @staticmethod
+    def _get_loss(loss: Union[str, Callable], loss_config: dict) -> Optional[Callable]:
         loss_fn = None
         if isinstance(loss, str):
             loss_fn = losses.get(loss)(**loss_config)
@@ -58,7 +59,8 @@ class Base:
 
         return loss_fn
 
-    def _get_optimizer(self, optimizer: Union[str, torch.optim.Optimizer]) -> Callable:
+    @staticmethod
+    def _get_optimizer(optimizer: Union[str, torch.optim.Optimizer]) -> Callable:
         if isinstance(optimizer, str):
             optimizer_fn = _OPTIMIZER_INDEX.get(optimizer)
             assert (

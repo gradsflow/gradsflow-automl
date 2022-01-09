@@ -61,9 +61,9 @@ class CometCallback(Callback):
         self._train_prefix = "train"
         self._val_prefix = "val"
 
+    @staticmethod
     @requires("comet_ml", "CometCallback requires comet_ml to be installed!")
     def _create_experiment(
-        self,
         project_name: str,
         workspace: str,
         offline: bool = False,
