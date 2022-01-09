@@ -265,3 +265,19 @@ class Model(BaseModel, DataMixin):
             self.callback_runner.clean(keep="TrainEvalCallback")
 
         return self.tracker
+
+    @staticmethod
+    def load_from_checkpoint(checkpoint) -> "Model":
+        data = torch.load(checkpoint)
+
+        tracker = None
+        if isinstance(data, dict):
+            learner = data["model"]
+            tracker = data["tracker"]
+        else:
+            learner = data
+
+        model = Model(learner)
+        if tracker:
+            model.tracker = tracker
+        return model

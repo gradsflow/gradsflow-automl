@@ -172,14 +172,6 @@ class BaseModel(Base):
         self.learner.requires_grad_(True)
         self.learner.train()
 
-    def load_from_checkpoint(self, checkpoint):
-        data = torch.load(checkpoint)
-        if isinstance(data, dict):
-            self.learner = data["model"]
-            self.tracker = data["tracker"]
-        else:
-            self.learner = data
-
     def save(self, path: str, save_extra: bool = False):
         """save model"""
         model = self.learner

@@ -104,6 +104,5 @@ def test_load_from_checkpoint(tmp_path, cnn_model):
     cnn_model.save(path, save_extra=True)
     assert isinstance(torch.load(path), dict)
 
-    cnn_model.tracker.train.metrics["CHECK"] = True
-    cnn_model.load_from_checkpoint(path)
-    assert cnn_model.tracker.train.metrics["CHECK"]
+    offline_model = cnn_model.load_from_checkpoint(path)
+    assert isinstance(offline_model, Model)
