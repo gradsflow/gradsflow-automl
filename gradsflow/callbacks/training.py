@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from gradsflow.core.callbacks import Callback
+from gradsflow.callbacks.base import Callback
 
 
 class TrainEvalCallback(Callback):
@@ -21,35 +21,33 @@ class TrainEvalCallback(Callback):
     def on_train_step_start(self):
         self.model.optimizer.zero_grad()
 
-    def on_train_step_end(self, *args, **kwargs):
+    def on_train_step_end(self, *args, outputs: dict = None, **kwargs):
+        MODE = "train"
         # ----- AUTO OPTIMIZATION -----
-        outputs = kwargs["outputs"]
         if not self.model.disable_auto_optimization:
             self.model.backward(outputs["loss"])
             self.model.optimizer.step()
 
         # ----- METRIC UPDATES -----
         tracker = self.model.tracker
-        loss = outputs["loss"].item()
-        tracker.val.step_loss = loss
-        tracker.track_loss(loss, mode="train")
-        tracker.track_metrics(outputs.get("metrics", {}), mode="train")
+        loss = outputs["loss"]
+        tracker.track_loss(loss, mode=MODE)
+        tracker.track_metrics(outputs.get("metrics", {}), mode=MODE)
 
-    def on_val_step_end(self, *args, **kwargs):
+    def on_val_step_end(self, *args, outputs: dict = None, **kwargs):
+        MODE = "val"
         # ----- METRIC UPDATES -----
         tracker = self.model.tracker
-        outputs = kwargs["outputs"]
-        loss = outputs["loss"].item()
-        tracker.val.step_loss = loss
-        tracker.track_loss(loss, mode="val")
-        tracker.track_metrics(outputs.get("metrics", {}), mode="val")
+        loss = outputs["loss"]
+        tracker.track_loss(loss, mode=MODE)
+        tracker.track_metrics(outputs.get("metrics", {}), mode=MODE)
 
     def on_train_epoch_start(self):
         self.model.train()
         self.model.metrics.reset()
-        self.model.tracker.train.reset_metrics()
+        self.model.tracker.train.reset()
 
     def on_val_epoch_start(self):
         self.model.eval()
         self.model.metrics.reset()
-        self.model.tracker.val.reset_metrics()
+        self.model.tracker.val.reset()

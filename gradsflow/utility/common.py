@@ -81,9 +81,9 @@ class AverageMeter:
     def __init__(self, name=None):
         self.name = name
         self.computed = False
-        self.val = None
-        self.sum = None
-        self.count = None
+        self.val: Optional[float] = None
+        self.sum: Optional[float] = None
+        self.count: Optional[int] = None
         self.reset()
 
     def reset(self):
@@ -95,13 +95,14 @@ class AverageMeter:
     def update(self, val, n=1):
         """Updates the average meter value with new data. It also converts `torch.Tensor` to primitive datatype."""
         self.computed = True
-        self.val = to_item(val)
+        val = to_item(val)
+        self.val = val
         self.sum += val * n
         self.count += n
         self.avg = self.sum / self.count
 
 
-def to_item(data: Union[torch.Tensor, Iterable, Dict]) -> Union[int, float, str, np.ndarray, Dict]:
+def to_item(data: Any) -> Union[int, float, str, np.ndarray, Dict]:
     """
     Converts torch.Tensor into cpu numpy format.
     Args:
