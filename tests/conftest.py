@@ -14,6 +14,7 @@
 # Arrange
 import pytest
 import timm
+from torch import nn
 
 from gradsflow import Model
 from gradsflow.models.tracker import Tracker
@@ -37,3 +38,17 @@ def cnn_model(resnet18):
 @pytest.fixture
 def tracker():
     return Tracker()
+
+
+@pytest.fixture
+def dummy_model():
+    """A dummy torch.nn model that adds 1 to the forward input value."""
+
+    class DummyModel(nn.Module):
+        def __init__(self):
+            super().__init__()
+
+        def forward(self, x):
+            return x + 1
+
+    return DummyModel()
