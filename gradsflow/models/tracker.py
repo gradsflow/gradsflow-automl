@@ -31,7 +31,7 @@ class Tracker(BaseTracker):
         self.val.metrics = {}
         self.logs: List[Dict] = []
 
-    def __getitem__(self, key: str):
+    def __getitem__(self, key: str):  # skipcq: PYL-R1705
         """
         1. key= `train | val` then return respective `TrackingValues` object
         2. key=`metrics` then return a dictionary of metrics
@@ -76,7 +76,8 @@ class Tracker(BaseTracker):
         raise KeyError(f"mode {mode} is not implemented!")
 
     def _append_logs(self, key, value):
-        """Tracks value"""
+        """Append Key Value pairs to `Tracker.logs`"""
+        # TODO: accept a list of keys and values as well.
         epoch = self.current_epoch
         data = {"current_epoch": epoch, key: to_item(value)}
         self.logs.append(data)
