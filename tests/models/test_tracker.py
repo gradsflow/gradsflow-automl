@@ -29,8 +29,8 @@ def test_mode(tracker):
 
 
 def test_track(tracker):
-    tracker._track("val", 0.9)
-    tracker._track("score", 0.5)
+    tracker._append_logs("val", 0.9)
+    tracker._append_logs("score", 0.5)
 
 
 def test_create_table(tracker):
