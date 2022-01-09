@@ -84,7 +84,7 @@ class Tracker(BaseTracker):
 
     def track_loss(self, loss: float, mode: str):
         """Tracks loss by adding to `Tracker.logs` and maintaining average loss in a single Epoch with `TrackingValues`.
-        Update `TrackingValues` loss which is called with `TrainEvalCallback` at `*_step_end`.
+        Update loss with `TrackingValues.update_loss(loss)` which is called with `TrainEvalCallback` at `*_step_end`.
         Args:
             loss: Step Loss
             mode: can be train | val
@@ -96,7 +96,12 @@ class Tracker(BaseTracker):
         self._append_logs(key, loss)
 
     def track_metrics(self, metric: Dict[str, float], mode: str):
-        """Update `TrackingValues` metrics. mode can be train or val"""
+        """Tracks metrics by adding to `Tracker.logs` and maintaining average metric in a single Epoch with `TrackingValues`.
+        Update  metrics with `TrackingValues.update_metrics(metrics)` which is called with `TrainEvalCallback` at `*_step_end`.
+        Args:
+            metric: Step metric
+            mode: can be train | val
+        """
         value_tracker = self.mode(mode)
 
         # Track values that averages with epoch

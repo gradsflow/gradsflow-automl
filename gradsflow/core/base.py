@@ -52,11 +52,6 @@ class TrackingValues:
         self.metrics = {}
         self.loss = AverageMeter(name="loss")
 
-    def step(self, loss: float, metrics: dict = None):
-        self.step_loss = loss
-        self.update_loss(loss)
-        self.update_metrics(metrics)
-
     def update_loss(self, loss: float):
         assert isinstance(loss, (int, float, np.ndarray)), f"loss must be int | float | np.ndarray but got {type(loss)}"
         self.step_loss = loss
