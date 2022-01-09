@@ -22,10 +22,14 @@ from PIL import Image
 from torch.utils.data import IterableDataset
 
 
+def read_files(path, include_paths: bool = True) -> ray.data.Dataset:
+    return ray.data.read_binary_files(path, include_paths=include_paths)
+
+
 class RayDataset(IterableDataset):
     def __init__(self, path: Union[List[str], str]):
         self.path = path
-        self.ds = ray.data.read_binary_files(path, include_paths=True)
+        self.ds = read_files(path, include_paths=True)
 
     def __iter__(self):
         return self.ds.iter_rows()

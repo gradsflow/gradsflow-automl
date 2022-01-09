@@ -1,4 +1,4 @@
-#  Copyright (c) 2021 GradsFlow. All rights reserved.
+#  Copyright (c) 2022 GradsFlow. All rights reserved.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -12,17 +12,19 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-import os
-import sys
-import warnings
+from pathlib import Path
 
-try:
-    import gradsflow
-except ImportError:
-    sys.path.append("./")
-from ray import workflow
+from gradsflow.workflow.data.image import ImageClassificationDataWorkflow
 
-os.environ["GF_CI"] = "true"
+data_dir = Path.cwd()
 
-warnings.filterwarnings("ignore")
-workflow.init()
+
+def test_image_classification():
+    path = f"{data_dir}/data/test-data-cat-dog-v0/cat-dog/"
+
+    dataflow = ImageClassificationDataWorkflow.get_or_create("dataflow", path)
+    print(dataflow)
+    print(dataflow.incr.run(10))
+    output = dataflow.extract_data.run(path)
+
+    assert isinstance(next(output.iter_rows()), str)
