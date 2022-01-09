@@ -16,6 +16,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Dict, Optional
 
+import numpy as np
 import torch
 
 from gradsflow.utility.common import AverageMeter, module_to_cls_index
@@ -42,16 +43,32 @@ class BaseAutoModel(ABC):
 
 @dataclass(init=False)
 class TrackingValues:
-    loss: Optional[AverageMeter] = None
+    loss: Optional[AverageMeter] = None  # Average loss in a single Epoch
     steps: Optional[int] = None
     step_loss: Optional[float] = None
-    metrics: Optional[Dict[str, AverageMeter]] = None
+    metrics: Optional[Dict[str, AverageMeter]] = None  # Average value in a single Epoch
 
     def __init__(self):
         self.metrics = {}
         self.loss = AverageMeter(name="loss")
 
-    def reset_metrics(self):
+    def update_loss(self, loss: float):
+        assert isinstance(loss, (int, float, np.ndarray)), f"loss must be int | float | np.ndarray but got {type(loss)}"
+        self.step_loss = loss
+        self.loss.update(loss)
+
+    def update_metrics(self, metrics: Dict[str, float]):
+        """Update `TrackingValues` metrics. mode can be train or val"""
+        # Track values that averages with epoch
+        for key, value in metrics.items():
+            try:
+                self.metrics[key].update(value)
+            except KeyError:
+                self.metrics[key] = AverageMeter(name=key)
+                self.metrics[key].update(value)
+
+    def reset(self):
+        """Values are Reset on start of each `on_*_epoch_start`"""
         self.loss.reset()
         for _, metric in self.metrics.items():
             metric.reset()

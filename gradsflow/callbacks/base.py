@@ -11,18 +11,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-#
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+
 import typing
 from abc import ABC
 from typing import Callable, Optional
@@ -35,6 +24,7 @@ def dummy(x=None, **__):
     return x
 
 
+# TODO: set self.MODE in each callback stage train | val
 class Callback(ABC):
     """Callback objects define events on which it will run during the model training cycle."""
 
@@ -43,6 +33,10 @@ class Callback(ABC):
 
     def __init__(self, model: Optional["Model"] = None):
         self.model = model
+
+    @property
+    def name(self) -> str:
+        return self._name
 
     def with_event(self, event_type: str, func: Callable, exception, final_fn: Callable = dummy):
         """Calls a function with event wrapped around. Inspired from FastAI.

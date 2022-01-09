@@ -18,7 +18,7 @@ from rich import box
 from rich.table import Table
 
 from gradsflow.core.base import BaseTracker, TrackingValues
-from gradsflow.utility.common import AverageMeter, to_item
+from gradsflow.utility.common import to_item
 
 
 class Tracker(BaseTracker):
@@ -31,80 +31,25 @@ class Tracker(BaseTracker):
         self.val.metrics = {}
         self.logs: List[Dict] = []
 
-    def mode(self, mode) -> TrackingValues:
-        if mode == "train":
-            return self.train
-        if mode == "val":
-            return self.val
+    def __getitem__(self, key: str):  # skipcq: PYL-R1705
+        """
+        1. key= `train | val` then return respective `TrackingValues` object
+        2. key=`metrics` then return a dictionary of metrics
+        3. key=`loss` then return a dictionary of losses
+        Args:
+            key: train, val, metrics or loss
 
-        raise NotImplementedError(f"mode {mode} is not implemented!")
+        Returns:
+            `TrackingValues` or a Dictionary
+        """
+        if key == "train" or key == "val":
+            return self.mode(key)
+        elif key == "metrics":
+            return {"train": self.train_metrics, "val": self.val_metrics}
+        elif key == "loss":
+            return {"train": self.train_loss, "val": self.val_loss}
 
-    def track(self, key, value):
-        """Tracks value"""
-        epoch = self.current_epoch
-        data = {"current_epoch": epoch, key: to_item(value)}
-        self.logs.append(data)
-
-    def track_loss(self, loss: float, mode: str):
-        """Update `TrackingValues` loss. mode can be train or val"""
-        value_tracker = self.mode(mode)
-        value_tracker.loss.update(loss)
-        key = mode + "/" + "loss"
-        self.track(key, loss)
-
-    def track_metrics(self, metric: Dict[str, float], mode: str):
-        """Update `TrackingValues` metrics. mode can be train or val"""
-        value_tracker = self.mode(mode)
-        # Track values that averages with epoch
-        for key, value in metric.items():
-            try:
-                value_tracker.metrics[key].update(value)
-            except KeyError:
-                value_tracker.metrics[key] = AverageMeter(name=key)
-                value_tracker.metrics[key].update(value)
-
-        # track value for each step in a dict
-        for k, v in metric.items():
-            k = mode + "/" + k
-            self.track(k, v)
-
-    def get_metrics(self, mode: str):
-        value_tracker = self.mode(mode)
-        return value_tracker.metrics
-
-    def get_loss(self, mode: str):
-        value_tracker = self.mode(mode)
-        return value_tracker.loss.avg
-
-    def create_table(self) -> Table:
-        headings = ["i", "train/loss"]
-        row = [self.current_epoch, to_item(self.train_loss)]
-
-        if self.val.loss.computed:
-            headings.append("val/loss")
-            row.append(to_item(self.val_loss))
-
-        for metric_name, value in self.train_metrics.items():
-            headings.append("train/" + metric_name)
-            row.append(to_item(value.avg))
-
-        for metric_name, value in self.val_metrics.items():
-            headings.append("val/" + metric_name)
-            row.append(to_item(value.avg))
-
-        row = list(map(lambda x: f"{x: .3f}" if isinstance(x, float) else str(x), row))
-        table = Table(*headings, expand=True, box=box.SIMPLE)
-        table.add_row(*row)
-        return table
-
-    def reset(self):
-        logger.info("Reset Tracker")
-        self.max_epochs = 0
-        self.current_epoch = 0
-        self.steps_per_epoch = None
-        self.train = TrackingValues()
-        self.val = TrackingValues()
-        self.logs = []
+        raise KeyError(f"key {key} is not implemented!")
 
     @property
     def train_loss(self):
@@ -121,3 +66,79 @@ class Tracker(BaseTracker):
     @property
     def val_metrics(self):
         return self.val.metrics
+
+    def mode(self, mode) -> TrackingValues:
+        if mode == "train":
+            return self.train
+        if mode == "val":
+            return self.val
+
+        raise KeyError(f"mode {mode} is not implemented!")
+
+    def _append_logs(self, key, value):
+        """Append Key Value pairs to `Tracker.logs`"""
+        # TODO: accept a list of keys and values as well.
+        epoch = self.current_epoch
+        data = {"current_epoch": epoch, key: to_item(value)}
+        self.logs.append(data)
+
+    def track_loss(self, loss: float, mode: str):
+        """Tracks loss by adding to `Tracker.logs` and maintaining average loss in a single Epoch with `TrackingValues`.
+        Update loss with `TrackingValues.update_loss(loss)` which is called with `TrainEvalCallback` at `*_step_end`.
+        Args:
+            loss: Step Loss
+            mode: can be train | val
+        """
+        loss = to_item(loss)
+        value_tracker = self.mode(mode)
+        value_tracker.update_loss(loss)
+        key = mode + "/" + "loss"
+        self._append_logs(key, loss)
+
+    def track_metrics(self, metric: Dict[str, float], mode: str):
+        """Tracks metrics by adding to `Tracker.logs` and maintaining average metric in a single Epoch with `TrackingValues`.
+        Update  metrics with `TrackingValues.update_metrics(metrics)` which is called with `TrainEvalCallback` at `*_step_end`.
+        Args:
+            metric: Step metric
+            mode: can be train | val
+        """
+        value_tracker = self.mode(mode)
+
+        # Track values that averages with epoch
+        value_tracker.update_metrics(metric)
+
+        # _append_logs value for each step in a dict
+        for k, v in metric.items():
+            k = mode + "/" + k
+            self._append_logs(k, v)
+
+    def create_table(self) -> Table:
+        headings = ["i", "train/loss"]
+        row = [self.current_epoch, self.train_loss]
+
+        if self.val.loss.computed:
+            headings.append("val/loss")
+            row.append(self.val_loss)
+
+        for metric_name, value in self.train_metrics.items():
+            headings.append("train/" + metric_name)
+            row.append(value.avg)
+
+        for metric_name, value in self.val_metrics.items():
+            headings.append("val/" + metric_name)
+            row.append(value.avg)
+
+        row = list(map(lambda x: f"{x: .3f}" if isinstance(x, float) else str(x), row))
+        table = Table(*headings, expand=True, box=box.SIMPLE)
+        table.add_row(*row)
+        return table
+
+    def reset(self):
+        """Resets epochs, logs and train & val `TrackingValues`."""
+        logger.debug("Reset Tracker")
+        self.max_epochs = 0
+        self.current_epoch = 0
+        self.steps_per_epoch = None
+        self.train = TrackingValues()
+        self.val = TrackingValues()
+        self.logs = []

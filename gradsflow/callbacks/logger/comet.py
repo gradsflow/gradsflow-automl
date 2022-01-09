@@ -20,7 +20,7 @@ BaseExperiment = None
 if TYPE_CHECKING:
     from comet_ml import BaseExperiment
 
-from gradsflow.core.callbacks import Callback
+from gradsflow.callbacks.base import Callback
 from gradsflow.utility.imports import requires
 
 CURRENT_FILE = os.path.dirname(os.path.realpath(__file__))
@@ -61,9 +61,9 @@ class CometCallback(Callback):
         self._train_prefix = "train"
         self._val_prefix = "val"
 
+    @staticmethod
     @requires("comet_ml", "CometCallback requires comet_ml to be installed!")
     def _create_experiment(
-        self,
         project_name: str,
         workspace: str,
         offline: bool = False,
@@ -112,18 +112,17 @@ class CometCallback(Callback):
     ):
         self.experiment.validate()
 
-    def _step(self, prefix: str, *args, **kwargs):
+    def _step(self, prefix: str, outputs: dict):
         step = self.model.tracker.mode(prefix).steps
-        outputs = kwargs["outputs"]
         loss = outputs["loss"].item()
         self.experiment.log_metrics(outputs.get("metrics", {}), step=step, prefix=prefix)
         self.experiment.log_metric(f"{prefix}_step_loss", loss, step=step)
 
-    def on_train_step_end(self, *args, **kwargs):
-        self._step(*args, **kwargs, prefix=self._train_prefix)
+    def on_train_step_end(self, outputs: dict = None, **_):
+        self._step(prefix=self._train_prefix, outputs=outputs)
 
-    def on_val_step_end(self, *args, **kwargs):
-        self._step(*args, **kwargs, prefix=self._val_prefix)
+    def on_val_step_end(self, outputs: dict = None, **_):
+        self._step(prefix=self._val_prefix, outputs=outputs)
 
     def on_epoch_end(self):
         epoch = self.model.tracker.current_epoch
