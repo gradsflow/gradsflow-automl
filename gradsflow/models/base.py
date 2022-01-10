@@ -19,11 +19,9 @@ import smart_open
 import torch
 from accelerate import Accelerator
 from torch import nn
-from torchmetrics import Metric, MetricCollection
 
 from gradsflow.models.tracker import Tracker
 from gradsflow.models.utils import losses
-from gradsflow.models.utils import metrics as metrics_classes
 from gradsflow.utility.common import default_device, module_to_cls_index
 
 _OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
@@ -41,7 +39,6 @@ class Base:
     def __init__(self):
         self.tracker = Tracker()
         self.device = None
-        self.metrics: MetricCollection = MetricCollection([])
 
     def __call__(self, x):
         return self.forward(x)
@@ -82,21 +79,6 @@ class Base:
     def predict(self, x):
         return self.learner(x)
 
-    def add_metrics(self, *metrics: Union[str, Metric]) -> None:
-        for m in metrics:
-            if isinstance(m, str):
-                m_cls = metrics_classes.get(m)
-                assert (
-                    m_cls is not None
-                ), f"metrics {m} is not available! Available metrics are {tuple(metrics_classes.keys())}"
-                m_obj = m_cls()
-            elif isinstance(m, Metric):
-                m_obj = m
-            else:
-                raise NotImplementedError(f"metrics not implemented for {m}! Please see `torchmetrics`.")
-            self.metrics.add_metrics(m_obj)
-        self.metrics.to(self.device)
-
     def forward(self, x):
         return self.learner(x)
 
@@ -124,7 +106,6 @@ class BaseModel(Base):
         super().__init__()
         self._set_accelerator(device, use_accelerate, accelerator_config)
         self.learner = self.prepare_model(learner)
-        self.metrics.to(self.device)
 
     def _set_accelerator(self, device: Optional[str], use_accelerate: bool, accelerator_config: dict):
         if use_accelerate:

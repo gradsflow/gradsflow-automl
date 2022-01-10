@@ -11,6 +11,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+import warnings
 from typing import Callable, Optional
 
 from accelerate import Accelerator
@@ -122,6 +123,9 @@ class AutoDataset(BaseAutoDataset, DataMixin):
         self.meta["device_setup_status"] = value
 
     def prepare_data(self, accelerator: Accelerator) -> None:
+        if accelerator is None:
+            warnings.warn("Accelerator is None, skipped data preparation!")
+            return
         self._train_dataloader = accelerator.prepare_data_loader(self._train_dataloader)
         if self._val_dataloader:
             self._val_dataloader = accelerator.prepare_data_loader(self._val_dataloader)
