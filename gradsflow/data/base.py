@@ -34,3 +34,5 @@ class BaseAutoDataset:
         self.train_dataset = None
         self.val_dataset = None
         self.num_classes = None
+        self._val_dataloader_length = None
+        self._train_dataloader_length = None

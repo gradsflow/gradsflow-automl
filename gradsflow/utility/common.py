@@ -19,7 +19,7 @@ import sys
 import warnings
 from glob import glob
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
 import torch

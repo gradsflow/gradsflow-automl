@@ -54,7 +54,7 @@ class ProgressCallback(Callback):
         self.progress.update(self.fit_prog, advance=1)
 
     def on_train_epoch_start(self):
-        n = len(self.model.autodataset.train_dataloader)
+        n = self.model.autodataset.dataloader_length["train"]
         self.train_prog_bar = self.progress.add_task("[green]Learning", total=n)
 
     def on_train_epoch_end(self, *args, **kwargs):
@@ -66,11 +66,10 @@ class ProgressCallback(Callback):
         self.table_column.renderable = self.model.tracker.create_table()
 
     def on_val_epoch_start(self):
-        val_dl = self.model.autodataset.val_dataloader
-        if not val_dl:
+        val_len = self.model.autodataset.dataloader_length["val"]
+        if val_len is None:
             return
-        n = len(val_dl)
-        self.val_prog_bar = self.progress.add_task("[blue]Validating...", total=n)
+        self.val_prog_bar = self.progress.add_task("[blue]Validating...", total=val_len)
 
     def on_val_epoch_end(self, *args, **kwargs):
         val_dl = self.model.autodataset.val_dataloader
