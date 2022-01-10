@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import warnings
-from typing import Callable, Optional
+from typing import Callable, Dict, Optional, Union
 
 from accelerate import Accelerator
 from loguru import logger
@@ -43,7 +43,6 @@ class AutoDataset(BaseAutoDataset, DataMixin):
         batch_size: int = 1,
         num_workers: int = 0,
         pin_memory: Optional[bool] = False,
-        **kwargs
     ):
         super().__init__()
         self.device = default_device()
@@ -54,10 +53,9 @@ class AutoDataset(BaseAutoDataset, DataMixin):
             val_dataset,
             datamodule,
             num_classes,
-            **kwargs,
             batch_size=batch_size,
             num_workers=num_workers,
-            pin_memory=pin_memory
+            pin_memory=pin_memory,
         )
 
     def setup(
@@ -72,7 +70,6 @@ class AutoDataset(BaseAutoDataset, DataMixin):
         num_workers: int = 0,
         pin_memory: Optional[bool] = False,
     ):
-
         self.datamodule = datamodule
         self._train_dataloader = train_dataloader
         self._val_dataloader = val_dataloader
@@ -111,7 +108,17 @@ class AutoDataset(BaseAutoDataset, DataMixin):
             if hasattr(datamodule, "num_labels"):
                 self.meta["num_labels"] = datamodule.num_labels
 
+        try:
+            self._train_dataloader_length = len(self._train_dataloader)
+            self._val_dataloader_length = len(self._val_dataloader)
+        except Exception as e:
+            logger.debug(f"dataloader length problem: {e.args}")
+
         self.meta["num_classes"] = self.num_classes
+
+    @property
+    def dataloader_length(self) -> Dict[str, Union[int, None]]:
+        return {"train": self._train_dataloader_length, "val": self._val_dataloader_length}
 
     @property
     def device_setup_status(self):
