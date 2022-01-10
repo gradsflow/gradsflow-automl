@@ -49,9 +49,9 @@ class ImageClassificationDataWorkflow:
         return data
 
     def flow(self):
-        step = self.extract_data.step(self._path, name="extract_data")
-        step = self.load_data.step(step, name="load_data")
-        step = self.preprocess.step(step, name="preprocess")
+        step = self.extract_data.step(self._path)
+        step = self.load_data.step(step.run())
+        step = self.preprocess.step(step)
         return step
 
 
@@ -63,13 +63,14 @@ if __name__ == "__main__":
     data_dir = Path.cwd()
     path = f"{data_dir}/data/test-data-cat-dog-v0/cat-dog/"
     configs = {"path": path, "data_format": DataFormat.FOLDER}
-    dataflow = ImageClassificationDataWorkflow.get_or_create("dataflow", path)
-    print(dataflow)
-    output = dataflow.extract_data.run(path)
+    handler = ImageClassificationDataWorkflow.get_or_create("dataflow", path)
+    print(handler)
+
+    output = handler.flow.run()
     # print(output)
     #
     for data in output.iter_rows():
-        print(data[0])
+        print(data)
 
     #
     # print(output.step(path).run())
