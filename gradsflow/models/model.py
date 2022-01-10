@@ -21,6 +21,7 @@ from torchmetrics import Metric
 
 from gradsflow.callbacks import CallbackRunner, ProgressCallback, TrainEvalCallback
 from gradsflow.callbacks.base import Callback
+from gradsflow.core.metrics import MetricsContainer
 from gradsflow.data import AutoDataset
 from gradsflow.data.mixins import DataMixin
 from gradsflow.models.base import BaseModel
@@ -64,9 +65,11 @@ class Model(BaseModel, DataMixin):
             use_accelerate=use_accelerate,
             accelerator_config=accelerator_config,
         )
+
         self.autodataset: Optional[AutoDataset] = None
         self.callback_runner: CallbackRunner = CallbackRunner(self, TrainEvalCallback(self))
         self.disable_auto_optimization = False
+        self.metrics: MetricsContainer = MetricsContainer(self.device)
 
     def forward_once(self, x) -> torch.Tensor:
         self.callback_runner.on_forward_start()
@@ -118,19 +121,15 @@ class Model(BaseModel, DataMixin):
             self.optimizer = self.prepare_optimizer(optimizer)
         if loss:
             self.loss = self._get_loss(loss, loss_config)
-        self.add_metrics(*listify(metrics))
+        self.metrics.compile_metrics(*listify(metrics))
         self._compiled = True
-
-    def calculate_metrics(self, preds, target) -> Dict[str, torch.Tensor]:
-        self.metrics.update(preds, target)
-        return self.metrics.compute()
 
     def step(self, batch: Union[List[torch.Tensor], Dict[Any, torch.Tensor]]) -> Dict[str, torch.Tensor]:
         inputs = self.fetch_inputs(batch)
         target = self.fetch_target(batch)
         logits = self.forward_once(inputs)
         loss = self.loss(logits, target)
-        return {"loss": loss, "metrics": self.calculate_metrics(logits, target)}
+        return {"loss": loss, "metrics": self.metrics.calculate_metrics(logits, target)}
 
     def train_step(self, batch: Union[List[torch.Tensor], Dict[Any, torch.Tensor]]) -> Dict[str, torch.Tensor]:
         return self.step(batch)
