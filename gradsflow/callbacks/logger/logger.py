@@ -66,7 +66,7 @@ class ModelCheckpoint(Callback):
     Saves Model checkpoint
     Args:
         filename: name of checkpoint
-        path: folder path location of the model checkpoint
+        path: folder path location of the model checkpoint. Will create a folder if does not exist.
         save_extra: whether to save extra details like tracker
     """
 
@@ -74,9 +74,11 @@ class ModelCheckpoint(Callback):
 
     def __init__(self, filename: Optional[str] = None, path: str = os.getcwd(), save_extra: bool = False):
         super().__init__(model=None)
-        filename = filename or "model"
+        filename = Path(filename or "model")
+        path = Path(path)
         self.path = path
-        self._dst = Path(path) / Path(filename)
+        self.path.mkdir(exist_ok=True)
+        self._dst = path / filename
         self.save_extra = save_extra
 
     def on_epoch_end(self):
