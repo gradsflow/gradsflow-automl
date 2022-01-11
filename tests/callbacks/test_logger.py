@@ -17,7 +17,7 @@ from pathlib import Path
 import pytest
 
 from gradsflow import AutoDataset
-from gradsflow.callbacks import EmissionTrackerCallback
+from gradsflow.callbacks import EmissionTrackerCallback, ModelCheckpoint
 from gradsflow.callbacks.logger import CometCallback, CSVLogger
 from gradsflow.data.image import image_dataset_from_directory
 from gradsflow.utility.imports import is_installed
@@ -43,6 +43,13 @@ def test_csv_logger(dummy_model, auto_dataset):
     dummy_model.compile()
     dummy_model.fit(auto_dataset, callbacks=csv_logger)
     assert os.path.isfile("test_csv_logger.csv")
+
+
+def test_model_checkpoint(dummy_model, auto_dataset):
+    ckpt_cb = ModelCheckpoint(filename="model_ckpt", path="test_model_checkpoint_folder")
+    dummy_model.compile()
+    dummy_model.fit(auto_dataset, callbacks=ckpt_cb)
+    assert os.path.exists("test_model_checkpoint_folder")
 
 
 @pytest.mark.skipif(not is_installed("comet_ml"), reason="requires `comet_ml` installed")
