@@ -34,12 +34,10 @@ class MetricsContainer:
     def metrics(self):
         return self._metrics
 
-    def reset(self):
-        self._metrics: MetricCollection = MetricCollection([])
-
     def compile_metrics(self, *metrics: Union[str, Metric]) -> None:
+        """Initialize metrics collection and add provided `*metrics` to the container."""
         if len(self._metrics) > 0:
-            self.reset()
+            self._metrics = MetricCollection([])
         self.add_metrics(*metrics)
 
     def add_metrics(self, *metrics: Union[str, Metric]) -> None:
@@ -57,12 +55,18 @@ class MetricsContainer:
             self._metrics.add_metrics(m_obj)
         self._metrics.to(self._device)
 
-    def update(self, preds, target):
+    def _update(self, preds, target):
+        """Iteratively update all the `torchmetrics` value"""
         self._metrics.update(preds, target)
 
     def compute(self):
         return self._metrics.compute()
 
     def calculate_metrics(self, preds, target) -> Dict[str, torch.Tensor]:
-        self.update(preds, target)
+        """Iteratively update the compiled metrics and return the new computed values"""
+        self._update(preds, target)
         return self.compute()
+
+    def reset(self):
+        """Reset the values of each of the compiled metrics"""
+        self._metrics.reset()
