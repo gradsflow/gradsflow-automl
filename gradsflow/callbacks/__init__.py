@@ -11,9 +11,9 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+from .comet import CometCallback
 from .gpu import EmissionTrackerCallback
-from .logger import CometCallback, CSVLogger
-from .logger.logger import ModelCheckpoint
+from .logger import CSVLogger, ModelCheckpoint
 from .progress import ProgressCallback
 from .raytune import report_checkpoint_callback
 from .runner import CallbackRunner

@@ -12,10 +12,12 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import os
+from typing import Optional
 
 import wandb
 
 from gradsflow.callbacks.base import Callback
+from gradsflow.utility.imports import requires
 
 CURRENT_FILE = os.path.dirname(os.path.realpath(__file__))
 
@@ -28,10 +30,11 @@ class WandbCallback(Callback):
         code_file: path of the code you want to upload as artifact to Wandb
     """
 
+    @requires("wandb", "WandbCallback requires wandb to be installed!")
     def __init__(
         self,
         log_model: bool = False,
-        code_file: str = CURRENT_FILE,
+        code_file: Optional[str] = None,
     ):
         super().__init__()
         if wandb.run is None:
