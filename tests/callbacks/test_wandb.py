@@ -1,4 +1,4 @@
-#  Copyright (c) 2021 GradsFlow. All rights reserved.
+#  Copyright (c) 2022 GradsFlow. All rights reserved.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -11,5 +11,19 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-from .comet import CometCallback
-from .logger import CSVLogger
+from unittest.mock import Mock, patch
+
+import pytest
+
+from gradsflow.callbacks.wandb import WandbCallback
+from gradsflow.utility.imports import is_installed
+
+
+@pytest.mark.skipif(not is_installed("wandb"), reason="requires `wandb` installed")
+@patch("gradsflow.callbacks.wandb.wandb")
+def test_wandbcallback(mock_wandb: Mock, cnn_model, auto_dataset):
+    model = cnn_model
+    cb = WandbCallback()
+    model.compile()
+    model.fit(auto_dataset, callbacks=cb)
+    mock_wandb.log.assert_called()
