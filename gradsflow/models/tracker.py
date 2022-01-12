@@ -42,7 +42,7 @@ class Tracker(BaseTracker):
         Returns:
             `TrackingValues` or a Dictionary
         """
-        if key == "train" or key == "val":
+        if key in ("train", "val"):
             return self.mode(key)
         elif key == "metrics":
             return {"train": self.train_metrics, "val": self.val_metrics}
