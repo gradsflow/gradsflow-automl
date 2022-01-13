@@ -13,7 +13,7 @@
 #  limitations under the License.
 
 import os
-from typing import Optional
+from typing import Dict, List, Optional
 
 import wandb
 
@@ -21,6 +21,18 @@ from gradsflow.callbacks.base import Callback
 from gradsflow.utility.imports import requires
 
 CURRENT_FILE = os.path.dirname(os.path.realpath(__file__))
+
+
+def define_metrics():
+    min_max_def: Dict[str, List[str]] = {
+        "min": ["train/step_loss", "train/epoch_loss", "val/epoch_loss"],
+        "max": ["train/acc*", "val/acc*"],
+    }
+    for summary, metric_list in min_max_def.items():
+        for metric in metric_list:
+            if "epoch" in metric or "val" in metric:
+                wandb.define_metric(metric, summary=summary, step_metric="epoch")
+    wandb.define_metric("*", step_metric="global_step")
 
 
 class WandbCallback(Callback):
@@ -44,6 +56,10 @@ class WandbCallback(Callback):
         self._train_prefix = "train"
         self._val_prefix = "val"
         self._log_model = log_model
+        self._setup()
+
+    def _setup(self):
+        define_metrics()
 
     def on_fit_start(self):
         if self._log_model:
@@ -52,22 +68,24 @@ class WandbCallback(Callback):
             wandb.log_artifact(self._code_file)
 
     def _apply_prefix(self, data: dict, prefix: str):
-        data = {f"{prefix}_{k}": v for k, v in data.items()}
+        data = {f"{prefix}/{k}": v for k, v in data.items()}
         return data
 
-    def _step(self, prefix: str, outputs: dict):
-        step = self.model.tracker.mode(prefix).steps
+    def on_train_step_end(self, outputs: dict = None, **_):
+        # self._step(prefix=self._train_prefix, outputs=outputs)
+        prefix = "train"
+        global_step = self.model.tracker.global_step
         loss = outputs["loss"].item()
+        # log train step loss
+        wandb.log({f"{prefix}/step_loss": loss, "train_step": global_step}, commit=False)
+
+        # log train step metrics
         metrics = outputs.get("metrics", {})
         metrics = self._apply_prefix(metrics, prefix)
-        wandb.log(metrics, step=step)
-        wandb.log({f"{prefix}_step_loss": loss}, step=step)
+        wandb.log(metrics, commit=False)
 
-    def on_train_step_end(self, outputs: dict = None, **_):
-        self._step(prefix=self._train_prefix, outputs=outputs)
-
-    def on_val_step_end(self, outputs: dict = None, **_):
-        self._step(prefix=self._val_prefix, outputs=outputs)
+        # https://docs.wandb.ai/guides/track/log#how-do-i-use-custom-x-axes
+        wandb.log({"global_step": global_step})
 
     def on_epoch_end(self):
         epoch = self.model.tracker.current_epoch
@@ -81,7 +99,8 @@ class WandbCallback(Callback):
         train_metrics.update({"epoch": epoch})
         val_metrics.update({"epoch": epoch})
 
-        wandb.log({"train_epoch_loss": train_loss, "epoch": epoch})
-        wandb.log({"val_epoch_loss": val_loss, "epoch": epoch})
-        wandb.log(train_metrics)
-        wandb.log(val_metrics)
+        wandb.log({"train/epoch_loss": train_loss, "epoch": epoch}, commit=False)
+        wandb.log({"val/epoch_loss": val_loss, "epoch": epoch}, commit=False)
+        wandb.log(train_metrics, commit=False)
+        wandb.log(val_metrics, commit=False)
+        wandb.log({})

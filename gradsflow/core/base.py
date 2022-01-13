@@ -44,7 +44,7 @@ class BaseAutoModel(ABC):
 @dataclass(init=False)
 class TrackingValues:
     loss: Optional[AverageMeter] = None  # Average loss in a single Epoch
-    steps: Optional[int] = None
+    steps: Optional[int] = None  # Step per epoch
     step_loss: Optional[float] = None
     metrics: Optional[GDict[str, AverageMeter]] = None  # Average value in a single Epoch
 

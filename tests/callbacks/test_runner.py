@@ -18,14 +18,12 @@ from gradsflow.callbacks.base import Callback
 
 
 def test_init(dummy_model):
-
     assert isinstance(CallbackRunner(dummy_model, "training").callbacks["TrainEvalCallback"], TrainEvalCallback)
     with pytest.raises(NotImplementedError):
         CallbackRunner(dummy_model, "random")
 
 
 def test_append(dummy_model):
-
     cb = CallbackRunner(dummy_model)
     with pytest.raises(NotImplementedError):
         cb.append("random")
@@ -39,7 +37,6 @@ def test_append(dummy_model):
 
 
 def test_clean(dummy_model):
-
     cb = CallbackRunner(dummy_model, TrainEvalCallback())
     cb.clean(keep="TrainEvalCallback")
     assert cb.callbacks.get("TrainEvalCallback") is not None

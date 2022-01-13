@@ -146,6 +146,7 @@ class Model(BaseModel, DataMixin):
         steps_per_epoch = tracker.steps_per_epoch
 
         for step, batch in enumerate(train_dataloader):
+            tracker.global_step += 1
             tracker.train.steps = step
             # ----- TRAIN STEP -----
             self.callback_runner.on_train_step_start()

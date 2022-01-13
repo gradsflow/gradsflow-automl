@@ -24,6 +24,7 @@ from gradsflow.utility.common import GDict, to_item
 
 @dataclass(init=False)
 class BaseTracker:
+    global_step: int = 0  # Global training steps
     max_epochs: int = 0
     current_epoch: int = 0  # current train current_epoch
     steps_per_epoch: Optional[int] = None
