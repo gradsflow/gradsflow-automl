@@ -192,12 +192,13 @@ class Model(BaseModel, DataMixin):
         current_epoch, max_epochs = self.tracker.current_epoch, self.tracker.max_epochs
 
         for epoch in range(current_epoch, max_epochs):
-            self.tracker.current_epoch = epoch
             # ----- EPOCH -----
             self.callback_runner.on_epoch_start()
             self._train_epoch_with_event()
             self._val_epoch_with_event()
             self.callback_runner.on_epoch_end()
+
+            self.tracker.current_epoch = epoch + 1  # update epoch
 
             if self.TEST:
                 break
