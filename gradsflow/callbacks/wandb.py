@@ -11,18 +11,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-#
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+
 import os
 from typing import Optional
 
@@ -83,14 +72,16 @@ class WandbCallback(Callback):
     def on_epoch_end(self):
         epoch = self.model.tracker.current_epoch
         train_loss = self.model.tracker.train_loss
-        train_metrics = self.model.tracker.train_metrics
+        train_metrics = self.model.tracker.train_metrics.to_dict()
         val_loss = self.model.tracker.val_loss
-        val_metrics = self.model.tracker.val_metrics
+        val_metrics = self.model.tracker.val_metrics.to_dict()
 
         train_metrics = self._apply_prefix(train_metrics, prefix=self._train_prefix)
         val_metrics = self._apply_prefix(val_metrics, prefix=self._val_prefix)
+        train_metrics.update({"epoch": epoch})
+        val_metrics.update({"epoch": epoch})
 
         wandb.log({"train_epoch_loss": train_loss, "epoch": epoch})
         wandb.log({"val_epoch_loss": val_loss, "epoch": epoch})
-        wandb.log(train_metrics.update({"epoch": epoch}))
-        wandb.log(val_metrics.update({"epoch": epoch}))
+        wandb.log(train_metrics)
+        wandb.log(val_metrics)

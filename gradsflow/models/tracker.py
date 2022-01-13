@@ -11,14 +11,24 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-from typing import Dict, List
+from dataclasses import dataclass
+from typing import Dict, List, Optional
 
 from loguru import logger
 from rich import box
 from rich.table import Table
 
-from gradsflow.core.base import BaseTracker, TrackingValues
-from gradsflow.utility.common import to_item
+from gradsflow.core.base import TrackingValues
+from gradsflow.utility.common import GDict, to_item
+
+
+@dataclass(init=False)
+class BaseTracker:
+    max_epochs: int = 0
+    current_epoch: int = 0  # current train current_epoch
+    steps_per_epoch: Optional[int] = None
+    train: TrackingValues = TrackingValues()
+    val: TrackingValues = TrackingValues()
 
 
 class Tracker(BaseTracker):
@@ -27,8 +37,8 @@ class Tracker(BaseTracker):
     """
 
     def __init__(self):
-        self.train.metrics = {}
-        self.val.metrics = {}
+        self.train.metrics = GDict()
+        self.val.metrics = GDict()
         self.logs: List[Dict] = []
 
     def __getitem__(self, key: str):  # skipcq: PYL-R1705
@@ -60,11 +70,11 @@ class Tracker(BaseTracker):
         return self.val.loss.avg
 
     @property
-    def train_metrics(self):
+    def train_metrics(self) -> GDict:
         return self.train.metrics
 
     @property
-    def val_metrics(self):
+    def val_metrics(self) -> GDict:
         return self.val.metrics
 
     def mode(self, mode) -> TrackingValues:

@@ -13,13 +13,13 @@
 #  limitations under the License.
 #
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from typing import Dict, Optional
 
 import numpy as np
 import torch
 
-from gradsflow.utility.common import AverageMeter, module_to_cls_index
+from gradsflow.utility.common import AverageMeter, GDict, module_to_cls_index
 
 
 class BaseAutoModel(ABC):
@@ -46,10 +46,10 @@ class TrackingValues:
     loss: Optional[AverageMeter] = None  # Average loss in a single Epoch
     steps: Optional[int] = None
     step_loss: Optional[float] = None
-    metrics: Optional[Dict[str, AverageMeter]] = None  # Average value in a single Epoch
+    metrics: Optional[GDict[str, AverageMeter]] = None  # Average value in a single Epoch
 
     def __init__(self):
-        self.metrics = {}
+        self.metrics = GDict()
         self.loss = AverageMeter(name="loss")
 
     def update_loss(self, loss: float):
@@ -57,7 +57,7 @@ class TrackingValues:
         self.step_loss = loss
         self.loss.update(loss)
 
-    def update_metrics(self, metrics: Dict[str, float]):
+    def update_metrics(self, metrics: GDict[str, float]):
         """Update `TrackingValues` metrics. mode can be train or val"""
         # Track values that averages with epoch
         for key, value in metrics.items():
@@ -67,17 +67,11 @@ class TrackingValues:
                 self.metrics[key] = AverageMeter(name=key)
                 self.metrics[key].update(value)
 
+    def to_dict(self) -> dict:
+        return asdict(self)
+
     def reset(self):
         """Values are Reset on start of each `on_*_epoch_start`"""
         self.loss.reset()
         for _, metric in self.metrics.items():
             metric.reset()
-
-
-@dataclass(init=False)
-class BaseTracker:
-    max_epochs: int = 0
-    current_epoch: int = 0  # current train current_epoch
-    steps_per_epoch: Optional[int] = None
-    train: TrackingValues = TrackingValues()
-    val: TrackingValues = TrackingValues()

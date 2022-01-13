@@ -75,7 +75,6 @@ class AverageMeter:
     `val` is the running value, `avg` is the average value over an epoch.
     """
 
-    name: Optional[str]
     avg: Optional[float] = 0
 
     def __init__(self, name=None):
@@ -138,3 +137,15 @@ def filter_list(arr: List[str], pattern: Optional[str] = None) -> List[str]:
 
     p = re.compile(pattern)
     return [s for s in arr if p.match(s)]
+
+
+class GDict(dict):
+    def to_dict(self):
+        clone = self.copy()
+        for k in clone.keys():
+            value = clone[k]
+            try:
+                clone[k] = dataclasses.asdict(value)
+            except TypeError:
+                continue
+        return clone

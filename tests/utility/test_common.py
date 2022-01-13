@@ -15,6 +15,7 @@ import numpy as np
 import torch
 
 from gradsflow.utility.common import (
+    GDict,
     default_device,
     filter_list,
     get_file_extension,
@@ -73,3 +74,12 @@ def test_filter_list():
     ]
     assert filter_list(arr, ".*entropy") == arr[:2]
     assert filter_list(arr) == arr
+
+
+def test_gdict():
+    gdict: GDict[str, str] = GDict()
+    gdict["hi"] = "hello"
+    assert gdict["hi"] == "hello"
+    assert list(gdict.items())[0][0] == "hi"
+    assert list(gdict.items())[0][1] == "hello"
+    assert gdict.to_dict() == {"hi": "hello"}
