@@ -18,3 +18,4 @@ from .progress import ProgressCallback
 from .raytune import report_checkpoint_callback
 from .runner import CallbackRunner
 from .training import TrainEvalCallback
+from .wandb import WandbCallback
