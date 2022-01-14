@@ -46,7 +46,7 @@ class TrackingValues:
     loss: Optional[AverageMeter] = None  # Average loss in a single Epoch
     steps: Optional[int] = None  # Step per epoch
     step_loss: Optional[float] = None
-    metrics: Optional[GDict[str, AverageMeter]] = None  # Average value in a single Epoch
+    metrics: Optional[Dict[str, AverageMeter]] = None  # Average value in a single Epoch
 
     def __init__(self):
         self.metrics = GDict()
@@ -57,7 +57,7 @@ class TrackingValues:
         self.step_loss = loss
         self.loss.update(loss)
 
-    def update_metrics(self, metrics: GDict[str, float]):
+    def update_metrics(self, metrics: Dict[str, float]):
         """Update `TrackingValues` metrics. mode can be train or val"""
         # Track values that averages with epoch
         for key, value in metrics.items():
