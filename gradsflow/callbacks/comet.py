@@ -29,7 +29,12 @@ CURRENT_FILE = os.path.dirname(os.path.realpath(__file__))
 
 class CometCallback(Callback):
     """
-    [Comet](https://www.comet.ml/) Logging callback. To use this callback `pip install comet-ml`.
+    [Comet](https://www.comet.ml/) Logging callback.
+    This callback requires `comet-ml` to be pre-installed (`pip install comet-ml`).
+    Automatically log your Experiment to Comet logging platform. You need to provide API key either by setting
+    environment variable `COMET_API_KEY` or directly pass as an argument to the callback.
+    Checkout the documentation for more examples.
+
     Args:
         project_name: Name of the Project
         api_key: project API key
