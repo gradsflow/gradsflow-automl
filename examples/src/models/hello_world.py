@@ -18,7 +18,13 @@ from torch.utils.data import DataLoader
 from torchvision import transforms as T
 
 from gradsflow import AutoDataset, Model
-from gradsflow.callbacks import CSVLogger, EmissionTrackerCallback, ModelCheckpoint
+from gradsflow.callbacks import (
+    CometCallback,
+    CSVLogger,
+    EmissionTrackerCallback,
+    ModelCheckpoint,
+    WandbCallback,
+)
 from gradsflow.data.common import random_split_dataset
 
 # Replace dataloaders with your custom dataset and you are all set to train your model
@@ -40,6 +46,7 @@ cbs = [
     ModelCheckpoint(),
     EmissionTrackerCallback(),
     # CometCallback(offline=True),
+    WandbCallback(),
 ]
 
 if __name__ == "__main__":
