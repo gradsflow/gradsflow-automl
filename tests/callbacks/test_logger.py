@@ -17,8 +17,12 @@ from pathlib import Path
 import pytest
 
 from gradsflow import AutoDataset
-from gradsflow.callbacks import EmissionTrackerCallback, ModelCheckpoint
-from gradsflow.callbacks.logger import CometCallback, CSVLogger
+from gradsflow.callbacks import (
+    CometCallback,
+    CSVLogger,
+    EmissionTrackerCallback,
+    ModelCheckpoint,
+)
 from gradsflow.data.image import image_dataset_from_directory
 from gradsflow.utility.imports import is_installed
 from tests.dummies import DummyModel

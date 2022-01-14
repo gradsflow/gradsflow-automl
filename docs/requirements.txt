@@ -12,3 +12,4 @@ mkdocs-meta-descriptions-plugin
 jupyter_contrib_nbextensions
 comet_ml
 lightning-flash[image,text]>=0.5.1
+wandb

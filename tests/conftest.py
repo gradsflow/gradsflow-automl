@@ -12,12 +12,24 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 # Arrange
+from pathlib import Path
+
 import pytest
 import timm
 from torch import nn
 
-from gradsflow import Model
+from gradsflow import AutoDataset, Model
+from gradsflow.data import image_dataset_from_directory
 from gradsflow.models.tracker import Tracker
+
+data_dir = Path.cwd()
+folder = f"{data_dir}/data/test-data-cat-dog-v0/cat-dog/"
+data = image_dataset_from_directory(folder, transform=True, ray_data=False)
+
+
+@pytest.fixture
+def auto_dataset():
+    return AutoDataset(train_dataloader=data.dataloader, val_dataloader=data.dataloader)
 
 
 @pytest.fixture
