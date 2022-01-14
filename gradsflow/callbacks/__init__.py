@@ -13,9 +13,9 @@
 #  limitations under the License.
 from .comet import CometCallback
 from .gpu import EmissionTrackerCallback
-from .logger import CSVLogger, ModelCheckpoint
+from .logger import CSVLogger
 from .progress import ProgressCallback
 from .raytune import report_checkpoint_callback
 from .runner import CallbackRunner
-from .training import TrainEvalCallback
+from .training import ModelCheckpoint, TrainEvalCallback
 from .wandb import WandbCallback

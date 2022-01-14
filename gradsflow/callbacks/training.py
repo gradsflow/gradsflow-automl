@@ -11,6 +11,9 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+import os
+from pathlib import Path
+from typing import Optional
 
 from gradsflow.callbacks.base import Callback
 
@@ -51,3 +54,29 @@ class TrainEvalCallback(Callback):
         self.model.eval()
         self.model.metrics.reset()
         self.model.tracker.val.reset()
+
+
+class ModelCheckpoint(Callback):
+    """
+    Saves Model checkpoint
+    Args:
+        filename: name of checkpoint
+        path: folder path location of the model checkpoint. Will create a folder if does not exist.
+        save_extra: whether to save extra details like tracker
+    """
+
+    _name = "ModelCheckpoint"
+
+    def __init__(self, filename: Optional[str] = None, path: str = os.getcwd(), save_extra: bool = False):
+        super().__init__(model=None)
+        filename = Path(filename or "model")
+        path = Path(path)
+        self.path = path
+        self.path.mkdir(exist_ok=True)
+        self._dst = path / filename
+        self.save_extra = save_extra
+
+    def on_epoch_end(self):
+        epoch = self.model.tracker.current_epoch
+        path = f"{self._dst}_epoch={epoch}_.pt"
+        self.model.save(path, save_extra=self.save_extra)
