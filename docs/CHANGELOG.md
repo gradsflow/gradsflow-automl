@@ -16,10 +16,10 @@
 * fix model checkpoint folder not found by [@aniketmaurya] in [#162](https://github.com/gradsflow/gradsflow/pull/162)
 * Fix metrics update by [@aniketmaurya] in [#163](https://github.com/gradsflow/gradsflow/pull/163)
 * Replace multiple `==` checks with `in` by @deepsource-autofix in [#167](https://github.com/gradsflow/gradsflow/pull/167)
-* increment current_epoch after each epoch by [@aniketmaurya] in [#169](https://github.com/gradsflow/gradsflow/pull/169)
-* Wandb Implementation by [@aniketmaurya] in [#168](https://github.com/gradsflow/gradsflow/pull/168)
+* 💯 increment current_epoch after each epoch by [@aniketmaurya] in [#169](https://github.com/gradsflow/gradsflow/pull/169)
+* 📊 Wandb Implementation by [@aniketmaurya] in [#168](https://github.com/gradsflow/gradsflow/pull/168)
 
-**Full Changelog**: https://github.com/gradsflow/gradsflow/compare/v0.0.7...v0.0.8
+**Full Changelog**: [https://github.com/gradsflow/gradsflow/compare/v0.0.7...v0.0.8](https://github.com/gradsflow/gradsflow/compare/v0.0.7...v0.0.8)
 
 ## 0.0.7 - 2021-11-26
 
