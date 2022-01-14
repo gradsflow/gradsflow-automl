@@ -11,18 +11,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-#
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+
 import os
 
 os.environ["COMET_DISABLE_AUTO_LOGGING"] = "1"
@@ -40,7 +29,12 @@ CURRENT_FILE = os.path.dirname(os.path.realpath(__file__))
 
 class CometCallback(Callback):
     """
-    [Comet](https://www.comet.ml/) Logging callback. To use this callback `pip install comet-ml`.
+    [Comet](https://www.comet.ml/) Logging callback.
+    This callback requires `comet-ml` to be pre-installed (`pip install comet-ml`).
+    Automatically log your Experiment to Comet logging platform. You need to provide API key either by setting
+    environment variable `COMET_API_KEY` or directly pass as an argument to the callback.
+    Checkout the documentation for more examples.
+
     Args:
         project_name: Name of the Project
         api_key: project API key

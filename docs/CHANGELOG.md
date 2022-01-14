@@ -1,13 +1,34 @@
 # Release Notes
 
+## 0.0.8 - 2022-01-14
+
+* 🤩 refactor core by [@aniketmaurya] in [#136](https://github.com/gradsflow/gradsflow/pull/136)
+* cleanup APIs by [@aniketmaurya] in [#137](https://github.com/gradsflow/gradsflow/pull/137)
+* added conda installation instruction by [@sugatoray] in [#144](https://github.com/gradsflow/gradsflow/pull/144)
+* recursively exclude tests folder and its contents by [@sugatoray] in [#141](https://github.com/gradsflow/gradsflow/pull/141)
+* add model.save test by [@aniketmaurya] in [#147](https://github.com/gradsflow/gradsflow/pull/147)
+* remove redundant to_item by [@aniketmaurya] in [#152](https://github.com/gradsflow/gradsflow/pull/152)
+* refactor Tracker by [@aniketmaurya] in [#153](https://github.com/gradsflow/gradsflow/pull/153)
+* Change methods not using its bound instance to staticmethods by [@deepsource-autofix]
+  in [#156](https://github.com/gradsflow/gradsflow/pull/156)
+* refactor metrics by [@aniketmaurya] in [#159](https://github.com/gradsflow/gradsflow/pull/159)
+* add dataoader length by [@aniketmaurya] in [#160](https://github.com/gradsflow/gradsflow/pull/160)
+* fix model checkpoint folder not found by [@aniketmaurya] in [#162](https://github.com/gradsflow/gradsflow/pull/162)
+* Fix metrics update by [@aniketmaurya] in [#163](https://github.com/gradsflow/gradsflow/pull/163)
+* Replace multiple `==` checks with `in` by @deepsource-autofix in [#167](https://github.com/gradsflow/gradsflow/pull/167)
+* 💯 increment current_epoch after each epoch by [@aniketmaurya] in [#169](https://github.com/gradsflow/gradsflow/pull/169)
+* 📊 Wandb Implementation by [@aniketmaurya] in [#168](https://github.com/gradsflow/gradsflow/pull/168)
+
+**Full Changelog**: [https://github.com/gradsflow/gradsflow/compare/v0.0.7...v0.0.8](https://github.com/gradsflow/gradsflow/compare/v0.0.7...v0.0.8)
+
 ## 0.0.7 - 2021-11-26
+
 * ☄️ comet integration [#129](https://github.com/gradsflow/gradsflow/pull/129)
 * add model checkpoint callback [#121](https://github.com/gradsflow/gradsflow/pull/121)
 * 📝 add csv logger [#116](https://github.com/gradsflow/gradsflow/pull/116)
 * 🚀 add train_eval_callback [#111](https://github.com/gradsflow/gradsflow/pull/111)
 * 🪄 add Average Meter [#109](https://github.com/gradsflow/gradsflow/pull/109)
 * fix device issue in metric calculation PR [#106](https://github.com/gradsflow/gradsflow/pull/106)
-
 
 ## 0.0.6 - 2021-10-4
 
