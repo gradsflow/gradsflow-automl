@@ -19,3 +19,4 @@ from .raytune import report_checkpoint_callback
 from .runner import CallbackRunner
 from .training import ModelCheckpoint, TrainEvalCallback
 from .wandb import WandbCallback
+from .tensorboard import TensorboardCallback
