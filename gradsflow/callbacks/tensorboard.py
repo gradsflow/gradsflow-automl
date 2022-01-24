@@ -42,14 +42,14 @@ class TensorboardCallback(Callback):
     def on_train_epoch_end(self):
         tracker = self.model.tracker
         self.writer.add_scalar("train/loss", scalar_value=tracker.train.loss.avg, global_step=tracker.current_epoch)
-        for metric, value in tracker.train.metrics.items():
-            self.writer.add_scalar(f"train/{metric}", scalar_value=value.avg, global_step=tracker.current_epoch)
+        for metric, value in tracker.train_metrics.to_dict().items():
+            self.writer.add_scalar(f"train/{metric}", scalar_value=value["avg"], global_step=tracker.current_epoch)
 
     def on_val_epoch_end(self):
         tracker = self.model.tracker
         self.writer.add_scalar("val/loss", scalar_value=tracker.val.loss.avg, global_step=tracker.current_epoch)
-        for metric, value in tracker.val.metrics.items():
-            self.writer.add_scalar(f"val/{metric}", scalar_value=value.avg, global_step=tracker.current_epoch)
+        for metric, value in tracker.val_metrics.to_dict().items():
+            self.writer.add_scalar(f"val/{metric}", scalar_value=value["avg"], global_step=tracker.current_epoch)
 
     def on_fit_end(self):
         self.writer.close()
