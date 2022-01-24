@@ -16,15 +16,18 @@ from torch.utils.tensorboard import SummaryWriter
 
 from gradsflow.callbacks.base import Callback
 
+
 class TensorboardCallback(Callback):
-    def __init__(self, 
-                log_dir: str =None,
-                comment: str ="",
-                purge_step: int =None,
-                max_queue: int =10,
-                flush_secs: str =120,
-                filename_suffix: str =""):
-        super(TensorboardCallback, self).__init__()
+    def __init__(
+        self,
+        log_dir: str = None,
+        comment: str = "",
+        purge_step: int = None,
+        max_queue: int = 10,
+        flush_secs: str = 120,
+        filename_suffix: str = "",
+    ):
+        super().__init__()
         self.log_dir = log_dir
         self.comment = comment
         self.purge_step = purge_step
@@ -37,7 +40,8 @@ class TensorboardCallback(Callback):
             comment=self.comment,
             purge_step=self.purge_step,
             flush_secs=self.flush_secs,
-            filename_suffix=self.filename_suffix)
+            filename_suffix=self.filename_suffix,
+        )
 
     def on_train_epoch_end(self):
         tracker = self.model.tracker
