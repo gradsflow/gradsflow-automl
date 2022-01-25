@@ -15,3 +15,4 @@ lightning-flash[image,text]>=0.5.1
 wandb
 notebook>=6.1.5 # not directly required, pinned by Snyk to avoid a vulnerability
 pygments>=2.7.4 # not directly required, pinned by Snyk to avoid a vulnerability
+mistune>=2.0.1 # not directly required, pinned by Snyk to avoid a vulnerability
