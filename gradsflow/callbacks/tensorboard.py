@@ -33,7 +33,7 @@ class TensorboardCallback(Callback):
                 etc. for each new experiment to compare across them
         comment: Comment log_dir suffix appended to the default log_dir. If log_dir is assigned, this argument has no effect
         purge_step: When logging crashes at step T+XT+X and restarts at step TT, any events whose global_step larger or equal
-                    to TT will be purged and hidden from TensorBoard. Note that crashed and resumed experiments should have 
+                    to TT will be purged and hidden from TensorBoard. Note that crashed and resumed experiments should have
                     the same log_dir
         max_queue: Size of the queue for pending events and summaries before one of the "add" calls forces a flush to disk.
                     Default is ten items
