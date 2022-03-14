@@ -81,7 +81,7 @@ class Tuner:
             `ComplexObject`
         """
         complex_object = ComplexObject()
-        for i, v in enumerate(values):
+        for _, v in enumerate(values):
             complex_object.append(v)
 
         object_choice = complex_object.to_choice()

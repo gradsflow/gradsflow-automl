@@ -84,7 +84,6 @@ class WandbCallback(Callback):
         return data
 
     def on_train_step_end(self, outputs: dict = None, **_):
-        # self._step(prefix=self._train_prefix, outputs=outputs)
         prefix = "train"
         global_step = self.model.tracker.global_step
         loss = outputs["loss"].item()
