@@ -82,12 +82,15 @@ class Base:
     def forward(self, x):
         return self.learner(x)
 
+    # skipcp: PTC-W0049
     def backward(self, loss):
         ...
 
+    # skipcp: PTC-W0049
     def eval(self):
         ...
 
+    # skipcp: PTC-W0049
     def train(self):
         ...
 
