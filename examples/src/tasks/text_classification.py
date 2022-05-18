@@ -14,7 +14,7 @@ datamodule = TextClassificationData.from_csv(
 )
 
 suggested_conf = dict(
-    optimizers=["adam", "adamw"],
+    optimizer=["adam", "adamw"],
     lr=(5e-4, 1e-3),
 )
 
