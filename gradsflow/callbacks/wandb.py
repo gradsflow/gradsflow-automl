@@ -14,9 +14,9 @@
 
 import os
 from typing import Dict, List, Optional
-from loguru import logger
 
 import wandb
+from loguru import logger
 
 from gradsflow.callbacks.base import Callback
 from gradsflow.utility.imports import requires
@@ -64,8 +64,7 @@ class WandbCallback(Callback):
     def __init__(self, log_model: bool = False, code_file: Optional[str] = None, default_step_metric="global_step"):
         super().__init__()
         if wandb.run is None:
-            logger.warning("wandb.init() was not called before initializing WandbCallback()"
-            "Calling wandb.init()")
+            logger.warning("wandb.init() was not called before initializing WandbCallback()" "Calling wandb.init()")
             wandb.init()
         self._code_file = code_file
         self._train_prefix = "train"
