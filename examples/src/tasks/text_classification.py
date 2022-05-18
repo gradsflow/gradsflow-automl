@@ -11,7 +11,7 @@ datamodule = TextClassificationData.from_csv(
 )
 
 suggested_conf = dict(
-    optimizer=["adam", "adamw"],
+    optimizer=["adam", "adamw", "sgd"],
     lr=(5e-4, 1e-3),
 )
 
@@ -21,8 +21,8 @@ model = AutoTextClassifier(
     suggested_conf=suggested_conf,
     max_epochs=1,
     optimization_metric="val_accuracy",
-    n_trials=4,
+    n_trials=1,
 )
 
 print("AutoTextClassifier initialised!")
-model.hp_tune()
+model.hp_tune(finetune=True)

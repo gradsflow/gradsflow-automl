@@ -112,6 +112,7 @@ class AutoModel(BaseAutoModel, ABC):
         gpu: Optional[float] = 0,
         cpu: Optional[float] = None,
         resume: bool = False,
+        finetune: bool = False,
     ):
         """
         Search Hyperparameter and builds model with the best params
@@ -130,6 +131,7 @@ class AutoModel(BaseAutoModel, ABC):
             gpu Optional[float]: Amount of GPU resource per trial.
             cpu float: CPU cores per trial
             resume bool: Whether to resume the training or not.
+            finetune bool: Whether to train the whole model or only finetune head layer.
         """
 
         trainer_config = trainer_config or {}
@@ -153,7 +155,7 @@ class AutoModel(BaseAutoModel, ABC):
             )
         )
         analysis = tune.run(
-            tune.with_parameters(trainable, trainer_config=trainer_config),
+            tune.with_parameters(trainable, trainer_config=trainer_config, finetune=finetune),
             name=name,
             num_samples=self.n_trials,
             metric=self.optimization_metric,
