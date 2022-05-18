@@ -48,8 +48,9 @@ def test_create_search_space():
 
 
 @patch.multiple(AutoModel, __abstractmethods__=set())
-@patch("gradsflow.autotasks.engine.backend.pl")
-def test_objective(mock_pl):
+@patch("gradsflow.autotasks.engine.backend.FlashTrainer")
+@patch("gradsflow.autotasks.engine.backend.PLTrainer")
+def test_objective(mock_pl_trainer, mock_fl_trainer):
     optimization_metric = "val_accuracy"
     model = AutoModel(
         datamodule,
@@ -58,8 +59,8 @@ def test_objective(mock_pl):
     )
 
     model.backend.model_builder = MagicMock()
-    trainer = mock_pl.Trainer = MagicMock()
-    trainer.callback_metrics = {optimization_metric: torch.as_tensor([1])}
+
+    mock_pl_trainer.callback_metrics = mock_fl_trainer.callback_metrics = {optimization_metric: torch.as_tensor([1])}
 
     model.backend.optimization_objective({}, {})
 

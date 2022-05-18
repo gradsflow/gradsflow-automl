@@ -84,6 +84,7 @@ class AutoTextClassifier(AutoClassifier):
             learning_rate [float]: Learning rate for the model.
         """
         from flash.text.classification import TextClassifier
+        from torchmetrics import Accuracy
 
         backbone = config["backbone"]
         optimizer = config["optimizer"]
@@ -94,4 +95,5 @@ class AutoTextClassifier(AutoClassifier):
             backbone=backbone,
             optimizer=self._OPTIMIZER_INDEX[optimizer],
             learning_rate=learning_rate,
+            metrics=Accuracy(num_classes=self.num_classes),
         )
