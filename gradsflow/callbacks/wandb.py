@@ -14,6 +14,7 @@
 
 import os
 from typing import Dict, List, Optional
+from loguru import logger
 
 import wandb
 
@@ -63,7 +64,9 @@ class WandbCallback(Callback):
     def __init__(self, log_model: bool = False, code_file: Optional[str] = None, default_step_metric="global_step"):
         super().__init__()
         if wandb.run is None:
-            raise ValueError("You must call wandb.init() before WandbCallback()")
+            logger.warning("wandb.init() was not called before initializing WandbCallback()"
+            "Calling wandb.init()")
+            wandb.init()
         self._code_file = code_file
         self._train_prefix = "train"
         self._val_prefix = "val"
