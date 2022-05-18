@@ -7,10 +7,7 @@ download_data("https://pl-flash-data.s3.amazonaws.com/imdb.zip", "./data/")
 
 print("Creating datamodule...")
 datamodule = TextClassificationData.from_csv(
-    "review",
-    "sentiment",
-    train_file="data/imdb/train.csv",
-    val_file="data/imdb/valid.csv",
+    "review", "sentiment", train_file="data/imdb/train.csv", val_file="data/imdb/valid.csv", batch_size=4
 )
 
 suggested_conf = dict(
