@@ -28,10 +28,14 @@ from gradsflow.utility.imports import is_installed
 if typing.TYPE_CHECKING:
     import pytorch_lightning as pl
 
+
 if is_installed("pytorch_lightning"):
     from flash import Task
     from flash import Trainer as FlashTrainer
     from pytorch_lightning import Trainer as PLTrainer
+else:
+    FlashTrainer = None
+    PLTrainer = None
 
 logger = logging.getLogger("core.backend")
 

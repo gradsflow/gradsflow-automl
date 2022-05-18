@@ -20,15 +20,16 @@ from gradsflow.autotasks.engine.backend import Backend
 trainer_config = {"show_progress": False}
 
 
-@patch("gradsflow.autotasks.engine.backend.pl")
-def test_optimization_objective(mock_pl: Mock):
+@patch("gradsflow.autotasks.engine.backend.FlashTrainer")
+@patch("gradsflow.autotasks.engine.backend.PLTrainer")
+def test_optimization_objective(mock_pl_trainer: Mock, mock_fl_trainer: Mock):
     dm = MagicMock()
     model_builder = MagicMock()
 
     # backend_type is pl
     autotrainer = Backend(dm, model_builder, optimization_metric="val_accuracy", backend="pl")
     autotrainer.optimization_objective({}, trainer_config)
-    mock_pl.Trainer.assert_called()
+    assert mock_pl_trainer.called() or mock_fl_trainer.called()
 
     # wrong backend_type is passed
     with pytest.raises(NotImplementedError):
