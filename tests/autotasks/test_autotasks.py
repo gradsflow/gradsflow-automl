@@ -20,6 +20,7 @@ data_dir = Path.cwd()
 datamodule = ImageClassificationData.from_folders(
     train_folder=f"{data_dir}/data/hymenoptera_data/train/",
     val_folder=f"{data_dir}/data/hymenoptera_data/val/",
+    batch_size=1,
 )
 data_dir = Path.cwd() / "data"
 
