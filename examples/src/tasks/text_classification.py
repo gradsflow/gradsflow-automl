@@ -17,7 +17,7 @@ suggested_conf = dict(
 
 model = AutoTextClassifier(
     datamodule,
-    suggested_backbones=["prajjwal1/bert-medium"],
+    suggested_backbones=["prajjwal1/bert-tiny"],
     suggested_conf=suggested_conf,
     max_epochs=1,
     optimization_metric="val_accuracy",
