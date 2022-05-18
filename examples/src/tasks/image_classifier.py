@@ -28,12 +28,12 @@ to_rgb = lambda x: x.convert("RGB")
 # TODO: Add argument parser
 if __name__ == "__main__":
     augs = T.Compose([to_rgb, T.AutoAugment(), T.Resize(image_size), T.ToTensor()])
-    data = torchvision.datasets.Caltech101("~/", download=True, transform=augs)
+    data = torchvision.datasets.CIFAR10("~/data", download=True, transform=augs)
     train_data, val_data = random_split_dataset(data, 0.01)
     train_dl = DataLoader(train_data, batch_size=batch_size)
     val_dl = DataLoader(val_data, batch_size=batch_size)
 
-    num_classes = len(data.categories)
+    num_classes = len(data.classes)
 
     model = AutoImageClassifier(
         train_dataloader=train_dl,
