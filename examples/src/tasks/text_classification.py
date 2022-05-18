@@ -14,16 +14,17 @@ datamodule = TextClassificationData.from_csv(
 )
 
 suggested_conf = dict(
-    optimizers=["adam"],
+    optimizers=["adam", "adamw"],
     lr=(5e-4, 1e-3),
 )
 
 model = AutoTextClassifier(
     datamodule,
-    suggested_backbones=["sgugger/tiny-distilbert-classification"],
+    suggested_backbones=["prajjwal1/bert-medium"],
     suggested_conf=suggested_conf,
-    max_epochs=2,
+    max_epochs=1,
     optimization_metric="val_accuracy",
+    n_trials=4,
 )
 
 print("AutoTextClassifier initialised!")
