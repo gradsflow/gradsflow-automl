@@ -14,6 +14,7 @@
 
 import logging
 import math
+import typing
 from enum import Enum
 from typing import Callable, Dict, Optional
 
@@ -24,9 +25,13 @@ from gradsflow.data import AutoDataset
 from gradsflow.utility.common import module_to_cls_index
 from gradsflow.utility.imports import is_installed
 
-pl = None
-if is_installed("pytorch_lightning"):
+if typing.TYPE_CHECKING:
     import pytorch_lightning as pl
+
+if is_installed("pytorch_lightning"):
+    from flash import Task
+    from flash import Trainer as FlashTrainer
+    from pytorch_lightning import Trainer as PLTrainer
 
 logger = logging.getLogger("core.backend")
 
@@ -83,10 +88,12 @@ class Backend:
             val_check_interval = max(self.max_steps - 1, 1.0)
 
         datamodule = self.autodataset.datamodule
+        model = self.model_builder(config)
 
-        trainer = pl.Trainer(
+        trainer_cls = FlashTrainer if isinstance(model, Task) else PLTrainer
+
+        trainer: "pl.Trainer" = trainer_cls(
             logger=True,
-            checkpoint_callback=False,
             gpus=math.ceil(gpu),
             max_epochs=self.max_epochs,
             max_steps=self.max_steps,
@@ -95,7 +102,6 @@ class Backend:
             **trainer_config,
         )
 
-        model = self.model_builder(config)
         hparams = dict(model=model.hparams)
         trainer.logger.log_hyperparams(hparams)
         trainer.fit(model, datamodule=datamodule)
