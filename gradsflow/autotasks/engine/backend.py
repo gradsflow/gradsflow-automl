@@ -81,10 +81,7 @@ class Backend:
 
     # noinspection PyTypeChecker
     def _lightning_objective(
-        self,
-        config: Dict,
-        trainer_config: Dict,
-        gpu: Optional[float] = 0,
+        self, config: Dict, trainer_config: Dict, gpu: Optional[float] = 0, finetune: bool = False
     ):
 
         val_check_interval = 1.0
@@ -109,12 +106,15 @@ class Backend:
 
         hparams = dict(model=model.hparams)
         trainer.logger.log_hyperparams(hparams)
-        trainer.fit(model, datamodule=datamodule)
+        if finetune:
+            trainer.finetune(model, datamodule=datamodule)
+        else:
+            trainer.fit(model, datamodule=datamodule)
 
         logger.debug(trainer.callback_metrics)
         return trainer.callback_metrics[self.optimization_metric].item()
 
-    def optimization_objective(self, config: dict, trainer_config: dict, gpu: Optional[float] = 0.0):
+    def optimization_objective(self, config: dict, trainer_config: dict, finetune: bool, gpu: Optional[float] = 0.0):
         """
         Defines lightning_objective function which is used by tuner to minimize/maximize the metric.
 
@@ -124,9 +124,9 @@ class Backend:
             gpu Optional[float]: GPU per trial
         """
         if self.backend_type == BackendType.pl.value:
-            return self._lightning_objective(config, trainer_config=trainer_config, gpu=gpu)
+            return self._lightning_objective(config, trainer_config=trainer_config, gpu=gpu, finetune=finetune)
 
         if self.backend_type in (BackendType.gf.value,):
-            return self._gf_objective(config, trainer_config=trainer_config, gpu=gpu)
+            return self._gf_objective(config, trainer_config=trainer_config, gpu=gpu, finetune=finetune)
 
         raise NotImplementedError(f"Trainer not implemented for backend_type: {self.backend_type}")
