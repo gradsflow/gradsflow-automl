@@ -15,11 +15,13 @@
 import os
 from typing import Dict, List, Optional
 
-import wandb
 from loguru import logger
 
 from gradsflow.callbacks.base import Callback
-from gradsflow.utility.imports import requires
+from gradsflow.utility.imports import is_installed, requires
+
+if is_installed("wandb"):
+    import wandb
 
 CURRENT_FILE = os.path.dirname(os.path.realpath(__file__))
 
