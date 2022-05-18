@@ -98,7 +98,8 @@ class Backend:
 
         trainer: "pl.Trainer" = trainer_cls(
             logger=True,
-            gpus=math.ceil(gpu),
+            accelerator="auto",
+            devices="auto",
             max_epochs=self.max_epochs,
             max_steps=self.max_steps,
             callbacks=[report_checkpoint_callback()],
