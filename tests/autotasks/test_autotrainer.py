@@ -29,7 +29,7 @@ def test_optimization_objective(mock_pl_trainer: Mock, mock_fl_trainer: Mock):
     # backend_type is pl
     autotrainer = Backend(dm, model_builder, optimization_metric="val_accuracy", backend="pl")
     autotrainer.optimization_objective({}, trainer_config)
-    assert mock_pl_trainer.called() or mock_fl_trainer.called()
+    assert mock_pl_trainer.called or mock_fl_trainer.called
 
     # wrong backend_type is passed
     with pytest.raises(NotImplementedError):
