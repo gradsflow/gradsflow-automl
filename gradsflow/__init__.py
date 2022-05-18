@@ -16,7 +16,7 @@
 
 from os import environ as _environ
 
-_environ["LOGURU_LEVEL"] = _environ.get("LOGURU_LEVEL") or _environ.get("LOG_LEVEL", "ERROR")
+_environ["LOGURU_LEVEL"] = _environ.get("LOGURU_LEVEL") or _environ.get("LOG_LEVEL", "WARNING")
 
 from gradsflow.autotasks.autoclassification.image import AutoImageClassifier
 from gradsflow.autotasks.autoclassification.text import AutoTextClassifier
