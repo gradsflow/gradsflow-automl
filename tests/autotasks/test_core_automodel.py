@@ -24,9 +24,7 @@ from gradsflow.autotasks.engine.backend import BackendType
 
 cwd = Path.cwd()
 datamodule = ImageClassificationData.from_folders(
-    train_folder=f"{cwd}/data/hymenoptera_data/train/",
-    val_folder=f"{cwd}/data/hymenoptera_data/val/",
-    batch_size=1
+    train_folder=f"{cwd}/data/hymenoptera_data/train/", val_folder=f"{cwd}/data/hymenoptera_data/val/", batch_size=1
 )
 
 
