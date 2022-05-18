@@ -13,7 +13,6 @@
 #  limitations under the License.
 
 import logging
-import math
 import typing
 from enum import Enum
 from typing import Callable, Dict, Optional
@@ -27,7 +26,6 @@ from gradsflow.utility.imports import is_installed
 
 if typing.TYPE_CHECKING:
     import pytorch_lightning as pl
-
 
 if is_installed("pytorch_lightning"):
     from flash import Task
@@ -114,7 +112,9 @@ class Backend:
         logger.debug(trainer.callback_metrics)
         return trainer.callback_metrics[self.optimization_metric].item()
 
-    def optimization_objective(self, config: dict, trainer_config: dict, finetune: bool, gpu: Optional[float] = 0.0):
+    def optimization_objective(
+        self, config: dict, trainer_config: dict, finetune: bool = False, gpu: Optional[float] = 0.0
+    ):
         """
         Defines lightning_objective function which is used by tuner to minimize/maximize the metric.
 
