@@ -37,6 +37,7 @@ class AutoTextClassifier(AutoClassifier):
                 "sentiment",
                 train_file="data/imdb/train.csv",
                 val_file="data/imdb/valid.csv",
+                batch_size=4,
             )
 
             model = AutoTextClassifier(datamodule,
@@ -66,8 +67,8 @@ class AutoTextClassifier(AutoClassifier):
         "sgugger/tiny-distilbert-classification",
     ]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, *args, max_steps=-1, **kwargs):
+        super().__init__(*args, max_steps=max_steps, **kwargs)
         meta = self.auto_dataset.meta
         self.num_classes = meta.get("num_labels") or meta.get("num_classes")
         logger.debug(f"num_classes = {self.num_classes}")
