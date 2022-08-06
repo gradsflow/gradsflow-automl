@@ -12,6 +12,8 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import argparse
+
 import torchvision
 from torch.utils.data import DataLoader
 from torchvision import transforms as T
@@ -19,16 +21,8 @@ from torchvision import transforms as T
 from gradsflow import AutoImageClassifier
 from gradsflow.data.common import random_split_dataset
 
-import argparse
 
-def main(
-    image_size = (64, 64), 
-    batch_size = 4,
-    max_epochs = 5,
-    optimization_metric = 'train_loss', 
-    max_steps = 1,
-    n_trials = 1
-):
+def main(image_size=(64, 64), batch_size=4, max_epochs=5, optimization_metric="train_loss", max_steps=1, n_trials=1):
     # Replace dataloaders with your custom dataset and you are all set to train your model
 
     to_rgb = lambda x: x.convert("RGB")
@@ -52,8 +46,8 @@ def main(
     print("AutoImageClassifier initialised!")
 
     model.hp_tune()
-    
-    
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="AutoImageClassifier")
     parser.add_argument("--image_size", type=tuple, default=(64, 64), help="image size")
@@ -64,4 +58,3 @@ if __name__ == "__main__":
     parser.add_argument("--n_trials", type=int, default=1, help="number of trials")
     args = parser.parse_args()
     main(**vars(args))
-    
