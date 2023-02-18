@@ -81,7 +81,6 @@ class Backend:
     def _lightning_objective(
         self, config: Dict, trainer_config: Dict, gpu: Optional[float] = 0, finetune: bool = False
     ):
-
         val_check_interval = 1.0
         if self.max_steps:
             val_check_interval = max(self.max_steps - 1, 1.0)

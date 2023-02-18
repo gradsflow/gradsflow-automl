@@ -11,15 +11,17 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+import logging
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 
-from loguru import logger
 from rich import box
 from rich.table import Table
 
 from gradsflow.core.base import TrackingValues
 from gradsflow.utility.common import GDict, to_item
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(init=False)

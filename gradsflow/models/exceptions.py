@@ -11,7 +11,9 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-from loguru import logger
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class EpochCancel(Exception):
