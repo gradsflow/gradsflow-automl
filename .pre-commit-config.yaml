@@ -72,4 +72,4 @@ repos:
       - id: nbstripout
         args:
           - --max-size=500k
-          - --strip-empty-cells
+          - --drop-empty-cells
