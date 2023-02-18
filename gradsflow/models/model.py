@@ -11,11 +11,11 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+import logging
 import os
 from typing import Any, Callable, Dict, List, Optional, Union
 
 import torch
-from loguru import logger
 from torch import nn
 from torchmetrics import Metric
 
@@ -29,6 +29,7 @@ from gradsflow.models.exceptions import EpochCancel, FitCancel
 from gradsflow.models.tracker import Tracker
 from gradsflow.utility.common import listify, module_to_cls_index
 
+logger = logging.getLogger(__name__)
 METRICS_TYPE = Union[str, Metric, List[Union[str, Metric]], None]
 
 
