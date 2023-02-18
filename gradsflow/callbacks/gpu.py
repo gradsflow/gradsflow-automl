@@ -12,10 +12,13 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from loguru import logger
+
+import logging
 
 from gradsflow.callbacks.base import Callback
 from gradsflow.utility.imports import requires
+
+logger = logging.getLogger(__name__)
 
 
 class EmissionTrackerCallback(Callback):
