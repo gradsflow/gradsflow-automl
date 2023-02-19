@@ -1,15 +1,15 @@
 # git+https://github.com/gradsflow/gradsflow@main
-mkdocs
-mkdocs-material
-mkdocs-material-extensions>=1.0.*
-mkdocs-git-revision-date-localized-plugin
-mkdocs-macros-plugin
-mkdocs-autorefs
-mkdocstrings
-mkdocstrings-python
+mkdocs==1.4.2
+mkdocstrings==0.20.0
+mkdocs-material==8.5.11
+mkdocstrings-python==0.8.3
+mkdocs-material-extensions==1.1.1
+mkdocs-git-revision-date-localized-plugin==1.1.0
+mkdocs-macros-plugin==0.7.0
+mkdocs-autorefs==0.4.1
+mkdocs-jupyter==0.22.0
 tags-macros-plugin @ git+https://github.com/jldiaz/mkdocs-plugin-tags.git@d26e2f124e4f3471639d426459e281080988fe7a
-mkdocs-jupyter
-mkdocs-meta-descriptions-plugin
+mkdocs-meta-descriptions-plugin==2.2.0
 jupyter_contrib_nbextensions
 comet_ml
 lightning-flash[image,text]>=0.5.1
