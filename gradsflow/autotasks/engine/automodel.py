@@ -70,7 +70,6 @@ class AutoModel(BaseAutoModel, ABC):
         prune: bool = True,
         backend: Optional[str] = None,
     ):
-
         self.analysis = None
         self.prune = prune
         self.n_trials = n_trials
@@ -174,7 +173,6 @@ class AutoModel(BaseAutoModel, ABC):
         return analysis
 
     def _get_best_model(self, analysis):
-
         best_model = self.build_model(self.analysis.best_config)
         best_ckpt_path = analysis.best_checkpoint
         best_ckpt_path = best_ckpt_path + "/filename"

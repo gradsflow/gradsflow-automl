@@ -12,12 +12,12 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import inspect
+import logging
 import os
 from enum import Enum
 from typing import Any, Dict, Optional, Union
 
 import ray
-from loguru import logger
 from ray import tune
 from ray.tune.sample import Domain
 from torch import nn
@@ -27,6 +27,8 @@ from gradsflow.models import Model
 from gradsflow.models.constants import LEARNER
 from gradsflow.models.model import METRICS_TYPE
 from gradsflow.tuner.tuner import ComplexObject, Tuner
+
+logger = logging.getLogger(__name__)
 
 
 class State(Enum):

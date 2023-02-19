@@ -12,13 +12,14 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import logging
 import os
 from typing import Dict, List, Optional
 
-from loguru import logger
-
 from gradsflow.callbacks.base import Callback
 from gradsflow.utility.imports import is_installed, requires
+
+logger = logging.getLogger(__name__)
 
 if is_installed("wandb"):
     import wandb

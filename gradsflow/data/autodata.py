@@ -11,11 +11,11 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+import logging
 import warnings
 from typing import Callable, Dict, Optional, Union
 
 from accelerate import Accelerator
-from loguru import logger
 from torch.utils.data import DataLoader, Dataset
 
 from gradsflow.data.base import BaseAutoDataset
@@ -23,6 +23,8 @@ from gradsflow.utility.imports import is_installed
 
 from ..utility.common import default_device
 from .mixins import DataMixin
+
+logger = logging.getLogger(__name__)
 
 pl = None
 if is_installed("pytorch_lightning"):

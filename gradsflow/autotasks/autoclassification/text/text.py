@@ -13,10 +13,13 @@
 #  limitations under the License.
 
 
+import logging
+
 import torch
-from loguru import logger
 
 from gradsflow.autotasks.engine.autoclassifier import AutoClassifier
+
+logger = logging.getLogger(__name__)
 
 
 # noinspection PyTypeChecker

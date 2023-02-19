@@ -12,14 +12,16 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import logging
 import os
 from pathlib import Path
 
 import pandas as pd
-from loguru import logger
 
 from gradsflow.callbacks.base import Callback
 from gradsflow.utility.common import to_item
+
+logger = logging.getLogger(__name__)
 
 
 class CSVLogger(Callback):

@@ -14,9 +14,8 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import logging
 from os import environ as _environ
-
-_environ["LOGURU_LEVEL"] = _environ.get("LOGURU_LEVEL") or _environ.get("LOG_LEVEL", "WARNING")
 
 from gradsflow.autotasks.autoclassification.image import AutoImageClassifier
 from gradsflow.autotasks.autoclassification.text import AutoTextClassifier
@@ -29,3 +28,4 @@ from gradsflow.tuner.automodel import AutoModelV2
 from gradsflow.tuner.tuner import Tuner
 
 __version__ = "0.0.8.post1"
+logging.basicConfig(level=_environ.get("LOG_LEVEL", "WARNING"))

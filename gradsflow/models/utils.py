@@ -21,7 +21,7 @@ from torchmetrics import Metric
 
 from gradsflow.utility.common import filter_list, module_to_cls_index
 
-SCALAR = Union[torch.Tensor, np.float, float, int]
+SCALAR = Union[torch.Tensor, np.float64, float, int]
 _nn_classes = module_to_cls_index(nn)
 _tm_classes = module_to_cls_index(torchmetrics, lower_key=False)
 
