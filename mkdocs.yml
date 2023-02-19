@@ -3,7 +3,7 @@ site_description: "An open-source AutoML Library based on PyTorch"
 site_author: Aniket Maurya
 copyright: 'Copyright &copy; 2021 GradsFlow'
 
-banner_url: https://ik.imagekit.io/gradsflow/logo/v2/gf-logo-geadsflow-orange-white-bg_y5v0LNPvdeM.png
+#banner_url: https://ik.imagekit.io/gradsflow/logo/v2/gf-logo-geadsflow-orange-white-bg_y5v0LNPvdeM.png
 repo_url: https://github.com/gradsflow/gradsflow/
 repo_name: gradsflow/gradsflow
 
