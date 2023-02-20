@@ -15,10 +15,13 @@ from typing import Dict, List, Tuple, Union
 
 import torch
 
+from gradsflow.utility import default_device
+
 
 class DataMixin:
     INPUT_KEY = 0  # other common value - inputs, images, text
     OUTPUT_KEY = 1  # other common values - target, ground
+    device = default_device()
 
     def fetch_inputs(self, data: Union[List, Dict]):
         return data[self.INPUT_KEY]

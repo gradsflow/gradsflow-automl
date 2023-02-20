@@ -97,5 +97,10 @@ if __name__ == "__main__":
     images, labels = next(dataiter)
 
     # print images
-    imshow(torchvision.utils.make_grid(images))
+    # imshow(torchvision.utils.make_grid(images))
     print("GroundTruth: ", " ".join(f"{trainset.classes[labels[j]]:5s}" for j in range(4)))
+
+    outputs = net(images)
+    _, predicted = torch.max(outputs, 1)
+
+    print("Predicted: ", " ".join(f"{trainset.classes[predicted[j]]:5s}" for j in range(4)))
