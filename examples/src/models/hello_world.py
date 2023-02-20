@@ -13,6 +13,8 @@
 #  limitations under the License.
 # Source code inspired from https://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html
 
+import matplotlib.pyplot as plt
+import numpy as np
 import torch
 import torch.nn.functional as F
 import torch.optim as optim
@@ -25,7 +27,7 @@ from torchmetrics.classification import MulticlassAccuracy
 from gradsflow import AutoDataset, Model
 from gradsflow.callbacks import CSVLogger, ModelCheckpoint
 
-# Replace dataloaders with your custom dataset and you are all set to train your model
+# Replace dataloaders with your custom dataset, and you are all set to train your model
 image_size = (64, 64)
 batch_size = 4
 
@@ -48,8 +50,14 @@ cbs = [
 ]
 
 
+def imshow(img):
+    img = img / 2 + 0.5  # unnormalize
+    npimg = img.numpy()
+    plt.imshow(np.transpose(npimg, (1, 2, 0)))
+    plt.show()
+
+
 class Net(nn.Module):
-    # ref: https://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html
     def __init__(self):
         super().__init__()
         self.conv1 = nn.Conv2d(3, 6, 5)
@@ -84,3 +92,10 @@ if __name__ == "__main__":
         metrics=[MulticlassAccuracy(autodataset.num_classes)],
     )
     model.fit(autodataset, max_epochs=2, callbacks=cbs)
+
+    dataiter = iter(val_dl)
+    images, labels = next(dataiter)
+
+    # print images
+    imshow(torchvision.utils.make_grid(images))
+    print("GroundTruth: ", " ".join(f"{trainset.classes[labels[j]]:5s}" for j in range(4)))
