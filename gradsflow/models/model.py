@@ -46,6 +46,9 @@ class Model(BaseModel, DataMixin):
 
     Args:
         learner: Trainable model
+        device: auto | cpu | gpu | mps
+        precision: Numerical precision value, could be 32 | 16 | "b16"
+        strategy: Strategy for distributed training (ddp | ddp_spawn | deepspeed | fsdp)
         accelerator_config: Accelerator config
     """
 
@@ -56,6 +59,9 @@ class Model(BaseModel, DataMixin):
         self,
         learner: Union[nn.Module, Any],
         device: Optional[str] = None,
+        strategy: Optional[str] = None,
+        precision: Any = 32,
+        num_nodes: int = 1,
         use_accelerator: bool = True,
         accelerator_config: dict = None,
     ):
@@ -63,6 +69,8 @@ class Model(BaseModel, DataMixin):
         super().__init__(
             learner=learner,
             device=device,
+            strategy=strategy,
+            precision=precision,
             use_accelerator=use_accelerator,
             accelerator_config=accelerator_config,
         )
@@ -121,6 +129,7 @@ class Model(BaseModel, DataMixin):
             optimizer = optimizer_fn(self.learner.parameters(), lr=learning_rate, **optimizer_config)
         if loss:
             self.loss = self._get_loss(loss, loss_config)
+
         self.learner, self.optimizer = self.setup(self._learner, optimizer)
         self.metrics.compile_metrics(*listify(metrics))
         self._compiled = True
@@ -227,7 +236,7 @@ class Model(BaseModel, DataMixin):
         ```python
         autodataset = AutoDataset(train_dataloader, val_dataloader)
         model = Model(cnn)
-        model.compile("crossentropyloss", "adam", learning_rate=1e-3, metrics="accuracy")
+        model.compile("crossentropyloss", "adam", learning_rate=1e-3)
         model.fit(autodataset)
         ```
         Args:
@@ -244,7 +253,7 @@ class Model(BaseModel, DataMixin):
         """
         self.assert_compiled()
         self.autodataset = autodataset
-        self.autodataset.setup_data(self.accelerator)
+        self.autodataset.setup_data(self._accelerator)
 
         if not resume:
             self.tracker.reset()
