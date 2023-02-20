@@ -65,29 +65,32 @@ def test_fit(cnn_model):
 
 
 def test_compile():
-    model1 = Model(cnn)
-
     def compute_accuracy(*_, **__):
         return 1
 
     with pytest.raises(NotImplementedError):
+        model1 = Model(cnn)
         model1.compile("crossentropyloss", "adam", metrics=compute_accuracy)
 
     with pytest.raises(AssertionError):
-        model1.compile("crossentropyloss", "adam", metrics="random_val")
+        model2 = Model(cnn)
+        model2.compile("crossentropyloss", "adam", metrics="random_val")
 
-    model1.compile("crossentropyloss", "adam", metrics="accuracy")
+    model3 = Model(cnn)
+    model3.compile("crossentropyloss", "adam", metrics="accuracy")
 
-    model2 = Model(cnn)
-    model2.compile("crossentropyloss", torch.optim.Adam)
-    model2.compile(torch.nn.CrossEntropyLoss, torch.optim.Adam, learning_rate=0.01)
-    assert model2.optimizer.param_groups[0]["lr"] == 0.01
+    model4 = Model(cnn)
+    model4.compile("crossentropyloss", torch.optim.Adam)
+
+    model5 = Model(cnn)
+    model5.compile(torch.nn.CrossEntropyLoss, torch.optim.Adam, learning_rate=0.01)
+    assert model5.optimizer.param_groups[0]["lr"] == 0.01
 
 
 def test_set_accelerator(resnet18):
-    model2 = Model(resnet18, accelerator_config={"fp16": True})
-    model2.compile()
-    assert model2.accelerator
+    model = Model(resnet18, accelerator_config={"precision": 16})
+    model.compile()
+    assert model.accelerator
 
 
 def test_save_model(tmp_path, resnet18, cnn_model):
