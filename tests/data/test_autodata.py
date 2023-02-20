@@ -15,6 +15,7 @@ from pathlib import Path
 
 import pytest
 import torch
+from lightning import fabric
 from lightning.fabric import Fabric
 from torch.utils.data import DataLoader, TensorDataset
 
@@ -47,4 +48,4 @@ def test_dataset():
     accelerator = Fabric()
     autodata = AutoDataset(train_dataset=data.dataset, val_dataset=data.dataset)
     autodata.setup_data(accelerator)
-    assert isinstance(autodata.train_dataloader, DataLoader)
+    assert isinstance(autodata.train_dataloader, fabric.fabric._FabricDataLoader)
