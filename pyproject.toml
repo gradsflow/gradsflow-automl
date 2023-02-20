@@ -14,8 +14,4 @@ line_length = 120
 
 
 [tool.pytest.ini_options]
-#filterwarnings = [
-#  "ignore::DeprecationWarning",
-#  "ignore::UserWarning"
-#]
-norecursedirs = ["tests/autotasks", "tests/tuner", "tests/*/*ray*"]
+norecursedirs = ["tests/autotasks", "tests/tuner", "tests/data/*ray*"]
