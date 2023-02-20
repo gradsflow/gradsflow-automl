@@ -133,6 +133,8 @@ class BaseModel(Base):
             self.device = device or default_device()
 
     def setup(self, learner: Union[nn.Module, List[nn.Module]], *optimizers):
+        if not self._accelerator:
+            return learner, *optimizers
         return self._accelerator.setup(learner, *optimizers)
 
     def backward(self, loss: torch.Tensor):
