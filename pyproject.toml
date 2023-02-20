@@ -13,10 +13,9 @@ profile = "black"
 line_length = 120
 
 
-# pyproject.toml
 [tool.pytest.ini_options]
-filterwarnings = [
-  "ignore::DeprecationWarning",
-  "ignore::UserWarning"
-]
-norecursedirs = "tests/autotasks"
+#filterwarnings = [
+#  "ignore::DeprecationWarning",
+#  "ignore::UserWarning"
+#]
+norecursedirs = ["tests/autotasks", "tests/tuner", "tests/*/*ray*"]

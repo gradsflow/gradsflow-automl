@@ -13,6 +13,7 @@
 #  limitations under the License.
 import dataclasses
 import inspect
+import logging
 import os
 import re
 import sys
@@ -120,7 +121,7 @@ def to_item(data: Any) -> Union[int, float, str, np.ndarray, Dict]:
             data = data.detach()
         data = data.cpu().numpy()
 
-    warnings.warn("to_item didn't convert any value.")
+    logging.info("to_item didn't convert any value.")
     return data
 
 

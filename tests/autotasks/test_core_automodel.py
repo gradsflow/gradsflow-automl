@@ -55,7 +55,7 @@ def test_objective(mock_pl_trainer, mock_fl_trainer):
     model = AutoModel(
         datamodule,
         optimization_metric=optimization_metric,
-        backend=BackendType.pl.value,
+        backend=BackendType.lightning.value,
     )
 
     model.backend.model_builder = MagicMock()

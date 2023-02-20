@@ -25,12 +25,12 @@ from gradsflow.utility.common import module_to_cls_index
 from gradsflow.utility.imports import is_installed
 
 if typing.TYPE_CHECKING:
-    import pytorch_lightning as pl
+    import lightning as L
 
-if is_installed("pytorch_lightning"):
+if is_installed("lightning-flash"):
     from flash import Task
     from flash import Trainer as FlashTrainer
-    from pytorch_lightning import Trainer as PLTrainer
+    from lightning import Trainer as PLTrainer
 else:
     FlashTrainer = None
     PLTrainer = None
@@ -40,10 +40,10 @@ logger = logging.getLogger("core.backend")
 
 class BackendType(Enum):
     # Remove torch
-    pl = "pl"
+    lightning = "lightning"
     gf = "gf"
     torch = "gf"
-    default = "pl"
+    default = "lightning"
 
 
 class Backend:
@@ -90,7 +90,7 @@ class Backend:
 
         trainer_cls = FlashTrainer if isinstance(model, Task) else PLTrainer
 
-        trainer: "pl.Trainer" = trainer_cls(
+        trainer: "L.Trainer" = trainer_cls(
             logger=True,
             accelerator="auto",
             devices="auto",
@@ -122,7 +122,7 @@ class Backend:
             trainer_config dict: configurations passed directly to Lightning Trainer.
             gpu Optional[float]: GPU per trial
         """
-        if self.backend_type == BackendType.pl.value:
+        if self.backend_type == BackendType.lightning.value:
             return self._lightning_objective(config, trainer_config=trainer_config, gpu=gpu, finetune=finetune)
 
         if self.backend_type in (BackendType.gf.value,):
