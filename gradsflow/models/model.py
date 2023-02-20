@@ -46,7 +46,7 @@ class Model(BaseModel, DataMixin):
 
     Args:
         learner: Trainable model
-        accelerator_config: HuggingFace Accelerator config
+        accelerator_config: Accelerator config
     """
 
     TEST = os.environ.get("GF_CI", "false").lower() == "true"
@@ -56,14 +56,14 @@ class Model(BaseModel, DataMixin):
         self,
         learner: Union[nn.Module, Any],
         device: Optional[str] = None,
-        use_accelerate: bool = True,
+        use_accelerator: bool = True,
         accelerator_config: dict = None,
     ):
         accelerator_config = accelerator_config or {}
         super().__init__(
             learner=learner,
             device=device,
-            use_accelerate=use_accelerate,
+            use_accelerator=use_accelerator,
             accelerator_config=accelerator_config,
         )
 
@@ -119,9 +119,9 @@ class Model(BaseModel, DataMixin):
         if optimizer:
             optimizer_fn = self._get_optimizer(optimizer)
             optimizer = optimizer_fn(self.learner.parameters(), lr=learning_rate, **optimizer_config)
-            self.optimizer = self.prepare_optimizer(optimizer)
         if loss:
             self.loss = self._get_loss(loss, loss_config)
+        self.learner, self.optimizer = self.setup(self._learner, optimizer)
         self.metrics.compile_metrics(*listify(metrics))
         self._compiled = True
 
@@ -244,7 +244,7 @@ class Model(BaseModel, DataMixin):
         """
         self.assert_compiled()
         self.autodataset = autodataset
-        self.autodataset.prepare_data(self.accelerator)
+        self.autodataset.setup_data(self.accelerator)
 
         if not resume:
             self.tracker.reset()

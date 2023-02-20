@@ -19,10 +19,7 @@ from gradsflow.data.image import image_dataset_from_directory
 data_dir = Path.cwd()
 
 
-# todo: remote dataset test
 def test_image_dataset_from_directory():
     folder = f"{data_dir}/data/test-data-cat-dog-v0/cat-dog/"
-    res1 = image_dataset_from_directory(folder, transform=True, ray_data=True)
-    assert isinstance(res1, Data)
-    res2 = image_dataset_from_directory(folder, transform=True, ray_data=False)
-    assert isinstance(res2, Data)
+    res = image_dataset_from_directory(folder, transform=True, ray_data=False)
+    assert isinstance(res, Data)

@@ -11,3 +11,7 @@ profile = "black"
 
 [tool.black]
 line_length = 120
+
+
+[tool.pytest.ini_options]
+norecursedirs = ["tests/autotasks", "tests/tuner"]

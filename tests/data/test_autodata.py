@@ -15,7 +15,8 @@ from pathlib import Path
 
 import pytest
 import torch
-from accelerate import Accelerator
+from lightning import fabric
+from lightning.fabric import Fabric
 from torch.utils.data import DataLoader, TensorDataset
 
 from gradsflow.data import AutoDataset
@@ -36,15 +37,15 @@ def test_auto_dataset():
 
 
 def test_sent_to_device():
-    accelerate = Accelerator()
+    accelerator = Fabric()
     autodata = AutoDataset(dataloader)
     assert autodata.device_setup_status is None
-    autodata.prepare_data(accelerate)
+    autodata.setup_data(accelerator)
     assert autodata.device_setup_status
 
 
 def test_dataset():
-    accelerate = Accelerator()
+    accelerator = Fabric()
     autodata = AutoDataset(train_dataset=data.dataset, val_dataset=data.dataset)
-    autodata.prepare_data(accelerate)
-    assert isinstance(autodata.train_dataloader, DataLoader)
+    autodata.setup_data(accelerator)
+    assert isinstance(autodata.train_dataloader, fabric.fabric._FabricDataLoader)

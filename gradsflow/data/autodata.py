@@ -15,7 +15,7 @@ import logging
 import warnings
 from typing import Callable, Dict, Optional, Union
 
-from accelerate import Accelerator
+from lightning.fabric import Fabric
 from torch.utils.data import DataLoader, Dataset
 
 from gradsflow.data.base import BaseAutoDataset
@@ -131,13 +131,13 @@ class AutoDataset(BaseAutoDataset, DataMixin):
         logger.debug("setting device setup=True")
         self.meta["device_setup_status"] = value
 
-    def prepare_data(self, accelerator: Accelerator) -> None:
+    def setup_data(self, accelerator: Fabric) -> None:
         if accelerator is None:
             warnings.warn("Accelerator is None, skipped data preparation!")
             return
-        self._train_dataloader = accelerator.prepare_data_loader(self._train_dataloader)
+        self._train_dataloader = accelerator.setup_dataloaders(self._train_dataloader)
         if self._val_dataloader:
-            self._val_dataloader = accelerator.prepare_data_loader(self._val_dataloader)
+            self._val_dataloader = accelerator.setup_dataloaders(self._val_dataloader)
         self.device_setup_status = True
         self.device = accelerator.device
 

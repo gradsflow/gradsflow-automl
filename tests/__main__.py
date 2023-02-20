@@ -12,15 +12,17 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import urllib.request
+import zipfile
 from pathlib import Path
 
-from flash.core.data.utils import download_data
+cwd = Path.cwd()
+(Path.cwd() / "data").mkdir(exist_ok=True)
 
-cwd = str(Path.cwd())
-
-download_data("https://pl-flash-data.s3.amazonaws.com/hymenoptera_data.zip", f"{cwd}/data")
-
-download_data(
+urllib.request.urlretrieve(
     "https://github.com/gradsflow/test-data/archive/refs/tags/cat-dog-v0.zip",
-    f"{cwd}/data",
+    f"{cwd}/data/test-cat-dog-v0.zip",
 )
+
+with zipfile.ZipFile(f"{cwd}/data/test-cat-dog-v0.zip", "r") as zip_ref:
+    zip_ref.extractall(f"{cwd}/data/")

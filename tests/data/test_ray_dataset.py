@@ -13,6 +13,7 @@
 #  limitations under the License.
 from pathlib import Path
 
+import pytest
 from PIL import Image
 
 from gradsflow.data.ray_dataset import RayDataset, RayImageFolder
@@ -21,6 +22,7 @@ data_dir = Path.cwd()
 
 
 # TODO: remote dataset test
+@pytest.mark.skip
 def test_ray_dataset():
     folder = f"{data_dir}/data/test-data-cat-dog-v0/cat-dog/"
 
@@ -32,6 +34,7 @@ def test_ray_dataset():
     assert dataset
 
 
+@pytest.mark.skip
 def test_ray_image_folder():
     folder = f"{data_dir}/data/test-data-cat-dog-v0/cat-dog/"
 

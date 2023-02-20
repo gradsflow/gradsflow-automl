@@ -11,13 +11,14 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+import logging
 import os
 from dataclasses import dataclass
 from typing import Any, Callable, List, Optional, Union
 
 import smart_open
 import torch
-from accelerate import Accelerator
+from lightning.fabric import Fabric
 from torch import nn
 
 from gradsflow.models.tracker import Tracker
@@ -31,7 +32,7 @@ _OPTIMIZER_INDEX = module_to_cls_index(torch.optim, True)
 class Base:
     TEST = os.environ.get("GF_CI", "false").lower() == "true"
 
-    learner: Union[nn.Module, Any]
+    _learner: Union[nn.Module, Any]
     optimizer: torch.optim.Optimizer = None
     loss: Callable = None
     _compiled: bool = False
@@ -42,6 +43,14 @@ class Base:
 
     def __call__(self, x):
         return self.forward(x)
+
+    @property
+    def learner(self) -> Union[nn.Module, Any]:
+        return self._learner
+
+    @learner.setter
+    def learner(self, learner):
+        self._learner = learner
 
     @staticmethod
     def _get_loss(loss: Union[str, Callable], loss_config: dict) -> Optional[Callable]:
@@ -101,43 +110,24 @@ class BaseModel(Base):
     def __init__(
         self,
         learner: Union[nn.Module, Any],
-        device: Optional[str] = None,
-        use_accelerate: bool = True,
+        device: Optional[str] = "auto",
+        use_accelerator: bool = True,
         accelerator_config: dict = None,
     ):
         self.accelerator = None
         super().__init__()
-        self._set_accelerator(device, use_accelerate, accelerator_config)
-        self.learner = self.prepare_model(learner)
+        self._set_accelerator(device, use_accelerator, accelerator_config)
+        self._learner = learner
 
     def _set_accelerator(self, device: Optional[str], use_accelerate: bool, accelerator_config: dict):
         if use_accelerate:
-            self.accelerator = Accelerator(cpu=(device == "cpu"), **accelerator_config)
+            self.accelerator = Fabric(accelerator=device, **accelerator_config)
             self.device = self.accelerator.device
         else:
             self.device = device or default_device()
 
-    def prepare_model(self, learner: Union[nn.Module, List[nn.Module]]):
-        """Inplace ops for preparing model via HF Accelerator. Automatically sends to device."""
-        if not self.accelerator:
-            learner = learner.to(self.device)
-            return learner
-        if isinstance(learner, (list, tuple)):
-            self.learner = list(map(self.accelerator.prepare_model, learner))
-        elif isinstance(learner, nn.Module):
-            self.learner = self.accelerator.prepare_model(learner)
-        else:
-            raise NotImplementedError(
-                f"prepare_model is not implemented for model of type {type(learner)}! Please implement prepare_model "
-                f"or raise an issue."
-            )
-
-        return self.learner
-
-    def prepare_optimizer(self, optimizer) -> torch.optim.Optimizer:
-        if not self.accelerator:
-            return optimizer
-        return self.accelerator.prepare_optimizer(optimizer)
+    def setup(self, learner: Union[nn.Module, List[nn.Module]], *optimizers):
+        return self.accelerator.setup(learner, *optimizers)
 
     def backward(self, loss: torch.Tensor):
         """model.backward(loss)"""

@@ -15,6 +15,7 @@
 import torchvision
 from timm import create_model
 from torch.utils.data import DataLoader
+from torchmetrics.classification import MulticlassAccuracy
 from torchvision import transforms as T
 
 from gradsflow import AutoDataset, Model
@@ -55,5 +56,5 @@ if __name__ == "__main__":
 
     model = Model(cnn)
 
-    model.compile("crossentropyloss", "adam", metrics=["accuracy"])
+    model.compile("crossentropyloss", "adam", metrics=[MulticlassAccuracy(autodataset.num_classes)])
     model.fit(autodataset, max_epochs=10, steps_per_epoch=10, callbacks=cbs)
