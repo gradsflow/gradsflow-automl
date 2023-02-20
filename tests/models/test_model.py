@@ -14,6 +14,7 @@
 import pytest
 import timm
 import torch
+from torchmetrics.classification import BinaryAccuracy
 
 from gradsflow.callbacks import ModelCheckpoint
 from gradsflow.data import AutoDataset
@@ -77,7 +78,7 @@ def test_compile():
         model2.compile("crossentropyloss", "adam", metrics="random_val")
 
     model3 = Model(cnn)
-    model3.compile("crossentropyloss", "adam", metrics="accuracy")
+    model3.compile("crossentropyloss", "adam", metrics=[BinaryAccuracy()])
 
     model4 = Model(cnn)
     model4.compile("crossentropyloss", torch.optim.Adam)
