@@ -89,7 +89,7 @@ def test_compile():
 
 
 def test_set_accelerator(resnet18):
-    model = Model(resnet18, accelerator_config={"precision": 16})
+    model = Model(resnet18, precision=16)
     model.compile()
     assert model._accelerator
 
