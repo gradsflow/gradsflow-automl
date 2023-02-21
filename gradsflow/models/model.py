@@ -71,6 +71,7 @@ class Model(BaseModel, DataMixin):
             device=device,
             strategy=strategy,
             precision=precision,
+            num_nodes=num_nodes,
             use_accelerator=use_accelerator,
             accelerator_config=accelerator_config,
         )

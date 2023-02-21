@@ -19,7 +19,7 @@ from typing import Any, Dict, Optional, Union
 
 import ray
 from ray import tune
-from ray.tune.sample import Domain
+from ray.tune.search.sample import Domain
 from torch import nn
 
 from gradsflow.data import AutoDataset

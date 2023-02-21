@@ -12,7 +12,6 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 # Source code inspired from https://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html
-
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
@@ -81,7 +80,6 @@ if __name__ == "__main__":
     autodataset = AutoDataset(train_dl, val_dl, num_classes=num_classes)
     net = Net()
     model = Model(net)
-
     criterion = nn.CrossEntropyLoss()
 
     model.compile(

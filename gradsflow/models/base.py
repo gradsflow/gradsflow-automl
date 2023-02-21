@@ -15,6 +15,7 @@ import os
 from dataclasses import dataclass
 from typing import Any, Callable, List, Optional, Union
 
+import lightning as L
 import smart_open
 import torch
 from lightning.fabric import Fabric
@@ -116,7 +117,7 @@ class BaseModel(Base):
         use_accelerator: bool = True,
         accelerator_config: dict = None,
     ):
-        self._accelerator = None
+        self._accelerator: L.Fabric = None
         super().__init__()
         self._set_accelerator(device, strategy, precision, num_nodes, use_accelerator, accelerator_config)
         self._learner = learner
