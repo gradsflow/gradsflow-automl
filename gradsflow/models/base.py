@@ -11,11 +11,11 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-import logging
 import os
 from dataclasses import dataclass
 from typing import Any, Callable, List, Optional, Union
 
+import lightning as L
 import smart_open
 import torch
 from lightning.fabric import Fabric
@@ -111,30 +111,39 @@ class BaseModel(Base):
         self,
         learner: Union[nn.Module, Any],
         device: Optional[str] = "auto",
+        strategy: Optional[str] = None,
+        precision: Any = 32,
+        num_nodes: int = 1,
         use_accelerator: bool = True,
         accelerator_config: dict = None,
     ):
-        self.accelerator = None
+        self._accelerator: L.Fabric = None
         super().__init__()
-        self._set_accelerator(device, use_accelerator, accelerator_config)
+        self._set_accelerator(device, strategy, precision, num_nodes, use_accelerator, accelerator_config)
         self._learner = learner
 
-    def _set_accelerator(self, device: Optional[str], use_accelerate: bool, accelerator_config: dict):
+    def _set_accelerator(
+        self, device: Optional[str], strategy, precision, num_nodes, use_accelerate: bool, accelerator_config: dict
+    ):
         if use_accelerate:
-            self.accelerator = Fabric(accelerator=device, **accelerator_config)
-            self.device = self.accelerator.device
+            self._accelerator = Fabric(
+                accelerator=device, strategy=strategy, precision=precision, num_nodes=num_nodes, **accelerator_config
+            )
+            self.device = self._accelerator.device
         else:
             self.device = device or default_device()
 
     def setup(self, learner: Union[nn.Module, List[nn.Module]], *optimizers):
-        return self.accelerator.setup(learner, *optimizers)
+        if not self._accelerator:
+            return learner, *optimizers
+        return self._accelerator.setup(learner, *optimizers)
 
     def backward(self, loss: torch.Tensor):
         """model.backward(loss)"""
-        if not self.accelerator:
+        if not self._accelerator:
             loss.backward()
         else:
-            self.accelerator.backward(loss)
+            self._accelerator.backward(loss)
 
     def eval(self):
         """Set learner to eval mode for validation"""

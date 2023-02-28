@@ -151,7 +151,7 @@ class AutoDataset(BaseAutoDataset, DataMixin):
         if self.device_setup_status:
             return data
         if device_mapper:
-            data = map(device_mapper, data, self._default_device)
+            data = map(device_mapper, data)
         return data
 
     @property
