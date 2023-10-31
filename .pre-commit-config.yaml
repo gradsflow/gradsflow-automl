@@ -18,7 +18,7 @@ repos:
       - id: check-added-large-files
 
   - repo: https://github.com/psf/black
-    rev: 23.3.0
+    rev: 23.9.1
     hooks:
       - id: black
         name: "Black: The uncompromising Python code formatter"
@@ -31,7 +31,7 @@ repos:
         args: [ "--profile black" ]
 
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.2.5
+    rev: v2.2.6
     hooks:
       - id: codespell
         args:
@@ -41,7 +41,7 @@ repos:
           - "*.bib,*.ipynb"
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.8.0
+    rev: v3.13.0
     hooks:
       - id: pyupgrade
         args: [ --py36-plus ]
