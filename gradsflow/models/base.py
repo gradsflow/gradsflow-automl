@@ -92,16 +92,13 @@ class Base:
         return self.learner(x)
 
     # skipcp: PTC-W0049
-    def backward(self, loss):
-        ...
+    def backward(self, loss): ...
 
     # skipcp: PTC-W0049
-    def eval(self):
-        ...
+    def eval(self): ...
 
     # skipcp: PTC-W0049
-    def train(self):
-        ...
+    def train(self): ...
 
 
 class BaseModel(Base):
