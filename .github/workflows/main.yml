@@ -25,17 +25,17 @@ jobs:
 
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
 
       - name: Cache pip
-        uses: actions/cache@v2
+        uses: actions/cache@v6
         with:
           path: ${{ matrix.path }}
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
@@ -68,10 +68,10 @@ jobs:
 
       - name: Upload Coverage to Codecov
         if: runner.os != 'macOS'
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./coverage.xml
+          files: ./coverage.xml
           flags: unittests
           env_vars: OS,PYTHON
           name: codecov-umbrella
