@@ -12,12 +12,12 @@ jobs:
     timeout-minutes: 15
     strategy:
       matrix:
-        os: [ ubuntu-latest, macos-latest ]
+        os: [ blacksmith-4vcpu-ubuntu-2404, blacksmith-6vcpu-macos-15 ]
         python-version: ["3.9", "3.10"]
         include:
-          - os: ubuntu-latest
+          - os: blacksmith-4vcpu-ubuntu-2404
             path: ~/.cache/pip
-          - os: macos-latest
+          - os: blacksmith-6vcpu-macos-15
             path: ~/Library/Caches/pip
     env:
       OS: ${{ matrix.os }}
@@ -35,7 +35,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Cache pip
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ${{ matrix.path }}
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
