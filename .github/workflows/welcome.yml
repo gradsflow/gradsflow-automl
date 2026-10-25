@@ -4,7 +4,7 @@ on: [pull_request_target, issues]
 
 jobs:
   greeting:
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
     - uses: actions/first-interaction@v1
       with:
